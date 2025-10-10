@@ -1,0 +1,65 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --color-bg: #1f1f1f;
+  --color-white: #f1f1f1;
+  --color-text: #ffffff;
+  --color-text-dark: #1f1f1f;
+  --color-gray: #888888;
+  --color-gray-light: #666666;
+  --color-border: #303030;
+  --color-border-light: #cccccc;
+  --font-mono: "Courier New", monospace;
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    sans-serif;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: 400;
+  line-height: 1.2;
+}
+
+a {
+  color: var(--color-text);
+  text-decoration: none;
+  transition: opacity 0.3s ease;
+}
+
+a:hover {
+  opacity: 0.6;
+}
+
+button {
+  font-family: var(--font-sans);
+  cursor: pointer;
+  border: 1px solid var(--color-text);
+  background: transparent;
+  color: var(--color-text);
+  padding: 0.8rem 2rem;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+button:hover {
+  background: var(--color-text);
+  color: var(--color-bg);
+}
