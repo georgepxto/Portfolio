@@ -22,7 +22,7 @@ const About = () => {
           <div className="about-skills">
             <h3>Habilidades</h3>
             <div className="skills-list">
-              <span>React (em desenvolvimento)</span>
+              <span>React (intermediário)</span>
               <span>JavaScript</span>
               <span>HTML/CSS</span>
               <span>Node.js</span>
