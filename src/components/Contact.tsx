@@ -1,6 +1,9 @@
+import { useScrollAnimation } from "../hooks/useScrollAnimation";
 import "./Contact.css";
 
 const Contact = () => {
+  const { ref, isVisible } = useScrollAnimation();
+
   // Substitua pelo seu número de WhatsApp (com código do país, ex: 5511999999999)
   const whatsappNumber = "5586994767818";
   const whatsappMessage = "Olá! Vim através do seu portfólio.";
@@ -9,8 +12,8 @@ const Contact = () => {
   )}`;
 
   return (
-    <section id="contact" className="contact">
-      <div className="contact-content">
+    <section id="contact" className="contact" ref={ref}>
+      <div className={`contact-content ${isVisible ? "fade-in" : ""}`}>
         <h2 className="section-title">Entre em Contato</h2>
         <div className="contact-info">
           <p className="contact-text">

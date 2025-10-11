@@ -1,9 +1,12 @@
+import { useScrollAnimation } from "../hooks/useScrollAnimation";
 import "./About.css";
 
 const About = () => {
+  const { ref, isVisible } = useScrollAnimation();
+
   return (
-    <section id="about" className="about">
-      <div className="about-content">
+    <section id="about" className="about" ref={ref}>
+      <div className={`about-content ${isVisible ? "fade-in" : ""}`}>
         <h2 className="section-title">Sobre Mim</h2>
         <div className="about-grid">
           <div className="about-text">
