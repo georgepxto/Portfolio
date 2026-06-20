@@ -1,65 +1,88 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+*, *::before, *::after { box-sizing: border-box; }
 
 :root {
-  --color-bg: #1f1f1f;
-  --color-white: #f1f1f1;
-  --color-text: #ffffff;
-  --color-text-dark: #1f1f1f;
-  --color-gray: #888888;
-  --color-gray-light: #666666;
-  --color-border: #303030;
-  --color-border-light: #cccccc;
-  --font-mono: "Courier New", monospace;
-  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
-    sans-serif;
+  --bg: #fbf3ea;
+  --fg: #1a1410;
+  --muted: #857669;
+  --card: #ffffff;
+  --border: #efe3d4;
+  --accent: #ff5a3c;
+  --accent2: #3d4cf5;
+  --accent-ink: #ffffff;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
   margin: 0;
-  font-family: var(--font-sans);
-  background-color: var(--color-bg);
-  color: var(--color-text);
-  line-height: 1.6;
+  background-color: var(--bg);
+  color: var(--fg);
+  font-family: 'DM Sans', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
 }
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  font-weight: 400;
-  line-height: 1.2;
+/* ── Keyframes ── */
+
+@keyframes heroUp {
+  from { opacity: 0; transform: translateY(34px); }
+  to   { opacity: 1; transform: none; }
 }
 
-a {
-  color: var(--color-text);
+@keyframes floatA {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50%       { transform: translate(40px, -30px) scale(1.12); }
+}
+
+@keyframes floatB {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50%       { transform: translate(-50px, 40px) scale(1.18); }
+}
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+@keyframes badgePulse {
+  0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent2) 36%, transparent); }
+  50%       { box-shadow: 0 0 0 5px color-mix(in srgb, var(--accent2) 0%, transparent); }
+}
+
+/* ── FAQ details/summary reset ── */
+
+details summary { list-style: none; }
+details summary::-webkit-details-marker { display: none; }
+
+/* FAQ +/− toggle via CSS so no JS needed */
+.faq-toggle { color: var(--accent); font-weight: 400; font-size: 24px; flex-shrink: 0; line-height: 1; }
+.faq-toggle::after { content: '+'; }
+details[open] .faq-toggle::after { content: '−'; }
+
+/* ── Mobile menu overlay ── */
+
+.mobile-menu {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  background: color-mix(in srgb, var(--bg) 96%, transparent);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 36px;
+}
+
+.mobile-menu a {
+  color: var(--fg);
   text-decoration: none;
-  transition: opacity 0.3s ease;
-}
-
-a:hover {
-  opacity: 0.6;
-}
-
-button {
-  font-family: var(--font-sans);
-  cursor: pointer;
-  border: 1px solid var(--color-text);
-  background: transparent;
-  color: var(--color-text);
-  padding: 0.8rem 2rem;
-  font-size: 1rem;
-  transition: all 0.3s ease;
-}
-
-button:hover {
-  background: var(--color-text);
-  color: var(--color-bg);
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 600;
+  font-size: 32px;
+  letter-spacing: -.02em;
 }

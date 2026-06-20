@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  *{ box-sizing:border-box; }
+  html{ scroll-behavior:smooth; }
+  body{ margin:0; }
+  @keyframes heroUp{ from{ opacity:0; transform:translateY(34px); } to{ opacity:1; transform:none; } }
+  @keyframes floatA{ 0%,100%{ transform:translate(0,0) scale(1); } 50%{ transform:translate(40px,-30px) scale(1.12); } }
+  @keyframes floatB{ 0%,100%{ transform:translate(0,0) scale(1); } 50%{ transform:translate(-50px,40px) scale(1.18); } }
+  @keyframes marquee{ from{ transform:translateX(0); } to{ transform:translateX(-50%); } }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+</style>
+</helmet>
+
+<div ref="{{ rootRef }}" style="--bg:#f3f2ea; --fg:#15140f; --muted:#73726a; --card:#ffffff; --border:#e4e3d8; --accent:#6b4bff; --accent2:#bff03a; --accent-ink:#ffffff; min-height:100vh; background-color:var(--bg); color:var(--fg); font-family:'DM Sans',system-ui,sans-serif; -webkit-font-smoothing:antialiased; overflow-x:hidden;">
+
+  <!-- NAV -->
+  <nav style="position:sticky; top:0; z-index:50; display:flex; align-items:center; justify-content:space-between; padding:18px clamp(20px,5vw,72px); backdrop-filter:saturate(1.4) blur(14px); background:color-mix(in srgb, var(--bg) 78%, transparent); border-bottom:1px solid var(--border);">
+    <a href="#top" style="display:flex; align-items:center; gap:11px; text-decoration:none; color:var(--fg);">
+      <span style="width:30px; height:30px; border-radius:9px; background:var(--accent); display:grid; place-items:center; font-family:'Space Grotesk',sans-serif; font-weight:700; color:var(--accent-ink); font-size:16px;">G</span>
+      <span style="font-family:'Space Mono',monospace; font-size:13px; letter-spacing:.02em;">george<span style="color:var(--muted);">.dev</span></span>
+    </a>
+    <div style="display:flex; align-items:center; gap:clamp(12px,2.4vw,32px);">
+      <div style="display:none; gap:clamp(14px,2vw,30px); font-size:14px;" data-navlinks>
+        <a href="#sobre" style="color:var(--fg); text-decoration:none; opacity:.78;" style-hover="opacity:1;">Sobre</a>
+        <a href="#projetos" style="color:var(--fg); text-decoration:none; opacity:.78;" style-hover="opacity:1;">Projetos</a>
+        <a href="#contato" style="color:var(--fg); text-decoration:none; opacity:.78;" style-hover="opacity:1;">Contato</a>
+      </div>
+      <div style="display:flex; align-items:center; gap:9px; padding-left:clamp(0px,2vw,18px);">
+        <span style="font-family:'Space Mono',monospace; font-size:11px; color:var(--muted); margin-right:3px;">tema</span>
+        <button onClick="{{ setCitrus }}" data-theme-dot="citrus" title="Citrus" style="width:18px; height:18px; border-radius:50%; border:none; cursor:pointer; padding:0; background:linear-gradient(135deg,#6b4bff,#bff03a);"></button>
+        <button onClick="{{ setSunset }}" data-theme-dot="sunset" title="Sunset" style="width:18px; height:18px; border-radius:50%; border:none; cursor:pointer; padding:0; background:linear-gradient(135deg,#ff5a3c,#3d4cf5);"></button>
+        <button onClick="{{ setMidnight }}" data-theme-dot="midnight" title="Midnight" style="width:18px; height:18px; border-radius:50%; border:none; cursor:pointer; padding:0; background:linear-gradient(135deg,#1ee0c2,#ff3da6);"></button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <header id="top" style="position:relative; padding:clamp(64px,12vh,140px) clamp(20px,5vw,72px) clamp(48px,9vh,110px); overflow:hidden;">
+    <sc-if value="{{ showBlobs }}" hint-placeholder-val="{{ true }}">
+      <div style="position:absolute; inset:0; z-index:0; pointer-events:none;">
+        <div style="position:absolute; top:-12%; right:4%; width:46vw; height:46vw; max-width:560px; max-height:560px; background:var(--accent); border-radius:50%; filter:blur(80px); opacity:.2; animation:floatA 13s ease-in-out infinite;"></div>
+        <div style="position:absolute; bottom:-18%; left:-6%; width:42vw; height:42vw; max-width:520px; max-height:520px; background:var(--accent2); border-radius:50%; filter:blur(82px); opacity:.22; animation:floatB 16s ease-in-out infinite;"></div>
+      </div>
+    </sc-if>
+
+    <div style="position:relative; z-index:1; max-width:1180px; margin:0 auto;">
+      <div style="display:inline-flex; align-items:center; gap:9px; padding:7px 14px; border:1px solid var(--border); border-radius:100px; background:color-mix(in srgb, var(--card) 60%, transparent); font-family:'Space Mono',monospace; font-size:12px; letter-spacing:.02em; opacity:0; animation:heroUp .8s .05s cubic-bezier(.2,.7,.2,1) forwards;">
+        <span style="width:8px; height:8px; border-radius:50%; background:var(--accent2); box-shadow:0 0 0 3px color-mix(in srgb, var(--accent2) 40%, transparent);"></span>
+        Aberto para novos projetos · 2026
+      </div>
+
+      <h1 style="font-family:'Space Grotesk',sans-serif; font-weight:700; line-height:.92; letter-spacing:-.03em; font-size:clamp(54px,12vw,178px); margin:26px 0 0;">
+        <span style="display:block; opacity:0; animation:heroUp .9s .12s cubic-bezier(.2,.7,.2,1) forwards;">George</span>
+        <span style="display:block; opacity:0; animation:heroUp .9s .22s cubic-bezier(.2,.7,.2,1) forwards;">Peixoto<span style="color:var(--accent);">.</span></span>
+      </h1>
+
+      <div style="display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:32px; margin-top:clamp(28px,5vh,52px);">
+        <p style="max-width:520px; margin:0; font-size:clamp(17px,2vw,22px); line-height:1.5; color:var(--fg); opacity:0; animation:heroUp .9s .34s cubic-bezier(.2,.7,.2,1) forwards;">
+          <strong style="font-weight:500;">Faço sites e aplicativos que as pessoas adoram usar.</strong> <span style="color:var(--muted);">Cuido de tudo — da aparência ao funcionamento — para que o seu negócio brilhe na internet.</span>
+        </p>
+        <div style="display:flex; gap:12px; opacity:0; animation:heroUp .9s .44s cubic-bezier(.2,.7,.2,1) forwards;">
+          <a href="#contato" style="display:inline-flex; align-items:center; gap:8px; padding:14px 24px; border-radius:100px; background:var(--accent); color:var(--accent-ink); text-decoration:none; font-weight:500; font-size:15px; transition:transform .2s ease, filter .2s ease;" style-hover="transform:translateY(-2px); filter:brightness(1.06);">Falar comigo →</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- MARQUEE -->
+  <div style="border-top:1px solid var(--border); border-bottom:1px solid var(--border); overflow:hidden; padding:16px 0; background:color-mix(in srgb, var(--card) 40%, transparent);">
+    <div style="display:flex; width:max-content; animation:marquee 26s linear infinite; font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:clamp(20px,3vw,34px); letter-spacing:-.01em;">
+      <div style="display:flex; align-items:center; gap:38px; padding-right:38px;">
+        <span>Sites modernos</span><span style="color:var(--accent);">✦</span><span>Lojas online</span><span style="color:var(--accent);">✦</span><span>Aplicativos web</span><span style="color:var(--accent);">✦</span><span>Dashboards</span><span style="color:var(--accent);">✦</span><span>Landing pages</span><span style="color:var(--accent);">✦</span><span>Animações</span><span style="color:var(--accent);">✦</span>
+      </div>
+      <div aria-hidden="true" style="display:flex; align-items:center; gap:38px; padding-right:38px;">
+        <span>Sites modernos</span><span style="color:var(--accent);">✦</span><span>Lojas online</span><span style="color:var(--accent);">✦</span><span>Aplicativos web</span><span style="color:var(--accent);">✦</span><span>Dashboards</span><span style="color:var(--accent);">✦</span><span>Landing pages</span><span style="color:var(--accent);">✦</span><span>Animações</span><span style="color:var(--accent);">✦</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SOBRE -->
+  <section id="sobre" style="padding:clamp(72px,14vh,150px) clamp(20px,5vw,72px); max-width:1180px; margin:0 auto;">
+    <div style="display:grid; grid-template-columns:1fr; gap:clamp(32px,5vw,72px);" data-about-grid>
+      <div data-reveal style="opacity:0; transform:translateY(28px); transition:opacity .8s cubic-bezier(.2,.7,.2,1), transform .8s cubic-bezier(.2,.7,.2,1);">
+        <span style="font-family:'Space Mono',monospace; font-size:12px; color:var(--accent); letter-spacing:.08em;">01 — SOBRE</span>
+      </div>
+      <div data-reveal style="opacity:0; transform:translateY(28px); transition:opacity .8s .08s cubic-bezier(.2,.7,.2,1), transform .8s .08s cubic-bezier(.2,.7,.2,1);">
+        <h2 style="font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:clamp(28px,4.4vw,52px); line-height:1.1; letter-spacing:-.02em; margin:0 0 28px; max-width:18ch;">
+          Seu site precisa ser <span style="background:var(--accent2); color:#15140f; padding:0 .12em; border-radius:4px;">bonito</span> e funcionar de verdade.
+        </h2>
+        <div style="display:flex; flex-wrap:wrap; gap:clamp(28px,4vw,64px); align-items:flex-start;">
+          <p style="max-width:46ch; margin:0; font-size:17px; line-height:1.65; color:var(--muted);">
+            Sou George, desenvolvedor web há mais de um ano. Transformo ideias em sites e aplicativos que encantam quem usa — com design cuidadoso, carregamento rápido e fácil de mexer. Você me conta o que precisa, eu cuido do resto.
+          </p>
+          <div style="display:flex; gap:clamp(28px,4vw,56px);">
+            <div>
+              <div style="font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:clamp(34px,5vw,52px); letter-spacing:-.02em;">1+</div>
+              <div style="font-family:'Space Mono',monospace; font-size:12px; color:var(--muted); margin-top:4px;">ano de<br>experiência</div>
+            </div>
+            <div>
+              <div style="font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:clamp(34px,5vw,52px); letter-spacing:-.02em;">10</div>
+              <div style="font-family:'Space Mono',monospace; font-size:12px; color:var(--muted); margin-top:4px;">projetos<br>no ar</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SKILLS -->
+  <section id="skills" style="padding:0 clamp(20px,5vw,72px) clamp(72px,14vh,150px); max-width:1180px; margin:0 auto;">
+    <div data-reveal style="opacity:0; transform:translateY(28px); transition:opacity .8s cubic-bezier(.2,.7,.2,1), transform .8s cubic-bezier(.2,.7,.2,1); display:flex; align-items:baseline; gap:16px; margin-bottom:34px;">
+      <span style="font-family:'Space Mono',monospace; font-size:12px; color:var(--accent); letter-spacing:.08em;">02 — O QUE FAÇO</span>
+      <span style="height:1px; flex:1; background:var(--border);"></span>
+    </div>
+    <div style="display:flex; flex-wrap:wrap; gap:12px;" data-skillwrap>
+      <span data-reveal style="opacity:0; transform:translateY(20px); transition:opacity .6s cubic-bezier(.2,.7,.2,1), transform .6s cubic-bezier(.2,.7,.2,1); display:inline-flex; align-items:center; gap:9px; padding:12px 20px; border:1px solid var(--border); border-radius:100px; font-size:15px; background:var(--card);">Sites institucionais</span>
+      <span data-reveal style="opacity:0; transform:translateY(20px); transition:opacity .6s .04s cubic-bezier(.2,.7,.2,1), transform .6s .04s cubic-bezier(.2,.7,.2,1); display:inline-flex; align-items:center; gap:9px; padding:12px 20px; border:1px solid var(--border); border-radius:100px; font-size:15px; background:var(--card);">Lojas online</span>
+      <span data-reveal style="opacity:0; transform:translateY(20px); transition:opacity .6s .08s cubic-bezier(.2,.7,.2,1), transform .6s .08s cubic-bezier(.2,.7,.2,1); display:inline-flex; align-items:center; gap:9px; padding:12px 20px; border:1px solid var(--border); border-radius:100px; font-size:15px; background:var(--card);">Aplicativos web</span>
+      <span data-reveal style="opacity:0; transform:translateY(20px); transition:opacity .6s .12s cubic-bezier(.2,.7,.2,1), transform .6s .12s cubic-bezier(.2,.7,.2,1); display:inline-flex; align-items:center; gap:9px; padding:12px 20px; border:1px solid var(--border); border-radius:100px; font-size:15px; background:var(--card);">Landing pages</span>
+      <span data-reveal style="opacity:0; transform:translateY(20px); transition:opacity .6s .16s cubic-bezier(.2,.7,.2,1), transform .6s .16s cubic-bezier(.2,.7,.2,1); display:inline-flex; align-items:center; gap:9px; padding:12px 20px; border:1px solid var(--border); border-radius:100px; font-size:15px; background:var(--card);">Painéis e dashboards</span>
+      <span data-reveal style="opacity:0; transform:translateY(20px); transition:opacity .6s .2s cubic-bezier(.2,.7,.2,1), transform .6s .2s cubic-bezier(.2,.7,.2,1); display:inline-flex; align-items:center; gap:9px; padding:12px 20px; border:1px solid var(--border); border-radius:100px; font-size:15px; background:var(--card);">Animações e efeitos</span>
+      <span data-reveal style="opacity:0; transform:translateY(20px); transition:opacity .6s .24s cubic-bezier(.2,.7,.2,1), transform .6s .24s cubic-bezier(.2,.7,.2,1); display:inline-flex; align-items:center; gap:9px; padding:12px 20px; border:1px solid var(--border); border-radius:100px; font-size:15px; background:var(--card);">Design de interfaces</span>
+      <span data-reveal style="opacity:0; transform:translateY(20px); transition:opacity .6s .28s cubic-bezier(.2,.7,.2,1), transform .6s .28s cubic-bezier(.2,.7,.2,1); display:inline-flex; align-items:center; gap:9px; padding:12px 20px; border:1px solid var(--border); border-radius:100px; font-size:15px; background:var(--card);">Sites rápidos e leves</span>
+      <span data-reveal style="opacity:0; transform:translateY(20px); transition:opacity .6s .32s cubic-bezier(.2,.7,.2,1), transform .6s .32s cubic-bezier(.2,.7,.2,1); display:inline-flex; align-items:center; gap:9px; padding:12px 20px; border:1px solid var(--border); border-radius:100px; font-size:15px; background:var(--card);">Integração com sistemas</span>
+    </div>
+  </section>
+
+  <!-- PROJETOS -->
+  <section id="projetos" style="padding:clamp(64px,12vh,120px) clamp(20px,5vw,72px); background:color-mix(in srgb, var(--card) 50%, transparent); border-top:1px solid var(--border); border-bottom:1px solid var(--border);">
+    <div style="max-width:1180px; margin:0 auto;">
+      <div data-reveal style="opacity:0; transform:translateY(28px); transition:opacity .8s cubic-bezier(.2,.7,.2,1), transform .8s cubic-bezier(.2,.7,.2,1); display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:18px; margin-bottom:clamp(34px,5vw,56px);">
+        <div>
+          <span style="font-family:'Space Mono',monospace; font-size:12px; color:var(--accent); letter-spacing:.08em;">03 — PROJETOS</span>
+          <h2 style="font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:clamp(30px,5vw,58px); line-height:1.04; letter-spacing:-.02em; margin:14px 0 0;">Trabalhos selecionados</h2>
+        </div>
+        <span style="font-family:'Space Mono',monospace; font-size:13px; color:var(--muted);">(2023 — 2026)</span>
+      </div>
+
+      <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(290px,1fr)); gap:clamp(18px,2.2vw,30px);" data-projgrid>
+
+        <article data-reveal style="opacity:0; transform:translateY(30px); transition:opacity .8s cubic-bezier(.2,.7,.2,1), transform .8s cubic-bezier(.2,.7,.2,1); background:var(--bg); border:1px solid var(--border); border-radius:20px; overflow:hidden; cursor:pointer;" style-hover="transform:translateY(-6px); border-color:var(--accent);">
+          <div style="aspect-ratio:4/3; position:relative; background:repeating-linear-gradient(45deg, color-mix(in srgb,var(--accent) 14%, var(--card)) 0 11px, var(--card) 11px 22px); display:grid; place-items:center;">
+            <span style="font-family:'Space Mono',monospace; font-size:11px; color:var(--muted); background:var(--bg); padding:5px 10px; border-radius:6px; border:1px solid var(--border);">project shot — Nimbus</span>
+          </div>
+          <div style="padding:22px 22px 26px;">
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
+              <h3 style="font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:22px; margin:0;">Nimbus</h3>
+              <span style="font-size:20px; transition:transform .2s ease;">↗</span>
+            </div>
+            <p style="margin:8px 0 16px; color:var(--muted); font-size:15px; line-height:1.55;">Painel de controle para uma startup acompanhar métricas em tempo real, com visual moderno e fácil de ler.</p>
+            <div style="display:flex; flex-wrap:wrap; gap:7px;">
+              <span style="font-family:'Space Mono',monospace; font-size:11px; padding:5px 10px; border-radius:100px; background:color-mix(in srgb,var(--accent) 14%, transparent); color:var(--accent);">Painel</span>
+              <span style="font-family:'Space Mono',monospace; font-size:11px; padding:5px 10px; border-radius:100px; background:color-mix(in srgb,var(--accent) 14%, transparent); color:var(--accent);">Métricas</span>
+            </div>
+          </div>
+        </article>
+
+        <article data-reveal style="opacity:0; transform:translateY(30px); transition:opacity .8s .08s cubic-bezier(.2,.7,.2,1), transform .8s .08s cubic-bezier(.2,.7,.2,1); background:var(--bg); border:1px solid var(--border); border-radius:20px; overflow:hidden; cursor:pointer;" style-hover="transform:translateY(-6px); border-color:var(--accent);">
+          <div style="aspect-ratio:4/3; position:relative; background:repeating-linear-gradient(45deg, color-mix(in srgb,var(--accent2) 22%, var(--card)) 0 11px, var(--card) 11px 22px); display:grid; place-items:center;">
+            <span style="font-family:'Space Mono',monospace; font-size:11px; color:var(--muted); background:var(--bg); padding:5px 10px; border-radius:6px; border:1px solid var(--border);">project shot — Folio</span>
+          </div>
+          <div style="padding:22px 22px 26px;">
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
+              <h3 style="font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:22px; margin:0;">Folio</h3>
+              <span style="font-size:20px;">↗</span>
+            </div>
+            <p style="margin:8px 0 16px; color:var(--muted); font-size:15px; line-height:1.55;">Loja online completa com carrinho, pagamento e entrega — tudo funcionando de forma simples para o cliente.</p>
+            <div style="display:flex; flex-wrap:wrap; gap:7px;">
+              <span style="font-family:'Space Mono',monospace; font-size:11px; padding:5px 10px; border-radius:100px; background:color-mix(in srgb,var(--accent) 14%, transparent); color:var(--accent);">Loja online</span>
+              <span style="font-family:'Space Mono',monospace; font-size:11px; padding:5px 10px; border-radius:100px; background:color-mix(in srgb,var(--accent) 14%, transparent); color:var(--accent);">Pagamentos</span>
+            </div>
+          </div>
+        </article>
+
+        <article data-reveal style="opacity:0; transform:translateY(30px); transition:opacity .8s .16s cubic-bezier(.2,.7,.2,1), transform .8s .16s cubic-bezier(.2,.7,.2,1); background:var(--bg); border:1px solid var(--border); border-radius:20px; overflow:hidden; cursor:pointer;" style-hover="transform:translateY(-6px); border-color:var(--accent);">
+          <div style="aspect-ratio:4/3; position:relative; background:repeating-linear-gradient(45deg, color-mix(in srgb,var(--accent) 14%, var(--card)) 0 11px, var(--card) 11px 22px); display:grid; place-items:center;">
+            <span style="font-family:'Space Mono',monospace; font-size:11px; color:var(--muted); background:var(--bg); padding:5px 10px; border-radius:6px; border:1px solid var(--border);">project shot — Pulse</span>
+          </div>
+          <div style="padding:22px 22px 26px;">
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
+              <h3 style="font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:22px; margin:0;">Pulse</h3>
+              <span style="font-size:20px;">↗</span>
+            </div>
+            <p style="margin:8px 0 16px; color:var(--muted); font-size:15px; line-height:1.55;">Aplicativo de música com visual animado e playlists compartilhadas entre amigos em tempo real.</p>
+            <div style="display:flex; flex-wrap:wrap; gap:7px;">
+              <span style="font-family:'Space Mono',monospace; font-size:11px; padding:5px 10px; border-radius:100px; background:color-mix(in srgb,var(--accent) 14%, transparent); color:var(--accent);">App web</span>
+              <span style="font-family:'Space Mono',monospace; font-size:11px; padding:5px 10px; border-radius:100px; background:color-mix(in srgb,var(--accent) 14%, transparent); color:var(--accent);">Animações</span>
+            </div>
+          </div>
+        </article>
+
+        <article data-reveal style="opacity:0; transform:translateY(30px); transition:opacity .8s .24s cubic-bezier(.2,.7,.2,1), transform .8s .24s cubic-bezier(.2,.7,.2,1); background:var(--bg); border:1px solid var(--border); border-radius:20px; overflow:hidden; cursor:pointer;" style-hover="transform:translateY(-6px); border-color:var(--accent);">
+          <div style="aspect-ratio:4/3; position:relative; background:repeating-linear-gradient(45deg, color-mix(in srgb,var(--accent2) 22%, var(--card)) 0 11px, var(--card) 11px 22px); display:grid; place-items:center;">
+            <span style="font-family:'Space Mono',monospace; font-size:11px; color:var(--muted); background:var(--bg); padding:5px 10px; border-radius:6px; border:1px solid var(--border);">project shot — Atlas</span>
+          </div>
+          <div style="padding:22px 22px 26px;">
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
+              <h3 style="font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:22px; margin:0;">Atlas</h3>
+              <span style="font-size:20px;">↗</span>
+            </div>
+            <p style="margin:8px 0 16px; color:var(--muted); font-size:15px; line-height:1.55;">Site para agência com animações suaves ao rolar — da identidade visual à publicação no ar.</p>
+            <div style="display:flex; flex-wrap:wrap; gap:7px;">
+              <span style="font-family:'Space Mono',monospace; font-size:11px; padding:5px 10px; border-radius:100px; background:color-mix(in srgb,var(--accent) 14%, transparent); color:var(--accent);">Site institucional</span>
+              <span style="font-family:'Space Mono',monospace; font-size:11px; padding:5px 10px; border-radius:100px; background:color-mix(in srgb,var(--accent) 14%, transparent); color:var(--accent);">Animações</span>
+            </div>
+          </div>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- COMO FUNCIONA -->
+  <section id="como" style="padding:clamp(72px,14vh,150px) clamp(20px,5vw,72px); max-width:1180px; margin:0 auto;">
+    <div data-reveal style="opacity:0; transform:translateY(28px); transition:opacity .8s cubic-bezier(.2,.7,.2,1), transform .8s cubic-bezier(.2,.7,.2,1); display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:18px; margin-bottom:clamp(34px,5vw,56px);">
+      <div>
+        <span style="font-family:'Space Mono',monospace; font-size:12px; color:var(--accent); letter-spacing:.08em;">04 — COMO FUNCIONA</span>
+        <h2 style="font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:clamp(30px,5vw,58px); line-height:1.04; letter-spacing:-.02em; margin:14px 0 0;">Simples do início ao fim</h2>
+      </div>
+      <p style="max-width:34ch; margin:0; font-size:16px; line-height:1.55; color:var(--muted);">Sem termos complicados. Você acompanha cada etapa e participa das decisões.</p>
+    </div>
+
+    <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:clamp(18px,2.2vw,30px);">
+      <div data-reveal style="opacity:0; transform:translateY(28px); transition:opacity .8s cubic-bezier(.2,.7,.2,1), transform .8s cubic-bezier(.2,.7,.2,1); padding:28px 26px; border:1px solid var(--border); border-radius:20px; background:var(--card);">
+        <div style="font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:18px; width:42px; height:42px; border-radius:12px; display:grid; place-items:center; background:color-mix(in srgb,var(--accent) 14%, transparent); color:var(--accent); margin-bottom:18px;">01</div>
+        <h3 style="font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:20px; margin:0 0 8px;">Conversa</h3>
+        <p style="margin:0; color:var(--muted); font-size:15px; line-height:1.6;">A gente bate um papo sobre sua ideia, seu público e o que você quer alcançar. Sem compromisso.</p>
+      </div>
+      <div data-reveal style="opacity:0; transform:translateY(28px); transition:opacity .8s .08s cubic-bezier(.2,.7,.2,1), transform .8s .08s cubic-bezier(.2,.7,.2,1); padding:28px 26px; border:1px solid var(--border); border-radius:20px; background:var(--card);">
+        <div style="font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:18px; width:42px; height:42px; border-radius:12px; display:grid; place-items:center; background:color-mix(in srgb,var(--accent) 14%, transparent); color:var(--accent); margin-bottom:18px;">02</div>
+        <h3 style="font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:20px; margin:0 0 8px;">Proposta</h3>
+        <p style="margin:0; color:var(--muted); font-size:15px; line-height:1.6;">Te mostro o que será feito, o prazo e o valor — tudo claro e por escrito, antes de começar.</p>
+      </div>
+      <div data-reveal style="opacity:0; transform:translateY(28px); transition:opacity .8s .16s cubic-bezier(.2,.7,.2,1), transform .8s .16s cubic-bezier(.2,.7,.2,1); padding:28px 26px; border:1px solid var(--border); border-radius:20px; background:var(--card);">
+        <div style="font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:18px; width:42px; height:42px; border-radius:12px; display:grid; place-items:center; background:color-mix(in srgb,var(--accent) 14%, transparent); color:var(--accent); margin-bottom:18px;">03</div>
+        <h3 style="font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:20px; margin:0 0 8px;">Desenvolvimento</h3>
+        <p style="margin:0; color:var(--muted); font-size:15px; line-height:1.6;">Crio seu site mostrando o progresso no caminho. Você dá sua opinião e ajustamos juntos.</p>
+      </div>
+      <div data-reveal style="opacity:0; transform:translateY(28px); transition:opacity .8s .24s cubic-bezier(.2,.7,.2,1), transform .8s .24s cubic-bezier(.2,.7,.2,1); padding:28px 26px; border:1px solid var(--border); border-radius:20px; background:var(--card);">
+        <div style="font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:18px; width:42px; height:42px; border-radius:12px; display:grid; place-items:center; background:var(--accent2); color:#15140f; margin-bottom:18px;">04</div>
+        <h3 style="font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:20px; margin:0 0 8px;">Site no ar</h3>
+        <p style="margin:0; color:var(--muted); font-size:15px; line-height:1.6;">Publico tudo funcionando e te ensino a mexer. E continuo por perto para o que precisar.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section id="faq" style="padding:0 clamp(20px,5vw,72px) clamp(72px,14vh,150px); max-width:860px; margin:0 auto;">
+    <div data-reveal style="opacity:0; transform:translateY(28px); transition:opacity .8s cubic-bezier(.2,.7,.2,1), transform .8s cubic-bezier(.2,.7,.2,1); margin-bottom:clamp(28px,4vw,44px);">
+      <span style="font-family:'Space Mono',monospace; font-size:12px; color:var(--accent); letter-spacing:.08em;">05 — PERGUNTAS FREQUENTES</span>
+      <h2 style="font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:clamp(30px,5vw,58px); line-height:1.04; letter-spacing:-.02em; margin:14px 0 0;">Dúvidas comuns</h2>
+    </div>
+
+    <div style="display:flex; flex-direction:column; gap:12px;">
+      <details data-reveal style="opacity:0; transform:translateY(20px); transition:opacity .7s cubic-bezier(.2,.7,.2,1), transform .7s cubic-bezier(.2,.7,.2,1); border:1px solid var(--border); border-radius:16px; background:var(--card); overflow:hidden;">
+        <summary style="cursor:pointer; list-style:none; padding:22px 24px; font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:clamp(17px,2.2vw,20px); display:flex; align-items:center; justify-content:space-between; gap:16px;">Quanto custa um site?<span style="color:var(--accent); font-weight:400; font-size:24px;">+</span></summary>
+        <div style="padding:0 24px 24px; color:var(--muted); font-size:16px; line-height:1.6;">Depende do tamanho e do que você precisa. Um site simples tem um valor; uma loja online ou um sistema mais completo, outro. Na nossa conversa eu te passo um orçamento claro e sem surpresas.</div>
+      </details>
+      <details data-reveal style="opacity:0; transform:translateY(20px); transition:opacity .7s .06s cubic-bezier(.2,.7,.2,1), transform .7s .06s cubic-bezier(.2,.7,.2,1); border:1px solid var(--border); border-radius:16px; background:var(--card); overflow:hidden;">
+        <summary style="cursor:pointer; list-style:none; padding:22px 24px; font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:clamp(17px,2.2vw,20px); display:flex; align-items:center; justify-content:space-between; gap:16px;">Quanto tempo leva para ficar pronto?<span style="color:var(--accent); font-weight:400; font-size:24px;">+</span></summary>
+        <div style="padding:0 24px 24px; color:var(--muted); font-size:16px; line-height:1.6;">Um site institucional costuma ficar pronto em 1 a 3 semanas. Projetos maiores levam mais tempo — mas você sempre saberá o prazo antes de começarmos.</div>
+      </details>
+      <details data-reveal style="opacity:0; transform:translateY(20px); transition:opacity .7s .12s cubic-bezier(.2,.7,.2,1), transform .7s .12s cubic-bezier(.2,.7,.2,1); border:1px solid var(--border); border-radius:16px; background:var(--card); overflow:hidden;">
+        <summary style="cursor:pointer; list-style:none; padding:22px 24px; font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:clamp(17px,2.2vw,20px); display:flex; align-items:center; justify-content:space-between; gap:16px;">Preciso ter o conteúdo pronto?<span style="color:var(--accent); font-weight:400; font-size:24px;">+</span></summary>
+        <div style="padding:0 24px 24px; color:var(--muted); font-size:16px; line-height:1.6;">Ajuda bastante ter textos e fotos, mas não se preocupe se ainda não tiver tudo. Eu te oriento sobre o que reunir e organizo as informações junto com você.</div>
+      </details>
+      <details data-reveal style="opacity:0; transform:translateY(20px); transition:opacity .7s .18s cubic-bezier(.2,.7,.2,1), transform .7s .18s cubic-bezier(.2,.7,.2,1); border:1px solid var(--border); border-radius:16px; background:var(--card); overflow:hidden;">
+        <summary style="cursor:pointer; list-style:none; padding:22px 24px; font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:clamp(17px,2.2vw,20px); display:flex; align-items:center; justify-content:space-between; gap:16px;">Consigo atualizar o site depois sozinho?<span style="color:var(--accent); font-weight:400; font-size:24px;">+</span></summary>
+        <div style="padding:0 24px 24px; color:var(--muted); font-size:16px; line-height:1.6;">Sim! Entrego tudo funcionando e te ensino a fazer as alterações do dia a dia. E se precisar de uma mão, é só me chamar.</div>
+      </details>
+    </div>
+  </section>
+
+  <!-- CONTATO -->
+  <section id="contato" style="padding:clamp(80px,16vh,180px) clamp(20px,5vw,72px); position:relative; overflow:hidden;">
+    <sc-if value="{{ showBlobs }}" hint-placeholder-val="{{ true }}">
+      <div style="position:absolute; bottom:-30%; left:50%; transform:translateX(-50%); width:60vw; height:60vw; max-width:680px; max-height:680px; background:var(--accent); border-radius:50%; filter:blur(100px); opacity:.14; pointer-events:none; animation:floatA 18s ease-in-out infinite;"></div>
+    </sc-if>
+    <div data-reveal style="opacity:0; transform:translateY(28px); transition:opacity .9s cubic-bezier(.2,.7,.2,1), transform .9s cubic-bezier(.2,.7,.2,1); position:relative; z-index:1; max-width:1180px; margin:0 auto; text-align:center;">
+      <span style="font-family:'Space Mono',monospace; font-size:12px; color:var(--accent); letter-spacing:.08em;">06 — CONTATO</span>
+      <h2 style="font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:clamp(38px,9vw,118px); line-height:.98; letter-spacing:-.03em; margin:18px 0 0;">Vamos construir<br>algo <span style="color:var(--accent);">juntos?</span></h2>
+      <p style="max-width:42ch; margin:26px auto 36px; font-size:18px; line-height:1.55; color:var(--muted);">Tem uma ideia? Quer renovar seu site? Só quer tirar uma dúvida? Me manda uma mensagem — respondo rapidinho.</p>
+      <div style="display:flex; flex-wrap:wrap; gap:14px; justify-content:center;">
+        <a href="mailto:hello@georgepeixoto.dev" style="display:inline-flex; align-items:center; gap:8px; padding:18px 34px; border-radius:100px; background:var(--accent); color:var(--accent-ink); text-decoration:none; font-weight:600; font-size:clamp(15px,2vw,18px); transition:transform .2s ease, filter .2s ease;" style-hover="transform:translateY(-3px); filter:brightness(1.07);">hello@georgepeixoto.dev →</a>
+        <a href="https://wa.me/5511999999999" target="_blank" style="display:inline-flex; align-items:center; gap:8px; padding:18px 34px; border-radius:100px; background:#25D366; color:#ffffff; text-decoration:none; font-weight:600; font-size:clamp(15px,2vw,18px); transition:transform .2s ease, filter .2s ease;" style-hover="transform:translateY(-3px); filter:brightness(1.05);">WhatsApp →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer style="border-top:1px solid var(--border); padding:32px clamp(20px,5vw,72px); display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:16px; max-width:1180px; margin:0 auto;">
+    <span style="font-family:'Space Mono',monospace; font-size:13px; color:var(--muted);">© 2026 George Peixoto</span>
+    <div style="display:flex; gap:22px; font-size:14px;">
+      <a href="https://github.com/georgepeixoto" style="color:var(--fg); text-decoration:none; opacity:.78;" style-hover="opacity:1;">GitHub</a>
+      <a href="https://instagram.com/georgepeixoto" style="color:var(--fg); text-decoration:none; opacity:.78;" style-hover="opacity:1;">Instagram</a>
+    </div>
+  </footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1280,&quot;height&quot;:900},&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;citrus&quot;,&quot;sunset&quot;,&quot;midnight&quot;],&quot;default&quot;:&quot;citrus&quot;,&quot;tsType&quot;:&quot;'citrus'|'sunset'|'midnight'&quot;},&quot;showBlobs&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;}}">
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.rootRef = React.createRef();
+    this.themes = {
+      citrus:   { bg:'#f3f2ea', fg:'#15140f', muted:'#73726a', card:'#ffffff', border:'#e4e3d8', accent:'#6b4bff', accent2:'#bff03a', 'accent-ink':'#ffffff' },
+      sunset:   { bg:'#fbf3ea', fg:'#1a1410', muted:'#857669', card:'#ffffff', border:'#efe3d4', accent:'#ff5a3c', accent2:'#3d4cf5', 'accent-ink':'#ffffff' },
+      midnight: { bg:'#0d0d12', fg:'#f1f1f4', muted:'#8d8d99', card:'#17171f', border:'#272730', accent:'#1ee0c2', accent2:'#ff3da6', 'accent-ink':'#0d0d12' }
+    };
+  }
+
+  applyTheme(name) {
+    const t = this.themes[name] || this.themes.citrus;
+    const r = this.rootRef.current;
+    if (!r) return;
+    Object.entries(t).forEach(([k, v]) => r.style.setProperty('--' + k, v));
+    r.querySelectorAll('[data-theme-dot]').forEach(d => {
+      const active = d.getAttribute('data-theme-dot') === name;
+      d.style.boxShadow = active ? '0 0 0 2px var(--bg), 0 0 0 4px var(--fg)' : 'none';
+      d.style.transform = active ? 'scale(1.18)' : 'none';
+      d.style.transition = 'transform .2s ease, box-shadow .2s ease';
+    });
+  }
+
+  componentDidMount() {
+    const root = this.rootRef.current;
+    if (!root) return;
+    const els = Array.from(root.querySelectorAll('[data-reveal]'));
+    const reveal = (el) => { el.style.opacity = '1'; el.style.transform = 'none'; };
+    if ('IntersectionObserver' in window) {
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach((e) => { if (e.isIntersecting) { reveal(e.target); io.unobserve(e.target); } });
+      }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
+      els.forEach((el) => io.observe(el));
+      setTimeout(() => els.forEach((el) => { if (getComputedStyle(el).opacity === '0') reveal(el); }), 3000);
+    } else {
+      els.forEach(reveal);
+    }
+
+    // responsive nav links (show on wider screens)
+    const navlinks = root.querySelector('[data-navlinks]');
+    const syncNav = () => { if (navlinks) navlinks.style.display = window.innerWidth > 720 ? 'flex' : 'none'; };
+    syncNav();
+    window.addEventListener('resize', syncNav);
+    this._syncNav = syncNav;
+
+    this.applyTheme(this.props.theme || 'citrus');
+  }
+
+  componentDidUpdate(prev) {
+    if (prev && prev.theme !== this.props.theme) this.applyTheme(this.props.theme || 'citrus');
+  }
+
+  componentWillUnmount() {
+    if (this._syncNav) window.removeEventListener('resize', this._syncNav);
+  }
+
+  renderVals() {
+    return {
+      rootRef: this.rootRef,
+      showBlobs: this.props.showBlobs !== false,
+      setCitrus: () => this.applyTheme('citrus'),
+      setSunset: () => this.applyTheme('sunset'),
+      setMidnight: () => this.applyTheme('midnight')
+    };
+  }
+}
+</script>
+</body>
+</html>
