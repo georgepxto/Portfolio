@@ -41,15 +41,18 @@ export default function Contact() {
 
         <h2 style={{
           fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700,
-          fontSize: 'clamp(38px, 9vw, 118px)', lineHeight: .98,
-          letterSpacing: '-.03em', margin: '18px 0 0',
+          fontSize: 'clamp(32px, 5.5vw, 68px)', lineHeight: 1.1,
+          letterSpacing: '-.03em', margin: '18px auto 0',
+          maxWidth: '17ch',
         }}>
-          Vamos construir<br />algo{' '}
-          <span style={{ color: 'var(--accent)' }}>juntos?</span>
+          Seu próximo projeto digital começa com a{' '}
+          <span style={{ color: 'var(--accent)' }}>estratégia certa.</span>
         </h2>
 
-        <p style={{ maxWidth: '42ch', margin: '26px auto 36px', fontSize: 18, lineHeight: 1.55, color: 'var(--muted)' }}>
-          Tem uma ideia? Quer renovar seu site? Só quer tirar uma dúvida? Me manda uma mensagem — respondo rapidinho.
+        <p style={{ maxWidth: '54ch', margin: '26px auto 36px', fontSize: 18, lineHeight: 1.55, color: 'var(--muted)' }}>
+          Tem uma ideia, um projeto em mente ou quer melhorar seu site atual? Conte comigo para transformar seus
+          objetivos em uma experiência digital moderna, profissional e eficiente. Envie uma mensagem e vamos
+          conversar.
         </p>
 
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 14, justifyContent: 'center' }}>

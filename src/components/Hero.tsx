@@ -66,9 +66,9 @@ export default function Hero() {
             opacity: 0,
             animation: 'heroUp .9s .34s cubic-bezier(.2,.7,.2,1) forwards',
           }}>
-            <strong style={{ fontWeight: 500 }}>Faço sites e aplicativos que as pessoas adoram usar.</strong>{' '}
+            <strong style={{ fontWeight: 500 }}>Projeto e desenvolvo sites e aplicativos modernos que combinam design, tecnologia e estratégia.</strong>{' '}
             <span style={{ color: 'var(--muted)' }}>
-              Cuido de tudo — da aparência ao funcionamento — para que o seu negócio brilhe na internet.
+              Crio experiências digitais que encantam quem usa, geram confiança e fazem o seu negócio crescer de verdade.
             </span>
           </p>
 

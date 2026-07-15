@@ -32,18 +32,18 @@ export default function About() {
           lineHeight: 1.1, letterSpacing: '-.02em',
           margin: '0 0 28px', maxWidth: '18ch',
         }}>
-          Seu site precisa ser{' '}
-          <span style={{ background: 'var(--accent2)', color: '#15140f', padding: '0 .12em', borderRadius: 4 }}>
-            bonito
-          </span>
-          {' '}e funcionar de verdade.
+          Seu site deve impressionar visualmente e gerar{' '}
+          <span style={{ fontWeight: 700 }}>
+            resultados reais
+          </span>.
         </h2>
 
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'clamp(28px, 4vw, 64px)', alignItems: 'flex-start' }}>
           <p style={{ maxWidth: '46ch', margin: 0, fontSize: 17, lineHeight: 1.65, color: 'var(--muted)' }}>
-            Sou George, desenvolvedor web há mais de um ano. Transformo ideias em sites e aplicativos que encantam
-            quem usa — com design cuidadoso, carregamento rápido e fácil de mexer. Você me conta o que precisa,
-            eu cuido do resto.
+            Sou George Peixoto, desenvolvedor web há mais de um ano, com base em Análise e Desenvolvimento de
+            Sistemas e formação complementar na Origamid e na Rocketseat. Trabalho do back-end ao front-end —
+            com Node, PHP, Vue, React e TypeScript — para transformar ideias em sites e aplicativos que encantam
+            quem usa. Você me conta o que precisa, eu cuido do resto.
           </p>
 
           <div style={{ display: 'flex', gap: 'clamp(28px, 4vw, 56px)' }}>
