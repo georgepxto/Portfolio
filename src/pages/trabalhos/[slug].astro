@@ -23,7 +23,7 @@ interface Props {
 }
 
 const { project, next } = Astro.props;
-const { title, year, client, role, stack, status, summary, url, cover } = project.data;
+const { title, label, year, client, role, stack, status, summary, url, cover } = project.data;
 const { Content } = await render(project);
 const ogImage = cover ? (await getImage({ src: cover, width: 1200, format: 'jpg' })).src : undefined;
 const host = url ? new URL(url).hostname.replace(/^www\./, '') : undefined;
@@ -37,7 +37,7 @@ const details = [
 ---
 
 <BaseLayout
-  title={`${title} · Estudo de caso · ${fullName}`}
+  title={`${title} · ${label} · ${fullName}`}
   description={summary}
   image={ogImage}
   type="article"
@@ -49,7 +49,7 @@ const details = [
     </a>
 
     <header class="case-header">
-      <p class="meta mono">Estudo de caso · {year}</p>
+      <p class="meta mono">{label} · {year}</p>
       <h1 id="case-title">{title}</h1>
       <p class="summary">{summary}</p>
       {

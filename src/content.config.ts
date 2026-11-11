@@ -7,6 +7,7 @@ const projects = defineCollection({
   schema: ({ image }) =>
     z.object({
       title: z.string(),
+      label: z.string().default('Projeto'),
       slug: z.string(),
       order: z.number(),
       featured: z.boolean().default(false),

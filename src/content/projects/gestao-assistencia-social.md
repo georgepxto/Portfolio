@@ -1,5 +1,6 @@
 ---
 title: Gestão de assistência social
+label: Estudo de caso
 slug: gestao-assistencia-social
 order: 1
 featured: true
