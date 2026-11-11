@@ -1,4 +1,6 @@
 ---
+import Menu from '@lucide/astro/icons/menu';
+import X from '@lucide/astro/icons/x';
 import GithubIcon from './GithubIcon.astro';
 import GridRow from './GridRow.astro';
 import { githubUrl } from '../config/site';
@@ -12,39 +14,67 @@ const links = [
 ];
 ---
 
-<GridRow as="header" class="site-header-row">
-<div class="site-header">
-  <a class="logo mono" href="/#topo" aria-label="George, início">george<span aria-hidden="true">/</span></a>
-  <nav aria-label="Principal">
+<header class="site-header" data-site-header>
+  <GridRow class="site-header-row">
+    <div class="bar">
+      <a class="logo mono" href="/#topo" aria-label="George, início">george<span aria-hidden="true">/</span></a>
+      <nav class="nav-inline" aria-label="Principal">
+        <ul role="list">
+          {
+            links.map((link) => (
+              <li>
+                <a href={link.href}>{link.label}</a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+      <a class="icon-link" href={githubUrl} aria-label="GitHub de George" rel="noopener" target="_blank">
+        <GithubIcon />
+      </a>
+      <button
+        class="menu-toggle"
+        type="button"
+        aria-label="Abrir menu"
+        aria-expanded="false"
+        aria-controls="menu-celular"
+        data-menu-toggle
+      >
+        <Menu class="icon-menu" aria-hidden="true" />
+        <X class="icon-close" aria-hidden="true" />
+      </button>
+    </div>
+  </GridRow>
+
+  <nav id="menu-celular" class="menu-panel" aria-label="Principal" data-menu-panel>
     <ul role="list">
       {
         links.map((link) => (
-          <li>
+          <GridRow as="li" class="menu-row">
             <a href={link.href}>{link.label}</a>
-          </li>
+          </GridRow>
         ))
       }
     </ul>
   </nav>
-  <a class="icon-link" href={githubUrl} aria-label="GitHub de George" rel="noopener" target="_blank">
-    <GithubIcon />
-  </a>
-</div>
-</GridRow>
+</header>
 
 <style>
-  :global(.site-header-row) {
+  .site-header {
     position: sticky;
     top: 0;
     z-index: 20;
+  }
+
+  :global(.site-header-row),
+  :global(.menu-row) {
     background: var(--bg);
   }
 
-  .site-header {
+  .bar {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    flex-wrap: wrap;
     gap: 0 4px;
     min-height: var(--header-height);
     padding: 0 var(--gutter);
@@ -64,7 +94,7 @@ const links = [
     color: var(--accent);
   }
 
-  ul {
+  .nav-inline ul {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -72,7 +102,7 @@ const links = [
     margin: 0;
   }
 
-  nav a,
+  .nav-inline a,
   .icon-link {
     display: inline-flex;
     align-items: center;
@@ -85,7 +115,7 @@ const links = [
     transition: color 0.15s ease;
   }
 
-  nav a:hover,
+  .nav-inline a:hover,
   .icon-link:hover {
     color: var(--text);
   }
@@ -95,29 +125,121 @@ const links = [
     margin-right: -12px;
   }
 
+  .menu-toggle,
+  .menu-panel {
+    display: none;
+  }
+
   @media (max-width: 640px) {
-    .site-header {
-      padding-top: 4px;
-      padding-bottom: 4px;
+    .bar {
+      gap: 0;
+      padding: 0 6px 0 12px;
+    }
+
+    .nav-inline {
+      display: none;
     }
 
     .icon-link {
-      order: 1;
+      margin-right: 0;
     }
 
-    nav {
-      order: 2;
-      flex-basis: 100%;
+    .menu-toggle {
+      display: grid;
+      place-items: center;
+      width: 36px;
+      height: 36px;
+      margin-left: 4px;
+      padding: 0;
+      border: 1px solid var(--border-strong);
+      border-radius: 6px;
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: color 0.15s ease, border-color 0.15s ease;
     }
 
-    ul {
-      margin-left: -6px;
-      gap: 0;
+    .menu-toggle:hover {
+      color: var(--text);
+      border-color: var(--text-faint);
     }
 
-    nav a {
-      padding: 0 6px;
-      font-size: 13.5px;
+    .menu-toggle :global(svg) {
+      width: 18px;
+      height: 18px;
+    }
+
+    .menu-toggle :global(.icon-close),
+    .menu-toggle[aria-expanded='true'] :global(.icon-menu) {
+      display: none;
+    }
+
+    .menu-toggle[aria-expanded='true'] :global(.icon-close) {
+      display: block;
+    }
+
+    .menu-panel {
+      display: block;
+    }
+
+    :global(html.js) .menu-panel {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+    }
+
+    :global(html.js) .menu-panel:not(.is-open) {
+      display: none;
+    }
+
+    :global(html:not(.js)) .site-header {
+      position: static;
+    }
+
+    :global(.menu-row) {
+      height: 48px;
+    }
+
+    .menu-panel a {
+      display: flex;
+      align-items: center;
+      height: 100%;
+      padding: 0 12px;
+      font-size: 15px;
+      color: var(--text-muted);
+      transition: color 0.15s ease, background-color 0.15s ease;
+    }
+
+    .menu-panel a:hover {
+      color: var(--text);
+      background: var(--surface);
     }
   }
 </style>
+
+<script>
+  const header = document.querySelector<HTMLElement>('[data-site-header]');
+  const toggle = header?.querySelector<HTMLButtonElement>('[data-menu-toggle]');
+  const panel = header?.querySelector<HTMLElement>('[data-menu-panel]');
+
+  if (header && toggle && panel) {
+    const setOpen = (open: boolean) => {
+      panel.classList.toggle('is-open', open);
+      toggle.setAttribute('aria-expanded', String(open));
+      toggle.setAttribute('aria-label', open ? 'Fechar menu' : 'Abrir menu');
+    };
+
+    toggle.addEventListener('click', () => setOpen(toggle.getAttribute('aria-expanded') !== 'true'));
+
+    panel.addEventListener('click', (event) => {
+      if ((event.target as HTMLElement).closest('a')) setOpen(false);
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key !== 'Escape' || toggle.getAttribute('aria-expanded') !== 'true') return;
+      setOpen(false);
+      toggle.focus();
+    });
+  }
+</script>

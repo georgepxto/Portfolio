@@ -7,6 +7,8 @@ import MapPin from '@lucide/astro/icons/map-pin';
 import Mail from '@lucide/astro/icons/mail';
 import Clock from '@lucide/astro/icons/clock';
 import MessageCircle from '@lucide/astro/icons/message-circle';
+import Copy from '@lucide/astro/icons/copy';
+import Check from '@lucide/astro/icons/check';
 import { siGithub, siInstagram } from 'simple-icons';
 import GridRow from './GridRow.astro';
 import HatchBand from './HatchBand.astro';
@@ -21,6 +23,8 @@ const photos = import.meta.glob<{ default: ImageMetadata }>('../assets/photo.{jp
 });
 const photo = Object.values(photos)[0]?.default;
 
+const phone = formatPhone(whatsappNumber || site.whatsapp);
+
 const socials = [
   { label: 'GitHub', href: site.github ? githubUrl : '', path: siGithub.path },
   { label: 'LinkedIn', href: site.linkedin, path: linkedinIcon.path },
@@ -28,68 +32,76 @@ const socials = [
 ].filter((social) => social.href);
 ---
 
-<GridRow as="section" id="topo" class="name-row" aria-labelledby="hero-title">
-  <div class="name">
-    <div class="avatar-cell">
-      <Dimension axis="vertical" size={tokens.avatar} label={`Ø${tokens.avatar}`} side="left" />
-      {
-        photo ? (
-          <Image
-            src={photo}
-            alt={`Foto de ${fullName}`}
-            width={tokens.avatar}
-            height={tokens.avatar}
-            densities={[1, 2]}
-            fit="cover"
-            loading="eager"
-          />
-        ) : (
-          <div class="avatar-placeholder mono" aria-hidden="true">
-            [FOTO]
-          </div>
-        )
-      }
+<section id="topo" aria-labelledby="hero-title">
+  <GridRow class="cover-row" aria-hidden="true" />
+  <GridRow class="identity-row">
+    <div class="name">
+      <div class="avatar-cell">
+        <Dimension axis="vertical" size={tokens.avatar} label={`Ø${tokens.avatar}`} side="left" />
+        {
+          photo ? (
+            <Image
+              src={photo}
+              alt={`Foto de ${fullName}`}
+              width={tokens.avatar}
+              height={tokens.avatar}
+              densities={[1, 2]}
+              fit="cover"
+              loading="eager"
+            />
+          ) : (
+            <div class="avatar-placeholder mono" aria-hidden="true">
+              [FOTO]
+            </div>
+          )
+        }
+      </div>
+      <div class="identity">
+        <h1 id="hero-title">{fullName}</h1>
+        <p class="role mono">{site.role}.</p>
+      </div>
     </div>
-    <div class="identity">
-      <h1 id="hero-title">{fullName}</h1>
-      <p class="role mono">{site.role}.</p>
-    </div>
-  </div>
-</GridRow>
+  </GridRow>
+</section>
 
 <HatchBand dimension />
 
 <GridRow>
-  <div class="info">
-    <ul class="info-col" role="list">
-      <li>
-        <span class="icon-box"><CodeXml aria-hidden="true" /></span>
-        <span>Desenvolvedor web freelancer</span>
-      </li>
-      <li>
-        <span class="icon-box"><MapPin aria-hidden="true" /></span>
-        <span>{site.city}, {site.stateName}, Brasil</span>
-      </li>
-      <li>
-        <span class="icon-box"><Mail aria-hidden="true" /></span>
-        <a href={emailUrl}>{site.email}</a>
-      </li>
-    </ul>
-    <ul class="info-col info-col-end" role="list">
-      <li>
-        <span class="icon-box"><Clock aria-hidden="true" /></span>
-        <LocalClock />
-      </li>
-      <li>
-        <span class="icon-box"><MessageCircle aria-hidden="true" /></span>
-        <a href={whatsappUrl} target="_blank" rel="noopener">{formatPhone(whatsappNumber || site.whatsapp)}</a>
-      </li>
-      <li>
-        <span class="icon-box"><span class="status-dot" aria-hidden="true"></span></span>
-        <span class="accent">Disponível para novos projetos</span>
-      </li>
-    </ul>
-  </div>
+  <ul class="info" role="list">
+    <li class="info-freelancer">
+      <span class="icon-box"><CodeXml aria-hidden="true" /></span>
+      <span class="text">Desenvolvedor web freelancer</span>
+    </li>
+    <li class="info-place">
+      <span class="icon-box"><MapPin aria-hidden="true" /></span>
+      <span class="text">{site.city}, {site.stateName}, Brasil</span>
+    </li>
+    <li class="info-mail">
+      <span class="icon-box"><Mail aria-hidden="true" /></span>
+      <a class="text" href={emailUrl}>{site.email}</a>
+      <button class="copy" type="button" aria-label="Copiar e-mail" data-copy={site.email} data-done="E-mail copiado">
+        <Copy class="icon-copy" aria-hidden="true" />
+        <Check class="icon-check" aria-hidden="true" />
+      </button>
+    </li>
+    <li class="info-clock">
+      <span class="icon-box"><Clock aria-hidden="true" /></span>
+      <LocalClock />
+    </li>
+    <li class="info-whatsapp">
+      <span class="icon-box"><MessageCircle aria-hidden="true" /></span>
+      <a class="text" href={whatsappUrl} target="_blank" rel="noopener">{phone}</a>
+      <button class="copy" type="button" aria-label="Copiar número" data-copy={`+55 ${phone}`} data-done="Número copiado">
+        <Copy class="icon-copy" aria-hidden="true" />
+        <Check class="icon-check" aria-hidden="true" />
+      </button>
+    </li>
+    <li class="info-status">
+      <span class="icon-box"><span class="status-dot" aria-hidden="true"></span></span>
+      <span class="text accent">Disponível para novos projetos</span>
+    </li>
+  </ul>
+  <span class="visually-hidden" role="status" data-copy-status></span>
 </GridRow>
 
 <GridRow>
@@ -112,29 +124,40 @@ const socials = [
       )
     }
     <a class="button button-primary whatsapp" href={whatsappUrl} target="_blank" rel="noopener">
-      Conversar no WhatsApp
+      <span class="whatsapp-long">Conversar no WhatsApp</span>
+      <span class="whatsapp-short">WhatsApp</span>
       <ArrowUpRight aria-hidden="true" />
     </a>
   </div>
 </GridRow>
 
 <style>
-  :global(.name-row) {
-    height: var(--name-row);
+  :global(.cover-row),
+  :global(.identity-row) {
     background-color: var(--bg);
     background-image: radial-gradient(var(--dot-grid) 1px, transparent 1px);
     background-size: 24px 24px;
   }
 
+  :global(.cover-row) {
+    --row-border: 0;
+    height: var(--cover);
+  }
+
+  :global(.identity-row) {
+    background-position: 0 calc(-1 * var(--cover));
+  }
+
   .name {
     display: flex;
     align-items: flex-end;
-    height: 100%;
   }
 
   .avatar-cell {
     position: relative;
     flex: none;
+    display: grid;
+    place-items: center;
     box-sizing: content-box;
     width: var(--avatar);
     height: var(--avatar);
@@ -144,8 +167,8 @@ const socials = [
   .avatar-cell :global(img),
   .avatar-placeholder {
     display: block;
-    width: 100%;
-    height: 100%;
+    width: var(--avatar-photo);
+    height: var(--avatar-photo);
     border: 1px solid var(--border-strong);
     border-radius: 50%;
     object-fit: cover;
@@ -186,25 +209,25 @@ const socials = [
   }
 
   .info {
+    position: relative;
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .info-col {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
+    grid-template-rows: repeat(3, auto);
+    grid-auto-flow: column;
+    row-gap: 12px;
     margin: 0;
-    padding: 16px;
+    padding: 16px 0;
     list-style: none;
   }
 
-  .info-col + .info-col {
-    border-left: 1px solid var(--border);
-  }
-
-  .info-col-end {
-    justify-content: flex-end;
+  .info::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: 1px;
+    background: var(--border);
   }
 
   .info li {
@@ -212,9 +235,14 @@ const socials = [
     align-items: center;
     gap: 12px;
     min-width: 0;
+    padding-inline: 16px;
     font-family: var(--font-mono);
     font-size: 14px;
     color: var(--text);
+  }
+
+  .info li:nth-child(n + 4) {
+    padding-left: 17px;
   }
 
   .icon-box {
@@ -240,21 +268,69 @@ const socials = [
     background: var(--accent);
   }
 
+  .text {
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
   .accent {
     color: var(--accent);
   }
 
-  .info a {
-    min-width: 0;
-    overflow-wrap: anywhere;
+  a.text {
     text-decoration: underline;
     text-decoration-color: var(--border-strong);
     text-underline-offset: 4px;
     transition: text-decoration-color 0.15s ease;
   }
 
-  .info a:hover {
+  a.text:hover {
     text-decoration-color: currentColor;
+  }
+
+  .copy {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    margin-left: -6px;
+    padding: 0;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--text-faint);
+    cursor: pointer;
+    transition: color 0.15s ease, background-color 0.15s ease;
+  }
+
+  .copy:hover {
+    color: var(--text);
+    background: var(--surface);
+  }
+
+  .copy :global(svg) {
+    width: 16px;
+    height: 16px;
+  }
+
+  .copy :global(.icon-check),
+  .copy[data-copied] :global(.icon-copy) {
+    display: none;
+  }
+
+  .copy[data-copied] {
+    color: var(--accent);
+  }
+
+  .copy[data-copied] :global(.icon-check) {
+    display: block;
+  }
+
+  :global(html:not(.js)) .copy {
+    display: none;
   }
 
   .links {
@@ -309,46 +385,145 @@ const socials = [
     margin-left: auto;
   }
 
-  @media (max-width: 639px) {
-    .info {
-      grid-template-columns: minmax(0, 1fr);
-    }
-
-    .info-col + .info-col {
-      border-left: 0;
-      border-top: 1px solid var(--border);
-    }
+  .whatsapp-short {
+    display: none;
   }
 
   @media (max-width: 640px) {
-    :global(.name-row) {
-      height: auto;
+    :global(.cover-row) {
+      --row-border: 1px solid var(--border);
+    }
+
+    :global(.identity-row) {
+      background: var(--bg);
     }
 
     .name {
-      flex-direction: column;
       align-items: stretch;
-      padding-top: var(--cover-mobile);
     }
 
-    .avatar-cell {
-      width: var(--avatar-mobile);
-      height: var(--avatar-mobile);
-    }
-
-    .links {
+    .identity {
+      display: flex;
       flex-direction: column;
-      align-items: stretch;
-      padding: 12px 16px;
+      justify-content: flex-end;
     }
 
-    .socials {
+    h1 {
+      padding: 8px 10px;
+      font-size: clamp(1.375rem, 7vw, 1.75rem);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      overflow-wrap: normal;
+    }
+
+    .role {
+      padding: 6px 10px;
+      font-size: 12px;
+    }
+
+    .info {
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-rows: none;
+      grid-auto-flow: row;
+      row-gap: 8px;
+      padding: 12px;
+    }
+
+    .info::before {
+      display: none;
+    }
+
+    .info li,
+    .info li:nth-child(n + 4) {
+      gap: 10px;
+      padding-inline: 0;
+      font-size: 13px;
+    }
+
+    .info-freelancer {
+      order: 1;
+    }
+
+    .info-place {
+      order: 2;
+    }
+
+    .info-clock {
+      order: 3;
+    }
+
+    .info-mail {
+      order: 4;
+    }
+
+    .info-whatsapp {
+      order: 5;
+    }
+
+    .info-status {
+      order: 6;
+    }
+
+    .icon-box {
+      width: 28px;
+      height: 28px;
+    }
+
+    .copy {
       margin-left: -4px;
     }
 
+    .links {
+      gap: 12px;
+      padding: 8px 12px 8px 8px;
+    }
+
     .whatsapp {
-      width: 100%;
-      margin-left: 0;
+      min-height: 36px;
+      height: 36px;
+      gap: 6px;
+      padding: 0 14px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .whatsapp :global(svg) {
+      width: 16px;
+      height: 16px;
+    }
+
+    .whatsapp-long {
+      display: none;
+    }
+
+    .whatsapp-short {
+      display: inline;
     }
   }
 </style>
+
+<script>
+  const status = document.querySelector<HTMLElement>('[data-copy-status]');
+  const timers = new WeakMap<HTMLElement, number>();
+
+  document.querySelectorAll<HTMLButtonElement>('[data-copy]').forEach((button) => {
+    button.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(button.dataset.copy ?? '');
+      } catch {
+        return;
+      }
+      button.dataset.copied = '';
+      if (status) status.textContent = button.dataset.done ?? '';
+      window.clearTimeout(timers.get(button));
+      timers.set(
+        button,
+        window.setTimeout(() => {
+          delete button.dataset.copied;
+          if (status) status.textContent = '';
+        }, 1500),
+      );
+    });
+  });
+</script>

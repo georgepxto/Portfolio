@@ -19,6 +19,7 @@
   --font-mono: 'JetBrains Mono', ui-monospace, Menlo, monospace;
   --gutter: 40px;
   --header-height: 64px;
+  --page-margin: 0px;
   color-scheme: dark;
 }
 
@@ -146,7 +147,7 @@ a {
 }
 
 .container {
-  max-width: 1180px;
+  width: min(1180px, 100% - 2 * var(--page-margin));
   margin: 0 auto;
   border-left: 1px solid var(--border);
   border-right: 1px solid var(--border);
@@ -227,6 +228,7 @@ main {
 @media (max-width: 640px) {
   :root {
     --gutter: 24px;
-    --header-height: 98px;
+    --header-height: 48px;
+    --page-margin: 12px;
   }
 }
