@@ -24,7 +24,12 @@ Conforme a empresa foi crescendo, percebemos que não havia um treinamento padro
 
 ## Decisões
 
-[DECISÕES]
+- **Vídeos no Google Drive, em vez de hospedados na plataforma**, porque a empresa já guardava os vídeos lá e assim não há custo de armazenamento nem de banda.
+- **Front-end em HTML, CSS e JavaScript puros, sem framework nem build**, porque o Express serve os arquivos como estão e o deploy no Plesk fica simples.
+- **Treinamento e RH no mesmo sistema**, com setores, escalas, folgas, pausas e mentorias, porque a equipe já entra na plataforma todo dia e tudo fica num lugar só.
+- **Permissões por página definidas pelo owner**, para dar a cada administrador só as telas de que ele precisa, sem acesso total.
+- **O curso reabre na aula em que a pessoa parou**, para que ela não precise procurar onde estava.
+- **Relatórios de progresso em PDF e planilha gerados no servidor**, para a RH acompanhar quem concluiu cada treinamento.
 
 ## O sistema
 
