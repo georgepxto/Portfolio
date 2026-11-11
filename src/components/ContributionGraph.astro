@@ -1,0 +1,228 @@
+---
+import type { Contributions } from '../lib/github';
+import { githubUrl } from '../config/site';
+
+interface Props {
+  data: Contributions;
+}
+
+const { data } = Astro.props;
+
+const monthNames = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+const minLabelGap = 3;
+
+const toDate = (value: string) => new Date(`${value}T00:00:00Z`);
+const monthOf = (value: string) => toDate(value).getUTCMonth();
+
+const longDate = new Intl.DateTimeFormat('pt-BR', { dateStyle: 'long', timeZone: 'UTC' });
+const shortDate = new Intl.DateTimeFormat('pt-BR', {
+  day: 'numeric',
+  month: 'short',
+  year: 'numeric',
+  timeZone: 'UTC',
+});
+const compact = new Intl.NumberFormat('pt-BR', { notation: 'compact' });
+const full = new Intl.NumberFormat('pt-BR');
+
+const formatShort = (value: string) =>
+  shortDate
+    .formatToParts(toDate(value))
+    .filter((part) => part.type !== 'literal')
+    .map((part) => part.value.replace('.', ''))
+    .join(' ');
+
+const plural = (count: number, formatted: string) =>
+  `${formatted} ${count === 1 ? 'contribuição' : 'contribuições'}`;
+
+const describeDay = (count: number, date: string) => {
+  const when = longDate.format(toDate(date));
+  return count === 0 ? `Nenhuma contribuição em ${when}` : `${plural(count, full.format(count))} em ${when}`;
+};
+
+const candidates = data.weeks.flatMap((week, column) => {
+  const first = week.days.find((day) => day.date.endsWith('-01'));
+  if (first) return [{ column, month: monthOf(first.date) }];
+  if (column === 0) return [{ column, month: monthOf(week.days[0].date) }];
+  return [];
+});
+
+const labels = candidates.reduce<{ column: number; month: number }[]>((kept, label) => {
+  const previous = kept[kept.length - 1];
+  if (!previous || label.column - previous.column >= minLabelGap) kept.push(label);
+  return kept;
+}, []);
+
+const firstWeekday = data.weeks[0].days[0].weekday;
+const summary = `${plural(data.total, full.format(data.total))} no GitHub nos últimos 12 meses`;
+---
+
+<section class="contrib" aria-label="Contribuições no GitHub">
+  <div class="chart">
+    <div class="scroll">
+      <div class="canvas" role="img" aria-label={summary} style={`--weeks: ${data.weeks.length}`}>
+        <div class="months" aria-hidden="true">
+          {labels.map((label) => <span style={`grid-column: ${label.column + 1}`}>{monthNames[label.month]}</span>)}
+        </div>
+        <div class="grid">
+          {
+            data.weeks.flatMap((week, column) =>
+              week.days.map((day, index) => (
+                <span
+                  class="cell"
+                  data-level={day.level}
+                  title={describeDay(day.count, day.date)}
+                  aria-hidden="true"
+                  style={column === 0 && index === 0 && firstWeekday > 0 ? `grid-row-start: ${firstWeekday + 1}` : undefined}
+                />
+              )),
+            )
+          }
+        </div>
+      </div>
+    </div>
+
+    <div class="meta">
+      <p class="caption">
+        {plural(data.total, compact.format(data.total))} de {formatShort(data.from)} a {formatShort(data.to)}.{' '}
+        <span class="source">Fonte: <a href={githubUrl} target="_blank" rel="noopener">GitHub</a></span>
+      </p>
+      <div class="legend" aria-hidden="true">
+        <span>Menos</span>
+        <span class="swatches">
+          {[0, 1, 2, 3, 4].map((level) => <span class="cell" data-level={level} />)}
+        </span>
+        <span>Mais</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .contrib {
+    --cell: 11px;
+    --cell-gap: 3px;
+    padding: 40px var(--gutter);
+    border-top: 1px solid var(--border);
+  }
+
+  .chart {
+    width: max-content;
+    max-width: 100%;
+  }
+
+  .canvas {
+    width: max-content;
+  }
+
+  .months {
+    display: grid;
+    grid-template-columns: repeat(var(--weeks), var(--cell));
+    column-gap: var(--cell-gap);
+    margin-bottom: 8px;
+    font-size: 12px;
+    line-height: 1;
+    color: var(--text-muted);
+  }
+
+  .months span {
+    grid-row: 1;
+    white-space: nowrap;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-rows: repeat(7, var(--cell));
+    grid-auto-columns: var(--cell);
+    grid-auto-flow: column;
+    gap: var(--cell-gap);
+  }
+
+  .cell {
+    display: block;
+    width: var(--cell);
+    height: var(--cell);
+    border-radius: 2px;
+    background: var(--contrib-0);
+  }
+
+  .cell[data-level='1'] {
+    background: var(--contrib-1);
+  }
+
+  .cell[data-level='2'] {
+    background: var(--contrib-2);
+  }
+
+  .cell[data-level='3'] {
+    background: var(--contrib-3);
+  }
+
+  .cell[data-level='4'] {
+    background: var(--contrib-4);
+  }
+
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px 32px;
+    margin-top: 16px;
+  }
+
+  .caption {
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  .source {
+    white-space: nowrap;
+  }
+
+  .caption a {
+    color: var(--text);
+    text-decoration: underline;
+    text-decoration-color: var(--border-strong);
+    text-underline-offset: 4px;
+    transition: text-decoration-color 0.15s ease;
+  }
+
+  .caption a:hover {
+    text-decoration-color: currentColor;
+  }
+
+  .legend {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  .swatches {
+    display: flex;
+    gap: var(--cell-gap);
+  }
+
+  @media (max-width: 899px) {
+    .chart {
+      width: auto;
+    }
+
+    .scroll {
+      overflow-x: auto;
+      direction: rtl;
+      padding-bottom: 8px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border-strong) transparent;
+    }
+
+    .canvas {
+      direction: ltr;
+    }
+
+    .meta {
+      margin-top: 8px;
+    }
+  }
+</style>

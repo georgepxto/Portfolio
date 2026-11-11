@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Hero from '../components/Hero.astro';
+import ContributionGraph from '../components/ContributionGraph.astro';
 import Section from '../components/Section.astro';
 import ProjectCard from '../components/ProjectCard.astro';
 import LabList from '../components/LabList.astro';
@@ -12,9 +13,11 @@ import { lab } from '../data/lab';
 import { services } from '../data/services';
 import { stack } from '../data/stack';
 import { getFeaturedProjects } from '../lib/projects';
+import { getContributions } from '../lib/github';
 import { fullName, githubUrl, site } from '../config/site';
 
 const projects = await getFeaturedProjects();
+const contributions = await getContributions();
 
 const title = `${fullName} · ${site.role} em ${site.city}, ${site.state}`;
 const description =
@@ -38,6 +41,8 @@ const jsonLd = {
 
 <BaseLayout title={title} description={description} jsonLd={jsonLd}>
   <Hero />
+
+  {contributions && <ContributionGraph data={contributions} />}
 
   <Section
     id="trabalhos"
