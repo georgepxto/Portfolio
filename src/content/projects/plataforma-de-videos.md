@@ -15,8 +15,7 @@ stack:
   - MySQL
   - JavaScript
 summary: Plataforma de vídeos do instituto, mantida em contrato recorrente. Treina os colaboradores com cursos em vídeo e PDFs organizados em módulos, acompanha o progresso de cada pessoa e reúne escalas de RH, mentorias e relatórios.
-cover: ../../assets/projects/plataforma-de-videos/dashboard.png
-thumb: ../../assets/projects/plataforma-de-videos/thumb.png
+cover: ../../assets/projects/plataforma-de-videos.png
 ---
 
 ## O problema
