@@ -12,6 +12,7 @@ interface Target {
 const targets: Target[] = [
   { slug: 'gestao-assistencia-social', url: '' },
   { slug: 'plataforma-de-videos', url: '' },
+  { slug: 'escalas-e-folgas', url: '' },
   { slug: 'takeone', url: '' },
   { slug: 'lunna-pijama', url: 'https://lunnapijama.com.br' },
 ];
