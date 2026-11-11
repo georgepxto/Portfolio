@@ -2,19 +2,53 @@ export interface LabItem {
   name: string;
   description: string;
   stack: string;
-  repo?: string;
+  href?: string;
+  linkLabel?: 'repositório' | 'site';
 }
 
 export const lab: LabItem[] = [
   {
+    name: 'Hedge',
+    description: 'Controle financeiro pessoal e compartilhado: saldo real, cartões e o que os outros te devem, no mesmo lugar.',
+    stack: 'React · Supabase',
+    href: 'https://gethedge.vercel.app/',
+    linkLabel: 'site',
+  },
+  {
     name: 'Caça-Cliente',
-    description: 'Encontra empresas locais sem site, para prospecção.',
+    description: 'Encontra empresas locais sem site no Google Maps, para prospecção.',
     stack: 'React · Node · Playwright',
   },
   {
     name: 'MonitorHub',
-    description: 'Acompanha as páginas de status de bancos brasileiros e do PIX.',
-    stack: 'GitHub',
+    description: 'Acompanha as páginas de status de bancos brasileiros e do PIX em tempo real.',
+    stack: 'Node · React',
+    href: 'https://github.com/georgepxto/Monitor',
+    linkLabel: 'repositório',
+  },
+  {
+    name: 'Giz',
+    description: 'Agenda e controle financeiro para professoras particulares, com o valor a receber de cada ciclo.',
+    stack: 'React · Firebase',
+  },
+  {
+    name: 'FilaKaraokê',
+    description: 'Fila de karaokê em tempo real: cada convidado entra pelo celular e avisa quando terminou de cantar.',
+    stack: 'React · Supabase',
+  },
+  {
+    name: 'Bots do Diário Oficial',
+    description: 'Avisam no Telegram quando o Diário Oficial do Piauí, o dos municípios ou o TCE-PI publicam os termos escolhidos.',
+    stack: 'Python · Node · Telegram',
+    href: 'https://github.com/georgepxto/BOT_DIARIOOFICIAL',
+    linkLabel: 'repositório',
+  },
+  {
+    name: 'Bot de Figurinhas',
+    description: 'Transforma fotos e vídeos em figurinhas, normais e animadas, direto no WhatsApp.',
+    stack: 'Node · ffmpeg',
+    href: 'https://github.com/georgepxto/botfigurinhawpp',
+    linkLabel: 'repositório',
   },
   {
     name: 'Início',
@@ -28,7 +62,9 @@ export const lab: LabItem[] = [
   },
   {
     name: 'AI Calc',
-    description: 'Calculadora para desktop.',
+    description: 'Calculadora para desktop com motor de cálculo próprio e círculo trigonométrico interativo.',
     stack: 'Python · PySide6',
+    href: 'https://github.com/georgepxto/AI-Calc-Front',
+    linkLabel: 'repositório',
   },
 ];

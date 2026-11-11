@@ -14,11 +14,11 @@ const { items } = Astro.props;
     items.map((item) => (
       <li class="row">
         <p class="name">
-          {item.repo ? (
-            <a href={item.repo} target="_blank" rel="noopener">
+          {item.href ? (
+            <a href={item.href} target="_blank" rel="noopener">
               {item.name}
               <ArrowUpRight aria-hidden="true" />
-              <span class="visually-hidden">(repositório)</span>
+              <span class="visually-hidden">({item.linkLabel ?? 'repositório'})</span>
             </a>
           ) : (
             item.name
@@ -56,11 +56,8 @@ const { items } = Astro.props;
   }
 
   .name a {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    min-height: 44px;
-    margin: -12px 0;
+    display: inline;
+    padding: 12px 0;
   }
 
   .name a:hover {
@@ -68,8 +65,11 @@ const { items } = Astro.props;
   }
 
   .name :global(svg) {
+    display: inline-block;
     width: 14px;
     height: 14px;
+    margin-left: 4px;
+    vertical-align: -1px;
     color: var(--text-faint);
   }
 
