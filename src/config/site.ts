@@ -1,13 +1,13 @@
 export const site = {
   name: 'George',
-  surname: '[SOBRENOME]',
+  surname: 'Peixoto',
   role: 'Desenvolvedor web',
   city: 'Parnaíba',
   state: 'PI',
   stateName: 'Piauí',
   country: 'BR',
-  whatsapp: '[PREENCHER]',
-  email: '[PREENCHER]',
+  whatsapp: 'http://wa.me/+5586994767818',
+  email: 'georgepxto@gmail.com',
   github: 'georgepxto',
   siteUrl: '[PREENCHER]',
 } as const;
