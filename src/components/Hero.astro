@@ -9,14 +9,14 @@ import Clock from '@lucide/astro/icons/clock';
 import MessageCircle from '@lucide/astro/icons/message-circle';
 import Copy from '@lucide/astro/icons/copy';
 import Check from '@lucide/astro/icons/check';
-import { siGithub, siInstagram } from 'simple-icons';
+import { siInstagram } from 'simple-icons';
 import GridRow from './GridRow.astro';
 import HatchBand from './HatchBand.astro';
 import Dimension from './Dimension.astro';
 import LocalClock from './LocalClock.astro';
 import { linkedinIcon } from '../config/brand-icons';
 import { tokens } from '../config/tokens';
-import { emailUrl, formatPhone, fullName, githubUrl, site, whatsappNumber, whatsappUrl } from '../config/site';
+import { emailUrl, formatPhone, fullName, site, whatsappNumber, whatsappUrl } from '../config/site';
 
 const photos = import.meta.glob<{ default: ImageMetadata }>('../assets/photo.{jpg,jpeg,png,webp,avif}', {
   eager: true,
@@ -26,7 +26,6 @@ const photo = Object.values(photos)[0]?.default;
 const phone = formatPhone(whatsappNumber || site.whatsapp);
 
 const socials = [
-  { label: 'GitHub', href: site.github ? githubUrl : '', path: siGithub.path },
   { label: 'LinkedIn', href: site.linkedin, path: linkedinIcon.path },
   { label: 'Instagram', href: site.instagram, path: siInstagram.path },
 ].filter((social) => social.href);

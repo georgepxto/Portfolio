@@ -1,9 +1,7 @@
 ---
 import Menu from '@lucide/astro/icons/menu';
 import X from '@lucide/astro/icons/x';
-import GithubIcon from './GithubIcon.astro';
 import GridRow from './GridRow.astro';
-import { githubUrl } from '../config/site';
 
 const links = [
   { href: '/#trabalhos', label: 'Trabalhos' },
@@ -29,9 +27,6 @@ const links = [
           }
         </ul>
       </nav>
-      <a class="icon-link" href={githubUrl} aria-label="GitHub de George" rel="noopener" target="_blank">
-        <GithubIcon />
-      </a>
       <button
         class="menu-toggle"
         type="button"
@@ -99,11 +94,10 @@ const links = [
     flex-wrap: wrap;
     align-items: center;
     gap: 0 4px;
-    margin: 0;
+    margin: 0 -8px 0 0;
   }
 
-  .nav-inline a,
-  .icon-link {
+  .nav-inline a {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -115,14 +109,8 @@ const links = [
     transition: color 0.15s ease;
   }
 
-  .nav-inline a:hover,
-  .icon-link:hover {
+  .nav-inline a:hover {
     color: var(--text);
-  }
-
-  .icon-link {
-    padding: 0;
-    margin-right: -12px;
   }
 
   .menu-toggle,
@@ -138,10 +126,6 @@ const links = [
 
     .nav-inline {
       display: none;
-    }
-
-    .icon-link {
-      margin-right: 0;
     }
 
     .menu-toggle {
