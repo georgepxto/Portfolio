@@ -6,7 +6,7 @@ featured: true
 meta: Cliente · Instituto OIG
 year: 2025
 client: Instituto OIG
-role: Desenvolvimento e manutenção
+role: Idealização, desenvolvimento e manutenção
 status: Em produção
 stack:
   - Contrato recorrente
@@ -20,7 +20,7 @@ cover: ../../assets/projects/plataforma-de-videos.png
 
 ## O problema
 
-[O PROBLEMA]
+Conforme a empresa foi crescendo, percebemos que não havia um treinamento padronizado. A ideia de criar um sistema para reunir tudo em um só lugar foi minha: videoaulas, manuais e a gestão de RH na mesma plataforma.
 
 ## Decisões
 
@@ -48,4 +48,4 @@ Telas com dados fictícios do ambiente de demonstração.
 
 ## Resultado
 
-[RESULTADO]
+O problema foi resolvido com a padronização: o treinamento passou a ser o mesmo para todos, com as videoaulas e os manuais reunidos na plataforma.
