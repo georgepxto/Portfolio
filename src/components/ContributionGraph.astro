@@ -1,14 +1,18 @@
 ---
-import type { Contributions } from '../lib/github';
-import { githubUrl } from '../config/site';
+import ArrowUpRight from '@lucide/astro/icons/arrow-up-right';
+import Section from './Section.astro';
+import { getContributionStats, type Contributions } from '../lib/github';
+import { githubUrl, site } from '../config/site';
 
 interface Props {
   data: Contributions;
 }
 
 const { data } = Astro.props;
+const { weeks } = data;
 
 const monthNames = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+const weekdayNames = ['domingo', 'segunda-feira', 'terça-feira', 'quarta-feira', 'quinta-feira', 'sexta-feira', 'sábado'];
 const minLabelGap = 3;
 
 const toDate = (value: string) => new Date(`${value}T00:00:00Z`);
@@ -21,8 +25,7 @@ const shortDate = new Intl.DateTimeFormat('pt-BR', {
   year: 'numeric',
   timeZone: 'UTC',
 });
-const compact = new Intl.NumberFormat('pt-BR', { notation: 'compact' });
-const full = new Intl.NumberFormat('pt-BR');
+const number = new Intl.NumberFormat('pt-BR');
 
 const formatShort = (value: string) =>
   shortDate
@@ -31,15 +34,14 @@ const formatShort = (value: string) =>
     .map((part) => part.value.replace('.', ''))
     .join(' ');
 
-const plural = (count: number, formatted: string) =>
-  `${formatted} ${count === 1 ? 'contribuição' : 'contribuições'}`;
+const plural = (count: number) => `${number.format(count)} ${count === 1 ? 'contribuição' : 'contribuições'}`;
 
 const describeDay = (count: number, date: string) => {
   const when = longDate.format(toDate(date));
-  return count === 0 ? `Nenhuma contribuição em ${when}` : `${plural(count, full.format(count))} em ${when}`;
+  return count === 0 ? `Nenhuma contribuição em ${when}` : `${plural(count)} em ${when}`;
 };
 
-const candidates = data.weeks.flatMap((week, column) => {
+const candidates = weeks.flatMap((week, column) => {
   const first = week.days.find((day) => day.date.endsWith('-01'));
   if (first) return [{ column, month: monthOf(first.date) }];
   if (column === 0) return [{ column, month: monthOf(week.days[0].date) }];
@@ -52,27 +54,65 @@ const labels = candidates.reduce<{ column: number; month: number }[]>((kept, lab
   return kept;
 }, []);
 
-const firstWeekday = data.weeks[0].days[0].weekday;
-const summary = `${plural(data.total, full.format(data.total))} no GitHub nos últimos 12 meses`;
+const firstDay = weeks[0].days[0];
+const lastWeek = weeks[weeks.length - 1];
+const lastDay = lastWeek.days[lastWeek.days.length - 1];
+
+const stats = getContributionStats(weeks);
+const statItems = [
+  { label: 'Contribuições', value: number.format(stats.total) },
+  {
+    label: 'Maior sequência',
+    value: `${number.format(stats.longestStreak)} ${stats.longestStreak === 1 ? 'dia' : 'dias'}`,
+  },
+  { label: 'Dia mais ativo', value: stats.busiestWeekday === null ? '—' : weekdayNames[stats.busiestWeekday] },
+];
+
+const summary = `${plural(stats.total)} no GitHub nos últimos 12 meses`;
 ---
 
-<section class="contrib" aria-label="Contribuições no GitHub">
-  <div class="chart">
+<Section
+  id="atividade"
+  number="GitHub"
+  title="Atividade"
+  subtitle="Commits e revisões dos últimos 12 meses, atualizados todo dia."
+>
+  <a slot="intro" class="profile-link mono" href={githubUrl} target="_blank" rel="noopener">
+    {site.github}
+    <ArrowUpRight aria-hidden="true" />
+  </a>
+
+  <div class="activity" style={`--weeks: ${weeks.length}`}>
+    <dl class="stats">
+      {
+        statItems.map((item) => (
+          <div class="stat">
+            <dt class="mono">{item.label}</dt>
+            <dd>{item.value}</dd>
+          </div>
+        ))
+      }
+    </dl>
+
     <div class="scroll">
-      <div class="canvas" role="img" aria-label={summary} style={`--weeks: ${data.weeks.length}`}>
+      <div class="canvas" role="img" aria-label={summary}>
         <div class="months" aria-hidden="true">
           {labels.map((label) => <span style={`grid-column: ${label.column + 1}`}>{monthNames[label.month]}</span>)}
         </div>
         <div class="grid">
           {
-            data.weeks.flatMap((week, column) =>
+            weeks.flatMap((week, column) =>
               week.days.map((day, index) => (
                 <span
                   class="cell"
                   data-level={day.level}
                   title={describeDay(day.count, day.date)}
                   aria-hidden="true"
-                  style={column === 0 && index === 0 && firstWeekday > 0 ? `grid-row-start: ${firstWeekday + 1}` : undefined}
+                  style={
+                    column === 0 && index === 0 && firstDay.weekday > 0
+                      ? `grid-row-start: ${firstDay.weekday + 1}`
+                      : undefined
+                  }
                 />
               )),
             )
@@ -83,7 +123,7 @@ const summary = `${plural(data.total, full.format(data.total))} no GitHub nos ú
 
     <div class="meta">
       <p class="caption">
-        {plural(data.total, compact.format(data.total))} de {formatShort(data.from)} a {formatShort(data.to)}.{' '}
+        {formatShort(firstDay.date)} a {formatShort(lastDay.date)} ·{' '}
         <span class="source">Fonte: <a href={githubUrl} target="_blank" rel="noopener">GitHub</a></span>
       </p>
       <div class="legend" aria-hidden="true">
@@ -95,28 +135,73 @@ const summary = `${plural(data.total, full.format(data.total))} no GitHub nos ú
       </div>
     </div>
   </div>
-</section>
+</Section>
 
 <style>
-  .contrib {
-    --cell: 11px;
+  .profile-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 16px;
+    font-size: 12px;
+    color: var(--text-muted);
+    text-decoration: underline;
+    text-decoration-color: var(--border-strong);
+    text-underline-offset: 4px;
+    transition: color 0.15s ease, text-decoration-color 0.15s ease;
+  }
+
+  .profile-link:hover {
+    color: var(--text);
+    text-decoration-color: currentColor;
+  }
+
+  .profile-link :global(svg) {
+    width: 14px;
+    height: 14px;
+    flex: none;
+  }
+
+  .activity {
     --cell-gap: 3px;
-    padding: 40px var(--gutter);
-    border-top: 1px solid var(--border);
+    --columns: repeat(var(--weeks), minmax(0, 1fr));
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
   }
 
-  .chart {
-    width: max-content;
-    max-width: 100%;
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    border: 1px solid var(--border);
   }
 
-  .canvas {
-    width: max-content;
+  .stat {
+    padding: 14px 16px;
+    min-width: 0;
+  }
+
+  .stat + .stat {
+    border-left: 1px solid var(--border);
+  }
+
+  .stat dt {
+    font-size: 12px;
+    color: var(--text-faint);
+  }
+
+  .stat dd {
+    margin-top: 4px;
+    font-size: 24px;
+    font-weight: 600;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+    color: var(--text);
   }
 
   .months {
     display: grid;
-    grid-template-columns: repeat(var(--weeks), var(--cell));
+    grid-template-columns: var(--columns);
     column-gap: var(--cell-gap);
     margin-bottom: 8px;
     font-size: 12px;
@@ -131,16 +216,15 @@ const summary = `${plural(data.total, full.format(data.total))} no GitHub nos ú
 
   .grid {
     display: grid;
-    grid-template-rows: repeat(7, var(--cell));
-    grid-auto-columns: var(--cell);
+    grid-template-columns: var(--columns);
+    grid-template-rows: repeat(7, auto);
     grid-auto-flow: column;
     gap: var(--cell-gap);
   }
 
   .cell {
     display: block;
-    width: var(--cell);
-    height: var(--cell);
+    aspect-ratio: 1;
     border-radius: 2px;
     background: var(--contrib-0);
   }
@@ -167,7 +251,6 @@ const summary = `${plural(data.total, full.format(data.total))} no GitHub nos ú
     align-items: center;
     justify-content: space-between;
     gap: 12px 32px;
-    margin-top: 16px;
   }
 
   .caption {
@@ -204,11 +287,11 @@ const summary = `${plural(data.total, full.format(data.total))} no GitHub nos ú
     gap: var(--cell-gap);
   }
 
-  @media (max-width: 899px) {
-    .chart {
-      width: auto;
-    }
+  .swatches .cell {
+    width: 11px;
+  }
 
+  @media (max-width: 899px) {
     .scroll {
       overflow-x: auto;
       direction: rtl;
@@ -219,10 +302,18 @@ const summary = `${plural(data.total, full.format(data.total))} no GitHub nos ú
 
     .canvas {
       direction: ltr;
+      min-width: 720px;
+    }
+  }
+
+  @media (max-width: 479px) {
+    .stats {
+      grid-template-columns: minmax(0, 1fr);
     }
 
-    .meta {
-      margin-top: 8px;
+    .stat + .stat {
+      border-left: 0;
+      border-top: 1px solid var(--border);
     }
   }
 </style>

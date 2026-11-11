@@ -1,13 +1,13 @@
 ---
 import ArrowUpRight from '@lucide/astro/icons/arrow-up-right';
-import { fullName, githubUrl, site, whatsappUrl } from '../config/site';
+import { fullName, site, whatsappUrl } from '../config/site';
 
 const facts = [
   { label: 'Local', value: `${site.city}, ${site.stateName}` },
   { label: 'Foco', value: 'Sistemas web, SaaS e sites' },
   { label: 'Stack', value: 'React, Vite, NestJS, Supabase' },
   { label: 'Status', value: 'Disponível para novos projetos', accent: true },
-  { label: 'GitHub', value: site.github, href: githubUrl },
+  { label: 'GitHub', value: site.github, href: '#atividade' },
 ];
 ---
 
@@ -35,7 +35,7 @@ const facts = [
             <dt class="mono">{fact.label}</dt>
             <dd class:list={{ accent: fact.accent }}>
               {fact.href ? (
-                <a href={fact.href} target="_blank" rel="noopener">
+                <a href={fact.href}>
                   {fact.value}
                 </a>
               ) : (

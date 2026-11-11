@@ -23,6 +23,12 @@ export interface Contributions {
   to: string;
 }
 
+export interface ContributionStats {
+  total: number;
+  longestStreak: number;
+  busiestWeekday: number | null;
+}
+
 type ApiLevel = 'NONE' | 'FIRST_QUARTILE' | 'SECOND_QUARTILE' | 'THIRD_QUARTILE' | 'FOURTH_QUARTILE';
 
 interface ApiResponse {
@@ -164,6 +170,28 @@ async function load(): Promise<Contributions | null> {
   const cached = await readCache();
   if (!cached) console.warn('[github] sem dados salvos; o gráfico de contribuições não será renderizado.');
   return cached;
+}
+
+export function getContributionStats(weeks: ContributionWeek[]): ContributionStats {
+  const byWeekday = Array<number>(7).fill(0);
+  let total = 0;
+  let streak = 0;
+  let longestStreak = 0;
+
+  for (const day of weeks.flatMap((week) => week.days)) {
+    total += day.count;
+    byWeekday[day.weekday] += day.count;
+    streak = day.count > 0 ? streak + 1 : 0;
+    longestStreak = Math.max(longestStreak, streak);
+  }
+
+  const busiest = Math.max(...byWeekday);
+
+  return {
+    total,
+    longestStreak,
+    busiestWeekday: busiest > 0 ? byWeekday.indexOf(busiest) : null,
+  };
 }
 
 export async function getContributions(): Promise<Contributions | null> {

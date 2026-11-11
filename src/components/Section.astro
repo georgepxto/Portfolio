@@ -15,6 +15,7 @@ const headingId = `${id}-titulo`;
     <p class="section-number mono" aria-hidden="true">{number}</p>
     <h2 id={headingId}>{title}</h2>
     <p class="section-subtitle">{subtitle}</p>
+    <slot name="intro" />
   </div>
   <div class="section-content">
     <slot />
