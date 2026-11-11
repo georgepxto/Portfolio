@@ -8,13 +8,6 @@ export interface LabItem {
 
 export const lab: LabItem[] = [
   {
-    name: 'Hedge',
-    description: 'Controle financeiro pessoal e compartilhado: saldo real, cartões e o que os outros te devem, no mesmo lugar.',
-    stack: 'React · Supabase',
-    href: 'https://gethedge.vercel.app/',
-    linkLabel: 'site',
-  },
-  {
     name: 'Caça-Cliente',
     description: 'Encontra empresas locais sem site no Google Maps, para prospecção.',
     stack: 'React · Node · Playwright',
@@ -59,12 +52,5 @@ export const lab: LabItem[] = [
     name: 'MCHOSE V9',
     description: 'App portátil para controlar o headset MCHOSE V9 Pro sem o software oficial.',
     stack: 'Rust · em desenvolvimento',
-  },
-  {
-    name: 'AI Calc',
-    description: 'Calculadora para desktop com motor de cálculo próprio e círculo trigonométrico interativo.',
-    stack: 'Python · PySide6',
-    href: 'https://github.com/georgepxto/AI-Calc-Front',
-    linkLabel: 'repositório',
   },
 ];

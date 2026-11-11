@@ -13,6 +13,7 @@ const targets: Target[] = [
   { slug: 'gestao-assistencia-social', url: '' },
   { slug: 'plataforma-de-videos', url: '' },
   { slug: 'escalas-e-folgas', url: '' },
+  { slug: 'hedge', url: '' },
   { slug: 'takeone', url: '' },
   { slug: 'lunna-pijama', url: 'https://lunnapijama.com.br' },
 ];
