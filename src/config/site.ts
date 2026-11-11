@@ -13,7 +13,8 @@ export const site = {
 } as const;
 
 export const fullName = `${site.name} ${site.surname}`;
-export const whatsappUrl = `https://wa.me/${site.whatsapp}`;
+export const whatsappNumber = site.whatsapp.replace(/^https?:\/\/wa\.me\//, '').replace(/\D/g, '');
+export const whatsappUrl = `https://wa.me/${whatsappNumber || site.whatsapp}`;
 export const githubUrl = `https://github.com/${site.github}`;
 export const emailUrl = `mailto:${site.email}`;
 

@@ -1,9 +1,9 @@
 ---
 import ArrowUpRight from '@lucide/astro/icons/arrow-up-right';
-import { emailUrl, formatPhone, githubUrl, site, whatsappUrl } from '../config/site';
+import { emailUrl, formatPhone, githubUrl, site, whatsappNumber, whatsappUrl } from '../config/site';
 
 const channels = [
-  { label: 'WhatsApp', value: formatPhone(site.whatsapp), href: whatsappUrl, accent: true, external: true },
+  { label: 'WhatsApp', value: formatPhone(whatsappNumber || site.whatsapp), href: whatsappUrl, accent: true, external: true },
   { label: 'E-mail', value: site.email, href: emailUrl, external: false },
   { label: 'GitHub', value: `github.com/${site.github}`, href: githubUrl, external: true },
 ];
