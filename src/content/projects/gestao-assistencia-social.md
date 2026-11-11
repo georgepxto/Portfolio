@@ -14,6 +14,7 @@ stack:
   - React
   - Vite
 cover: ../../assets/projects/gestao-assistencia-social/painel.png
+thumb: ../../assets/projects/gestao-assistencia-social/thumb.png
 summary: Plataforma que acompanha cada beneficiário, do cadastro à reforma da casa. Valida CPF, detecta cadastros duplicados, guarda as fotos de cada etapa da obra, mostra mapas de calor por bairro e registra tudo em trilha de auditoria.
 ---
 

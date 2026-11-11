@@ -10,7 +10,7 @@ interface Props {
 }
 
 const { project, index } = Astro.props;
-const { title, meta, summary, stack, url, cover } = project.data;
+const { title, meta, summary, stack, url, cover, thumb } = project.data;
 const href = `/trabalhos/${project.id}/`;
 const host = url ? new URL(url).hostname.replace(/^www\./, '') : undefined;
 ---
@@ -18,7 +18,7 @@ const host = url ? new URL(url).hostname.replace(/^www\./, '') : undefined;
 <article class="project">
   <div class="media">
     <ProjectCover
-      cover={cover}
+      cover={thumb ?? cover}
       alt={`Captura de tela do projeto ${title}`}
       widths={[320, 640, 960]}
       sizes="(max-width: 640px) 100vw, 320px"
