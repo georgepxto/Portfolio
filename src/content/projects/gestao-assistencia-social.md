@@ -3,23 +3,23 @@ title: Gestão de assistência social
 slug: gestao-assistencia-social
 order: 1
 featured: true
-meta: Cliente · Instituto OIG · 2026
+meta: Proposta · Instituto OIG · 2026
 year: 2026
 client: Instituto OIG
-role: Desenvolvimento full stack
-status: Em produção
+role: Iniciativa própria · desenvolvimento full stack
+status: Proposta · ainda não adotada
 stack:
   - NestJS
   - MariaDB
   - React
   - Vite
 cover: ../../assets/projects/gestao-assistencia-social.png
-summary: Plataforma que acompanha cada beneficiário, do cadastro à reforma da casa. Valida CPF, detecta cadastros duplicados, guarda as fotos de cada etapa da obra, mostra mapas de calor por bairro e registra tudo em trilha de auditoria.
+summary: Sistema que desenvolvi por iniciativa própria ao ver uma necessidade do Instituto OIG. Acompanha cada beneficiário, do cadastro à reforma da casa. Valida CPF, detecta cadastros duplicados, guarda as fotos de cada etapa da obra, mostra mapas de calor por bairro e registra tudo em trilha de auditoria.
 ---
 
 ## O problema
 
-O Instituto OIG precisava acompanhar cada beneficiário do primeiro cadastro até a entrega da reforma da casa. Isso exigia dados confiáveis, sem cadastros duplicados, com o histórico de cada etapa da obra e o registro de quem fez cada alteração.
+Este é um estudo de caso: o sistema não foi encomendado. Vi que o Instituto OIG precisava acompanhar cada beneficiário do primeiro cadastro até a entrega da reforma da casa. Isso exigia dados confiáveis, sem cadastros duplicados, com o histórico de cada etapa da obra e o registro de quem fez cada alteração.
 
 ## Decisões
 
@@ -47,4 +47,4 @@ Telas com dados fictícios do ambiente de demonstração.
 
 ## Resultado
 
-[RESULTADO]
+O sistema ainda não foi adotado pelo instituto e não está em produção.
