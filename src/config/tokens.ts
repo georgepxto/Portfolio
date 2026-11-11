@@ -4,7 +4,7 @@ export const tokens = {
   coverMobile: 96,
   nameRow: 216,
   band: 32,
-  sectionPad: 72,
+  titleRow: 60,
 } as const;
 
 export const tokenStyle = [
@@ -13,5 +13,5 @@ export const tokenStyle = [
   `--cover-mobile: ${tokens.coverMobile}px`,
   `--name-row: ${tokens.nameRow}px`,
   `--band: ${tokens.band}px`,
-  `--section-pad: ${tokens.sectionPad}px`,
+  `--title-row: ${tokens.titleRow}px`,
 ].join('; ');

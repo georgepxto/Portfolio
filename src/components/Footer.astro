@@ -1,13 +1,16 @@
 ---
+import GridRow from './GridRow.astro';
 import { fullName, site } from '../config/site';
 
 const year = new Date().getFullYear();
 ---
 
-<footer class="site-footer mono">
-  <p>© {year} {fullName}</p>
-  <p>{site.city}, {site.state} · Brasil</p>
-</footer>
+<GridRow as="footer">
+  <div class="site-footer mono">
+    <p>© {year} {fullName}</p>
+    <p>{site.city}, {site.state} · Brasil</p>
+  </div>
+</GridRow>
 
 <style>
   .site-footer {
@@ -15,8 +18,7 @@ const year = new Date().getFullYear();
     flex-wrap: wrap;
     justify-content: space-between;
     gap: 8px 24px;
-    padding: 28px var(--gutter);
-    border-top: 1px solid var(--border);
+    padding: 20px 16px;
     font-size: 12px;
     color: var(--text-faint);
   }

@@ -1,6 +1,7 @@
 ---
 import ArrowUpRight from '@lucide/astro/icons/arrow-up-right';
 import Section from './Section.astro';
+import GridRow from './GridRow.astro';
 import { getContributionStats, type Contributions, type ContributionWeek } from '../lib/github';
 import { githubUrl, site } from '../config/site';
 
@@ -92,12 +93,12 @@ const summary = `${plural(stats.total)} no GitHub nos últimos 12 meses`;
   title="Atividade"
   subtitle="Commits e revisões dos últimos 12 meses, atualizados todo dia."
 >
-  <a slot="intro" class="profile-link mono" href={githubUrl} target="_blank" rel="noopener">
+  <a slot="aside" class="profile-link mono" href={githubUrl} target="_blank" rel="noopener">
     {site.github}
     <ArrowUpRight aria-hidden="true" />
   </a>
 
-  <div class="activity" style={`--weeks: ${weeks.length}; --split: ${split}`}>
+  <GridRow>
     <dl class="stats">
       {
         statItems.map((item) => (
@@ -108,55 +109,59 @@ const summary = `${plural(stats.total)} no GitHub nos últimos 12 meses`;
         ))
       }
     </dl>
+  </GridRow>
 
-    <div class="canvas" role="img" aria-label={summary}>
-      <div class="months months-full" aria-hidden="true">
-        {labels.map((label) => <span style={`grid-column: ${label.column + 1}`}>{monthNames[label.month]}</span>)}
+  <GridRow>
+    <div class="activity" style={`--weeks: ${weeks.length}; --split: ${split}`}>
+      <div class="canvas" role="img" aria-label={summary}>
+        <div class="months months-full" aria-hidden="true">
+          {labels.map((label) => <span style={`grid-column: ${label.column + 1}`}>{monthNames[label.month]}</span>)}
+        </div>
+        {
+          halves.map((half, halfIndex) => (
+            <div class="half" style={`--span: ${half.weeks.length}`}>
+              <div class="months months-half" aria-hidden="true">
+                {half.labels.map((label) => (
+                  <span style={`grid-column: ${label.column + 1}`}>{monthNames[label.month]}</span>
+                ))}
+              </div>
+              <div class="grid">
+                {half.weeks.flatMap((week, column) =>
+                  week.days.map((day, index) => (
+                    <span
+                      class="cell"
+                      data-level={day.level}
+                      title={describeDay(day.count, day.date)}
+                      aria-hidden="true"
+                      style={
+                        halfIndex === 0 && column === 0 && index === 0 && firstDay.weekday > 0
+                          ? `grid-row-start: ${firstDay.weekday + 1}`
+                          : undefined
+                      }
+                    />
+                  )),
+                )}
+              </div>
+            </div>
+          ))
+        }
       </div>
-      {
-        halves.map((half, halfIndex) => (
-          <div class="half" style={`--span: ${half.weeks.length}`}>
-            <div class="months months-half" aria-hidden="true">
-              {half.labels.map((label) => (
-                <span style={`grid-column: ${label.column + 1}`}>{monthNames[label.month]}</span>
-              ))}
-            </div>
-            <div class="grid">
-              {half.weeks.flatMap((week, column) =>
-                week.days.map((day, index) => (
-                  <span
-                    class="cell"
-                    data-level={day.level}
-                    title={describeDay(day.count, day.date)}
-                    aria-hidden="true"
-                    style={
-                      halfIndex === 0 && column === 0 && index === 0 && firstDay.weekday > 0
-                        ? `grid-row-start: ${firstDay.weekday + 1}`
-                        : undefined
-                    }
-                  />
-                )),
-              )}
-            </div>
-          </div>
-        ))
-      }
-    </div>
 
-    <div class="meta">
-      <p class="caption">
-        {formatShort(firstDay.date)} a {formatShort(lastDay.date)} ·{' '}
-        <span class="source">Fonte: <a href={githubUrl} target="_blank" rel="noopener">GitHub</a></span>
-      </p>
-      <div class="legend" aria-hidden="true">
-        <span>Menos</span>
-        <span class="swatches">
-          {[0, 1, 2, 3, 4].map((level) => <span class="cell" data-level={level} />)}
-        </span>
-        <span>Mais</span>
+      <div class="meta">
+        <p class="caption">
+          {formatShort(firstDay.date)} a {formatShort(lastDay.date)} ·{' '}
+          <span class="source">Fonte: <a href={githubUrl} target="_blank" rel="noopener">GitHub</a></span>
+        </p>
+        <div class="legend" aria-hidden="true">
+          <span>Menos</span>
+          <span class="swatches">
+            {[0, 1, 2, 3, 4].map((level) => <span class="cell" data-level={level} />)}
+          </span>
+          <span>Mais</span>
+        </div>
       </div>
     </div>
-  </div>
+  </GridRow>
 </Section>
 
 <style>
@@ -164,7 +169,6 @@ const summary = `${plural(stats.total)} no GitHub nos últimos 12 meses`;
     display: inline-flex;
     align-items: center;
     gap: 4px;
-    margin-top: 16px;
     font-size: 12px;
     color: var(--text-muted);
     text-decoration: underline;
@@ -191,12 +195,12 @@ const summary = `${plural(stats.total)} no GitHub nos últimos 12 meses`;
     display: flex;
     flex-direction: column;
     gap: 20px;
+    padding: 16px;
   }
 
   .stats {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    border: 1px solid var(--border);
   }
 
   .stat {

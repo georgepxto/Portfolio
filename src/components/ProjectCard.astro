@@ -1,5 +1,6 @@
 ---
 import ArrowUpRight from '@lucide/astro/icons/arrow-up-right';
+import GridRow from './GridRow.astro';
 import ProjectCover from './ProjectCover.astro';
 import StackTags from './StackTags.astro';
 import { padIndex, type Project } from '../lib/projects';
@@ -15,32 +16,34 @@ const href = `/trabalhos/${project.id}/`;
 const host = url ? new URL(url).hostname.replace(/^www\./, '') : undefined;
 ---
 
-<article class="project">
-  <div class="media">
-    <ProjectCover
-      cover={cover}
-      alt={`Captura de tela do projeto ${title}`}
-      widths={[400, 640, 800, 1280]}
-      sizes="(min-width: 1024px) 320px, 100vw"
-    />
-  </div>
-  <div class="body">
-    <p class="meta mono">{padIndex(index)} · {meta}</p>
-    <h3>
-      <a class="stretched" href={href}>{title}</a>
-    </h3>
-    <p class="summary">{summary}</p>
-    <StackTags items={stack} />
-    {
-      url && (
-        <a class="external" href={url} target="_blank" rel="noopener">
-          {host}
-          <ArrowUpRight aria-hidden="true" />
-        </a>
-      )
-    }
-  </div>
-</article>
+<GridRow>
+  <article class="project">
+    <div class="media">
+      <ProjectCover
+        cover={cover}
+        alt={`Captura de tela do projeto ${title}`}
+        widths={[400, 640, 800, 1280]}
+        sizes="(min-width: 1024px) 320px, 100vw"
+      />
+    </div>
+    <div class="body">
+      <p class="meta mono">{padIndex(index)} · {meta}</p>
+      <h3>
+        <a class="stretched" href={href}>{title}</a>
+      </h3>
+      <p class="summary">{summary}</p>
+      <StackTags items={stack} />
+      {
+        url && (
+          <a class="external" href={url} target="_blank" rel="noopener">
+            {host}
+            <ArrowUpRight aria-hidden="true" />
+          </a>
+        )
+      }
+    </div>
+  </article>
+</GridRow>
 
 <style>
   .project {
@@ -48,13 +51,12 @@ const host = url ? new URL(url).hostname.replace(/^www\./, '') : undefined;
     display: flex;
     flex-wrap: wrap;
     gap: 24px 40px;
-    padding: 36px 0;
-    border-top: 1px solid var(--border);
+    padding: 24px 16px;
   }
 
   .project:has(.stretched:focus-visible) {
     outline: 2px solid var(--accent);
-    outline-offset: 4px;
+    outline-offset: -2px;
   }
 
   .media {

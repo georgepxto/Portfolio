@@ -1,5 +1,6 @@
 ---
 import ArrowUpRight from '@lucide/astro/icons/arrow-up-right';
+import GridRow from './GridRow.astro';
 import { emailUrl, formatPhone, githubUrl, site, whatsappNumber, whatsappUrl } from '../config/site';
 
 const channels = [
@@ -10,11 +11,13 @@ const channels = [
 ---
 
 <section id="contato" class="contact" aria-labelledby="contato-titulo">
-  <h2 id="contato-titulo">Tem um projeto? Vamos conversar.</h2>
+  <GridRow>
+    <h2 id="contato-titulo">Tem um projeto? Vamos conversar.</h2>
+  </GridRow>
   <ul class="channels" role="list">
     {
       channels.map((channel) => (
-        <li>
+        <GridRow as="li">
           <a
             class:list={['channel', { accent: channel.accent }]}
             href={channel.href}
@@ -27,34 +30,21 @@ const channels = [
               <ArrowUpRight aria-hidden="true" />
             </span>
           </a>
-        </li>
+        </GridRow>
       ))
     }
   </ul>
 </section>
 
 <style>
-  .contact {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: flex-end;
-    gap: 48px 64px;
-    padding: 96px var(--gutter);
-  }
-
   h2 {
-    flex: 1 1 360px;
-    max-width: 14ch;
+    max-width: 18ch;
+    padding: 48px 16px;
     font-size: clamp(2.25rem, 5.5vw, 4.5rem);
     font-weight: 600;
     line-height: 1.02;
     letter-spacing: -0.035em;
-  }
-
-  .channels {
-    flex: 1 1 420px;
-    min-width: 0;
-    border-top: 1px solid var(--border);
+    text-wrap: balance;
   }
 
   .channel {
@@ -63,7 +53,12 @@ const channels = [
     justify-content: space-between;
     gap: 16px;
     min-height: 60px;
-    border-bottom: 1px solid var(--border);
+    padding: 0 16px;
+    transition: background-color 0.15s ease;
+  }
+
+  .channel:hover {
+    background: var(--surface);
   }
 
   .label {

@@ -1,4 +1,5 @@
 ---
+import GridRow from './GridRow.astro';
 import type { StackGroup } from '../data/stack';
 
 interface Props {
@@ -8,40 +9,38 @@ interface Props {
 const { groups } = Astro.props;
 ---
 
-<dl class="stack">
+<ul class="stack" role="list">
   {
     groups.map((group) => (
-      <div class="row">
-        <dt class="mono">{group.label}</dt>
-        <dd>{group.items.join(', ')}</dd>
-      </div>
+      <GridRow as="li">
+        <div class="row">
+          <span class="label mono">{group.label}</span>
+          <span class="items">{group.items.join(', ')}</span>
+        </div>
+      </GridRow>
     ))
   }
-</dl>
+</ul>
 
 <style>
-  .stack {
-    border-top: 1px solid var(--border);
-  }
-
   .row {
     display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    gap: 4px 16px;
-    padding: 14px 0;
-    border-bottom: 1px solid var(--border);
   }
 
-  dt {
+  .label {
     flex: none;
-    width: 150px;
+    width: 160px;
+    padding: 14px 16px;
+    border-right: 1px solid var(--border);
     font-size: 12px;
+    line-height: 2;
     color: var(--text-faint);
   }
 
-  dd {
-    flex: 1 1 200px;
+  .items {
+    flex: 1;
+    min-width: 0;
+    padding: 14px 16px;
     font-size: 15px;
     color: var(--text);
   }

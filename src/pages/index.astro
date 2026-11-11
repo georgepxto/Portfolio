@@ -61,9 +61,7 @@ const jsonLd = {
     title="Trabalhos selecionados"
     subtitle="Sistemas e sites para clientes, propostas e produtos próprios."
   >
-    <div class="projects">
-      {projects.map((project, index) => <ProjectCard project={project} index={index + 1} />)}
-    </div>
+    {projects.map((project, index) => <ProjectCard project={project} index={index + 1} />)}
   </Section>
 
   <HatchBand />
@@ -99,13 +97,3 @@ const jsonLd = {
 
   <Contact />
 </BaseLayout>
-
-<style>
-  .projects {
-    margin-top: -36px;
-  }
-
-  .projects > :global(.project:first-child) {
-    border-top: 0;
-  }
-</style>
