@@ -1,7 +1,7 @@
 ---
 import ArrowUpRight from '@lucide/astro/icons/arrow-up-right';
 import Section from './Section.astro';
-import { getContributionStats, type Contributions } from '../lib/github';
+import { getContributionStats, type Contributions, type ContributionWeek } from '../lib/github';
 import { githubUrl, site } from '../config/site';
 
 interface Props {
@@ -41,18 +41,31 @@ const describeDay = (count: number, date: string) => {
   return count === 0 ? `Nenhuma contribuição em ${when}` : `${plural(count)} em ${when}`;
 };
 
-const candidates = weeks.flatMap((week, column) => {
-  const first = week.days.find((day) => day.date.endsWith('-01'));
-  if (first) return [{ column, month: monthOf(first.date) }];
-  if (column === 0) return [{ column, month: monthOf(week.days[0].date) }];
-  return [];
-});
+type MonthLabel = { column: number; month: number };
 
-const labels = candidates.reduce<{ column: number; month: number }[]>((kept, label) => {
-  const previous = kept[kept.length - 1];
-  if (!previous || label.column - previous.column >= minLabelGap) kept.push(label);
-  return kept;
-}, []);
+const monthLabels = (range: ContributionWeek[]) => {
+  const starts = range.flatMap((week, column) => {
+    const first = week.days.find((day) => day.date.endsWith('-01'));
+    return first ? [{ column, month: monthOf(first.date) }] : [];
+  });
+
+  if (!starts.length || starts[0].column >= minLabelGap) {
+    if (starts[0]?.column !== 0) starts.unshift({ column: 0, month: monthOf(range[0].days[0].date) });
+  }
+
+  return starts.reduce<MonthLabel[]>((kept, label) => {
+    const previous = kept[kept.length - 1];
+    if (!previous || label.column - previous.column >= minLabelGap) kept.push(label);
+    return kept;
+  }, []);
+};
+
+const split = Math.ceil(weeks.length / 2);
+const halves = [weeks.slice(0, split), weeks.slice(split)].map((range) => ({
+  weeks: range,
+  labels: monthLabels(range),
+}));
+const labels = monthLabels(weeks);
 
 const firstDay = weeks[0].days[0];
 const lastWeek = weeks[weeks.length - 1];
@@ -82,7 +95,7 @@ const summary = `${plural(stats.total)} no GitHub nos últimos 12 meses`;
     <ArrowUpRight aria-hidden="true" />
   </a>
 
-  <div class="activity" style={`--weeks: ${weeks.length}`}>
+  <div class="activity" style={`--weeks: ${weeks.length}; --split: ${split}`}>
     <dl class="stats">
       {
         statItems.map((item) => (
@@ -94,31 +107,38 @@ const summary = `${plural(stats.total)} no GitHub nos últimos 12 meses`;
       }
     </dl>
 
-    <div class="scroll">
-      <div class="canvas" role="img" aria-label={summary}>
-        <div class="months" aria-hidden="true">
-          {labels.map((label) => <span style={`grid-column: ${label.column + 1}`}>{monthNames[label.month]}</span>)}
-        </div>
-        <div class="grid">
-          {
-            weeks.flatMap((week, column) =>
-              week.days.map((day, index) => (
-                <span
-                  class="cell"
-                  data-level={day.level}
-                  title={describeDay(day.count, day.date)}
-                  aria-hidden="true"
-                  style={
-                    column === 0 && index === 0 && firstDay.weekday > 0
-                      ? `grid-row-start: ${firstDay.weekday + 1}`
-                      : undefined
-                  }
-                />
-              )),
-            )
-          }
-        </div>
+    <div class="canvas" role="img" aria-label={summary}>
+      <div class="months months-full" aria-hidden="true">
+        {labels.map((label) => <span style={`grid-column: ${label.column + 1}`}>{monthNames[label.month]}</span>)}
       </div>
+      {
+        halves.map((half, halfIndex) => (
+          <div class="half" style={`--span: ${half.weeks.length}`}>
+            <div class="months months-half" aria-hidden="true">
+              {half.labels.map((label) => (
+                <span style={`grid-column: ${label.column + 1}`}>{monthNames[label.month]}</span>
+              ))}
+            </div>
+            <div class="grid">
+              {half.weeks.flatMap((week, column) =>
+                week.days.map((day, index) => (
+                  <span
+                    class="cell"
+                    data-level={day.level}
+                    title={describeDay(day.count, day.date)}
+                    aria-hidden="true"
+                    style={
+                      halfIndex === 0 && column === 0 && index === 0 && firstDay.weekday > 0
+                        ? `grid-row-start: ${firstDay.weekday + 1}`
+                        : undefined
+                    }
+                  />
+                )),
+              )}
+            </div>
+          </div>
+        ))
+      }
     </div>
 
     <div class="meta">
@@ -165,6 +185,7 @@ const summary = `${plural(stats.total)} no GitHub nos últimos 12 meses`;
   .activity {
     --cell-gap: 3px;
     --columns: repeat(var(--weeks), minmax(0, 1fr));
+    container-type: inline-size;
     display: flex;
     flex-direction: column;
     gap: 20px;
@@ -199,11 +220,17 @@ const summary = `${plural(stats.total)} no GitHub nos últimos 12 meses`;
     color: var(--text);
   }
 
-  .months {
+  .canvas {
     display: grid;
     grid-template-columns: var(--columns);
     column-gap: var(--cell-gap);
-    margin-bottom: 8px;
+    row-gap: 8px;
+  }
+
+  .months {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: subgrid;
     font-size: 12px;
     line-height: 1;
     color: var(--text-muted);
@@ -214,12 +241,24 @@ const summary = `${plural(stats.total)} no GitHub nos últimos 12 meses`;
     white-space: nowrap;
   }
 
-  .grid {
+  .months-half {
+    display: none;
+  }
+
+  .half {
+    grid-column: span var(--span);
     display: grid;
-    grid-template-columns: var(--columns);
+    grid-template-columns: subgrid;
+    row-gap: 8px;
+  }
+
+  .grid {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: subgrid;
     grid-template-rows: repeat(7, auto);
     grid-auto-flow: column;
-    gap: var(--cell-gap);
+    row-gap: var(--cell-gap);
   }
 
   .cell {
@@ -291,18 +330,22 @@ const summary = `${plural(stats.total)} no GitHub nos últimos 12 meses`;
     width: 11px;
   }
 
-  @media (max-width: 899px) {
-    .scroll {
-      overflow-x: auto;
-      direction: rtl;
-      padding-bottom: 8px;
-      scrollbar-width: thin;
-      scrollbar-color: var(--border-strong) transparent;
+  @container (max-width: 639px) {
+    .canvas {
+      grid-template-columns: repeat(var(--split), minmax(0, 1fr));
+      row-gap: 16px;
     }
 
-    .canvas {
-      direction: ltr;
-      min-width: 720px;
+    .months-full {
+      display: none;
+    }
+
+    .months-half {
+      display: grid;
+    }
+
+    .half {
+      grid-column: 1 / -1;
     }
   }
 
