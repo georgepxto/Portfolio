@@ -1,7 +1,7 @@
 ---
 title: Lunna Pijama
 slug: lunna-pijama
-order: 6
+order: 7
 featured: true
 meta: Cliente · Teresina, PI · 2026
 year: 2026

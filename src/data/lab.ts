@@ -20,11 +20,6 @@ export const lab: LabItem[] = [
     linkLabel: 'repositório',
   },
   {
-    name: 'Giz',
-    description: 'Agenda e controle financeiro para professoras particulares, com o valor a receber de cada ciclo.',
-    stack: 'React · Firebase',
-  },
-  {
     name: 'FilaKaraokê',
     description: 'Fila de karaokê em tempo real: cada convidado entra pelo celular e avisa quando terminou de cantar.',
     stack: 'React · Supabase',
