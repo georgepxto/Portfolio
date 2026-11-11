@@ -287,8 +287,13 @@ const details = [
     background: var(--surface);
   }
 
+  .prose :global(p:has(> img)) {
+    max-width: none;
+    margin: 32px 0 40px;
+  }
+
   .prose :global(img) {
-    margin: 32px 0;
+    width: 100%;
     border: 1px solid var(--border);
   }
 
