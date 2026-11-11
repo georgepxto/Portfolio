@@ -9,6 +9,8 @@ export const site = {
   whatsapp: 'http://wa.me/+5586994767818',
   email: 'georgepxto@gmail.com',
   github: 'georgepxto',
+  linkedin: '',
+  instagram: '',
   siteUrl: '[PREENCHER]',
 } as const;
 

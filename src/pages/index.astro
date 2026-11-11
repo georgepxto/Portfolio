@@ -2,6 +2,7 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Hero from '../components/Hero.astro';
 import ContributionGraph from '../components/ContributionGraph.astro';
+import HatchBand from '../components/HatchBand.astro';
 import Section from '../components/Section.astro';
 import ProjectCard from '../components/ProjectCard.astro';
 import LabList from '../components/LabList.astro';
@@ -42,10 +43,20 @@ const jsonLd = {
 <BaseLayout title={title} description={description} jsonLd={jsonLd}>
   <Hero />
 
-  {contributions && <ContributionGraph data={contributions} />}
+  <HatchBand dimension />
+
+  {
+    contributions && (
+      <>
+        <ContributionGraph data={contributions} dimension />
+        <HatchBand />
+      </>
+    )
+  }
 
   <Section
     id="trabalhos"
+    dimension={!contributions}
     number="01"
     title="Trabalhos selecionados"
     subtitle="Sistemas e sites para clientes, propostas e produtos próprios."
@@ -54,6 +65,8 @@ const jsonLd = {
       {projects.map((project, index) => <ProjectCard project={project} index={index + 1} />)}
     </div>
   </Section>
+
+  <HatchBand />
 
   <Section
     id="laboratorio"
@@ -64,17 +77,25 @@ const jsonLd = {
     <LabList items={lab} />
   </Section>
 
+  <HatchBand />
+
   <Section id="servicos" number="03" title="Serviços" subtitle="O que posso fazer pela sua empresa.">
     <ServicesGrid items={services} />
   </Section>
+
+  <HatchBand />
 
   <Section id="stack" number="04" title="Stack" subtitle="Ferramentas que uso nos projetos desta página.">
     <StackList groups={stack} />
   </Section>
 
+  <HatchBand />
+
   <Section id="sobre" number="05" title="Sobre" subtitle={`${site.role} em ${site.city}, ${site.state}.`}>
     <About />
   </Section>
+
+  <HatchBand />
 
   <Contact />
 </BaseLayout>

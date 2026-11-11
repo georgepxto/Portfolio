@@ -1,0 +1,75 @@
+<span class="clock" data-local-clock aria-live="off">
+  <time>--:--</time>
+  <span class="clock-diff" data-clock-diff>// horário de Brasília (UTC−3)</span>
+</span>
+
+<style>
+  .clock {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 0 8px;
+  }
+
+  time {
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .clock-diff {
+    color: var(--text-faint);
+  }
+</style>
+
+<script>
+  const zone = 'America/Fortaleza';
+  const clockFormat = new Intl.DateTimeFormat('pt-BR', { hour: '2-digit', minute: '2-digit', timeZone: zone });
+  const partsFormat = new Intl.DateTimeFormat('en-US', {
+    timeZone: zone,
+    hourCycle: 'h23',
+    year: 'numeric',
+    month: 'numeric',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+  });
+
+  function zoneOffset(date: Date): number {
+    const parts = Object.fromEntries(
+      partsFormat.formatToParts(date).map((part) => [part.type, Number(part.value)]),
+    );
+    const wallClock = Date.UTC(parts.year, parts.month - 1, parts.day, parts.hour, parts.minute);
+    const minute = Math.floor(date.getTime() / 60_000) * 60_000;
+    return Math.round((wallClock - minute) / 60_000);
+  }
+
+  function formatGap(minutes: number): string {
+    const hours = Math.floor(minutes / 60);
+    const rest = minutes % 60;
+    return rest ? `${hours}h${String(rest).padStart(2, '0')}` : `${hours}h`;
+  }
+
+  function describe(date: Date): string {
+    const diff = -date.getTimezoneOffset() - zoneOffset(date);
+    if (diff === 0) return '// mesmo horário que você';
+    return diff > 0 ? `// ${formatGap(diff)} atrás de você` : `// ${formatGap(-diff)} à frente de você`;
+  }
+
+  function update() {
+    const now = new Date();
+    const time = clockFormat.format(now);
+    const note = describe(now);
+
+    document.querySelectorAll<HTMLElement>('[data-local-clock]').forEach((clock) => {
+      const element = clock.querySelector('time');
+      const diff = clock.querySelector('[data-clock-diff]');
+      if (element) {
+        element.textContent = time;
+        element.dateTime = time;
+      }
+      if (diff) diff.textContent = note;
+    });
+  }
+
+  update();
+  setInterval(update, 30_000);
+</script>

@@ -1,16 +1,21 @@
 ---
+import Dimension from './Dimension.astro';
+import { tokens } from '../config/tokens';
+
 interface Props {
   id: string;
   number: string;
   title: string;
   subtitle: string;
+  dimension?: boolean;
 }
 
-const { id, number, title, subtitle } = Astro.props;
+const { id, number, title, subtitle, dimension = false } = Astro.props;
 const headingId = `${id}-titulo`;
 ---
 
 <section id={id} class="section" aria-labelledby={headingId}>
+  {dimension && <Dimension axis="vertical" size={tokens.sectionPad} side="left" />}
   <div class="section-intro">
     <p class="section-number mono" aria-hidden="true">{number}</p>
     <h2 id={headingId}>{title}</h2>
@@ -24,11 +29,11 @@ const headingId = `${id}-titulo`;
 
 <style>
   .section {
+    position: relative;
     display: flex;
     flex-wrap: wrap;
     gap: 32px 48px;
-    padding: 72px var(--gutter);
-    border-top: 1px solid var(--border);
+    padding: var(--section-pad) var(--gutter);
   }
 
   .section-intro {

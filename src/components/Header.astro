@@ -1,5 +1,6 @@
 ---
 import GithubIcon from './GithubIcon.astro';
+import GridRow from './GridRow.astro';
 import { githubUrl } from '../config/site';
 
 const links = [
@@ -11,7 +12,8 @@ const links = [
 ];
 ---
 
-<header class="site-header">
+<GridRow as="header" class="site-header-row">
+<div class="site-header">
   <a class="logo mono" href="/#topo" aria-label="George, início">george<span aria-hidden="true">/</span></a>
   <nav aria-label="Principal">
     <ul role="list">
@@ -27,13 +29,18 @@ const links = [
   <a class="icon-link" href={githubUrl} aria-label="GitHub de George" rel="noopener" target="_blank">
     <GithubIcon />
   </a>
-</header>
+</div>
+</GridRow>
 
 <style>
-  .site-header {
+  :global(.site-header-row) {
     position: sticky;
     top: 0;
     z-index: 20;
+    background: var(--bg);
+  }
+
+  .site-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -41,8 +48,6 @@ const links = [
     gap: 0 4px;
     min-height: var(--header-height);
     padding: 0 var(--gutter);
-    background: var(--bg);
-    border-bottom: 1px solid var(--border);
   }
 
   .logo {

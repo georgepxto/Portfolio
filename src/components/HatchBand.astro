@@ -1,0 +1,24 @@
+---
+import GridRow from './GridRow.astro';
+import Dimension from './Dimension.astro';
+import { tokens } from '../config/tokens';
+
+interface Props {
+  dimension?: boolean;
+}
+
+const { dimension = false } = Astro.props;
+---
+
+<GridRow class="hatch-band" aria-hidden="true">
+  {dimension && <Dimension axis="vertical" size={tokens.band} side="right" />}
+</GridRow>
+
+<style>
+  :global(.hatch-band) {
+    height: var(--band);
+    margin-top: -1px;
+    box-shadow: inset 0 1px var(--border);
+    background: repeating-linear-gradient(-45deg, var(--border) 0 1px, transparent 1px 6px);
+  }
+</style>

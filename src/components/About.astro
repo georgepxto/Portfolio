@@ -21,6 +21,7 @@ const photo = Object.values(photos)[0]?.default;
     }
   </div>
   <div class="text">
+    <p class="lead">Construo sistemas de gestão, produtos SaaS e sites para empresas. Do banco de dados à interface.</p>
     <p class="lead">
       Sou desenvolvedor web freelancer em Parnaíba, no Piauí. Trabalho com sistemas para o Instituto OIG, produtos SaaS
       próprios e sites para empresas da região.
@@ -60,6 +61,10 @@ const photo = Object.values(photos)[0]?.default;
     max-width: 58ch;
     font-size: 17px;
     color: var(--text-soft);
+  }
+
+  .lead + .lead {
+    margin-top: 16px;
   }
 
   .secondary {

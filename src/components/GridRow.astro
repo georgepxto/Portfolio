@@ -1,0 +1,32 @@
+---
+import type { HTMLAttributes } from 'astro/types';
+
+type Props = HTMLAttributes<'div'> & {
+  as?: 'div' | 'header' | 'section';
+  innerClass?: string;
+};
+
+const { as: Tag = 'div', class: className, innerClass, ...rest } = Astro.props;
+---
+
+<Tag class:list={['grid-row', className]} {...rest}>
+  <div class:list={['grid-row-inner', innerClass]}>
+    <slot />
+  </div>
+</Tag>
+
+<style>
+  .grid-row {
+    width: 100cqw;
+    margin-inline: calc(50% - 50cqw);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .grid-row-inner {
+    position: relative;
+    max-width: 1180px;
+    height: 100%;
+    margin-inline: auto;
+    border-inline: 1px solid var(--border);
+  }
+</style>

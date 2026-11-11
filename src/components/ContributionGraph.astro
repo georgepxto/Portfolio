@@ -6,9 +6,10 @@ import { githubUrl, site } from '../config/site';
 
 interface Props {
   data: Contributions;
+  dimension?: boolean;
 }
 
-const { data } = Astro.props;
+const { data, dimension = false } = Astro.props;
 const { weeks } = data;
 
 const monthNames = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
@@ -86,6 +87,7 @@ const summary = `${plural(stats.total)} no GitHub nos últimos 12 meses`;
 
 <Section
   id="atividade"
+  dimension={dimension}
   number="GitHub"
   title="Atividade"
   subtitle="Commits e revisões dos últimos 12 meses, atualizados todo dia."
