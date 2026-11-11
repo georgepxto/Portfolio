@@ -1,0 +1,140 @@
+---
+import GridRow from './GridRow.astro';
+import { padIndex } from '../lib/projects';
+import type { PriceItem, ProcessStep } from '../data/process';
+
+interface Props {
+  steps: ProcessStep[];
+  prices: PriceItem[];
+}
+
+const { steps, prices } = Astro.props;
+---
+
+<GridRow>
+  <ol class="steps" role="list">
+    {
+      steps.map((step, index) => (
+        <li class="step">
+          <span class="step-number mono" aria-hidden="true">{padIndex(index + 1)}</span>
+          <h3>{step.title}</h3>
+          <p>{step.description}</p>
+        </li>
+      ))
+    }
+  </ol>
+</GridRow>
+
+<GridRow>
+  <dl class="pricing">
+    {
+      prices.map((price) => (
+        <div class="price">
+          <dt class="mono">{price.label}</dt>
+          <dd>{price.value}</dd>
+        </div>
+      ))
+    }
+  </dl>
+</GridRow>
+
+<style>
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .step {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 0;
+    padding: 24px 16px;
+  }
+
+  .step + .step {
+    border-left: 1px solid var(--border);
+  }
+
+  .step-number {
+    font-size: 13px;
+    color: var(--accent);
+  }
+
+  h3 {
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.35;
+  }
+
+  .step p {
+    font-size: 15px;
+    color: var(--text-muted);
+  }
+
+  .pricing {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .price {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 4px 16px;
+    min-width: 0;
+    padding: 14px 16px;
+  }
+
+  .price + .price {
+    border-left: 1px solid var(--border);
+  }
+
+  .price dt {
+    font-size: 12px;
+    color: var(--text-faint);
+  }
+
+  .price dd {
+    font-size: 15px;
+    color: var(--text);
+    text-align: right;
+  }
+
+  @media (max-width: 880px) {
+    .steps {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .step:nth-child(odd) {
+      border-left: 0;
+    }
+
+    .step:nth-child(n + 3) {
+      border-top: 1px solid var(--border);
+    }
+  }
+
+  @media (max-width: 640px) {
+    .pricing {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .price + .price {
+      border-left: 0;
+      border-top: 1px solid var(--border);
+    }
+  }
+
+  @media (max-width: 480px) {
+    .steps {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .step + .step {
+      border-left: 0;
+      border-top: 1px solid var(--border);
+    }
+  }
+</style>

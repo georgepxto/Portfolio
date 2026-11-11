@@ -16,7 +16,8 @@ export const site = {
 
 export const fullName = `${site.name} ${site.surname}`;
 export const whatsappNumber = site.whatsapp.replace(/^https?:\/\/wa\.me\//, '').replace(/\D/g, '');
-export const whatsappUrl = `https://wa.me/${whatsappNumber || site.whatsapp}`;
+export const whatsappMessage = 'Olá, George! Vi seu site e quero um orçamento.';
+export const whatsappUrl = `https://wa.me/${whatsappNumber || site.whatsapp}?text=${encodeURIComponent(whatsappMessage)}`;
 export const githubUrl = `https://github.com/${site.github}`;
 export const emailUrl = `mailto:${site.email}`;
 

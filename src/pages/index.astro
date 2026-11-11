@@ -8,14 +8,18 @@ import ProjectCard from '../components/ProjectCard.astro';
 import LabList from '../components/LabList.astro';
 import ServicesGrid from '../components/ServicesGrid.astro';
 import StackList from '../components/StackList.astro';
+import ProcessSteps from '../components/ProcessSteps.astro';
+import Testimonials from '../components/Testimonials.astro';
 import About from '../components/About.astro';
 import Contact from '../components/Contact.astro';
 import { lab } from '../data/lab';
 import { services } from '../data/services';
 import { stack } from '../data/stack';
+import { pricing, processSteps } from '../data/process';
+import { testimonials } from '../data/testimonials';
 import { getFeaturedProjects } from '../lib/projects';
 import { getContributions } from '../lib/github';
-import { fullName, githubUrl, site } from '../config/site';
+import { fullName, githubUrl, site, whatsappNumber } from '../config/site';
 
 const projects = await getFeaturedProjects();
 const contributions = await getContributions();
@@ -24,19 +28,36 @@ const title = `${fullName} · ${site.role} em ${site.city}, ${site.state}`;
 const description =
   'Desenvolvedor web em Parnaíba, PI. Sistemas de gestão, produtos SaaS e sites para empresas, do banco de dados à interface.';
 
+const homeUrl = new URL('/', Astro.site).href;
+const address = {
+  '@type': 'PostalAddress',
+  addressLocality: site.city,
+  addressRegion: site.state,
+  addressCountry: site.country,
+};
+
 const jsonLd = {
   '@context': 'https://schema.org',
-  '@type': 'Person',
-  name: fullName,
-  jobTitle: site.role,
-  url: new URL('/', Astro.site).href,
-  sameAs: [githubUrl],
-  address: {
-    '@type': 'PostalAddress',
-    addressLocality: site.city,
-    addressRegion: site.state,
-    addressCountry: site.country,
-  },
+  '@graph': [
+    {
+      '@type': 'Person',
+      '@id': `${homeUrl}#pessoa`,
+      name: fullName,
+      jobTitle: site.role,
+      url: homeUrl,
+      sameAs: [githubUrl],
+      address,
+    },
+    {
+      '@type': 'ProfessionalService',
+      '@id': `${homeUrl}#servico`,
+      name: `${fullName} · ${site.role}`,
+      url: homeUrl,
+      telephone: `+${whatsappNumber}`,
+      address,
+      areaServed: [site.city, site.stateName, 'Brasil'],
+    },
+  ],
 };
 ---
 
@@ -66,13 +87,8 @@ const jsonLd = {
 
   <HatchBand />
 
-  <Section
-    id="laboratorio"
-    number="02"
-    title="Laboratório"
-    subtitle="Projetos pessoais e ferramentas que fiz para uso próprio."
-  >
-    <LabList items={lab} />
+  <Section id="como-funciona" number="02" title="Como funciona" subtitle="Da primeira mensagem ao sistema no ar.">
+    <ProcessSteps steps={processSteps} prices={pricing} />
   </Section>
 
   <HatchBand />
@@ -83,14 +99,31 @@ const jsonLd = {
 
   <HatchBand />
 
-  <Section id="stack" number="04" title="Stack" subtitle="Ferramentas que uso nos projetos desta página.">
-    <StackList groups={stack} />
+  <Section id="depoimentos" number="04" title="O que dizem os clientes" subtitle="Quem já contratou.">
+    <Testimonials items={testimonials} />
   </Section>
 
   <HatchBand />
 
-  <Section id="sobre" number="05" title="Sobre" subtitle={`${site.role} em ${site.city}, ${site.state}.`}>
+  <Section
+    id="laboratorio"
+    number="05"
+    title="Laboratório"
+    subtitle="Projetos pessoais e ferramentas que fiz para uso próprio."
+  >
+    <LabList items={lab} />
+  </Section>
+
+  <HatchBand />
+
+  <Section id="sobre" number="06" title="Sobre" subtitle={`${site.role} em ${site.city}, ${site.state}.`}>
     <About />
+  </Section>
+
+  <HatchBand />
+
+  <Section id="stack" number="07" title="Stack" subtitle="Ferramentas que uso nos projetos desta página.">
+    <StackList groups={stack} />
   </Section>
 
   <HatchBand />

@@ -4,6 +4,7 @@ export interface LabItem {
   stack: string;
   href?: string;
   linkLabel?: 'repositório' | 'site';
+  status?: 'privado' | 'em andamento';
 }
 
 export const lab: LabItem[] = [
@@ -11,6 +12,7 @@ export const lab: LabItem[] = [
     name: 'Caça-Cliente',
     description: 'Encontra empresas locais sem site no Google Maps, para prospecção.',
     stack: 'React · Node · Playwright',
+    status: 'privado',
   },
   {
     name: 'MonitorHub',
@@ -23,6 +25,7 @@ export const lab: LabItem[] = [
     name: 'FilaKaraokê',
     description: 'Fila de karaokê em tempo real: cada convidado entra pelo celular e avisa quando terminou de cantar.',
     stack: 'React · Supabase',
+    status: 'privado',
   },
   {
     name: 'Bots do Diário Oficial',
@@ -42,10 +45,12 @@ export const lab: LabItem[] = [
     name: 'Início',
     description: 'Launcher leve para Google TV, feito para a TCL C6K.',
     stack: 'Google TV',
+    status: 'privado',
   },
   {
     name: 'MCHOSE V9',
     description: 'App portátil para controlar o headset MCHOSE V9 Pro sem o software oficial.',
-    stack: 'Rust · em desenvolvimento',
+    stack: 'Rust',
+    status: 'em andamento',
   },
 ];
