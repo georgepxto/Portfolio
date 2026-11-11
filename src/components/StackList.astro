@@ -1,0 +1,48 @@
+---
+import type { StackGroup } from '../data/stack';
+
+interface Props {
+  groups: StackGroup[];
+}
+
+const { groups } = Astro.props;
+---
+
+<dl class="stack">
+  {
+    groups.map((group) => (
+      <div class="row">
+        <dt class="mono">{group.label}</dt>
+        <dd>{group.items.join(', ')}</dd>
+      </div>
+    ))
+  }
+</dl>
+
+<style>
+  .stack {
+    border-top: 1px solid var(--border);
+  }
+
+  .row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 4px 16px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  dt {
+    flex: none;
+    width: 150px;
+    font-size: 12px;
+    color: var(--text-faint);
+  }
+
+  dd {
+    flex: 1 1 200px;
+    font-size: 15px;
+    color: var(--text);
+  }
+</style>

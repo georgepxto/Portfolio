@@ -1,0 +1,361 @@
+---
+import { render } from 'astro:content';
+import { getImage } from 'astro:assets';
+import ArrowLeft from '@lucide/astro/icons/arrow-left';
+import ArrowRight from '@lucide/astro/icons/arrow-right';
+import ArrowUpRight from '@lucide/astro/icons/arrow-up-right';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ProjectCover from '../../components/ProjectCover.astro';
+import { getProjects, type Project } from '../../lib/projects';
+import { fullName } from '../../config/site';
+
+export async function getStaticPaths() {
+  const projects = await getProjects();
+  return projects.map((project, index) => ({
+    params: { slug: project.id },
+    props: { project, next: projects[(index + 1) % projects.length] },
+  }));
+}
+
+interface Props {
+  project: Project;
+  next: Project;
+}
+
+const { project, next } = Astro.props;
+const { title, year, client, role, stack, status, summary, url, cover } = project.data;
+const { Content } = await render(project);
+const ogImage = cover ? (await getImage({ src: cover, width: 1200, format: 'jpg' })).src : undefined;
+const host = url ? new URL(url).hostname.replace(/^www\./, '') : undefined;
+
+const details = [
+  { label: 'Cliente', value: client },
+  { label: 'Papel', value: role },
+  { label: 'Stack', value: stack.join(', ') },
+  { label: 'Status', value: status, accent: true },
+];
+---
+
+<BaseLayout
+  title={`${title} · Estudo de caso · ${fullName}`}
+  description={summary}
+  image={ogImage}
+  type="article"
+>
+  <article class="case" aria-labelledby="case-title">
+    <a class="back" href="/#trabalhos">
+      <ArrowLeft aria-hidden="true" />
+      Trabalhos
+    </a>
+
+    <header class="case-header">
+      <p class="meta mono">Estudo de caso · {year}</p>
+      <h1 id="case-title">{title}</h1>
+      <p class="summary">{summary}</p>
+      {
+        url && (
+          <a class="external" href={url} target="_blank" rel="noopener">
+            {host}
+            <ArrowUpRight aria-hidden="true" />
+          </a>
+        )
+      }
+    </header>
+
+    <dl class="details">
+      {
+        details.map((detail) => (
+          <div class="detail">
+            <dt class="mono">{detail.label}</dt>
+            <dd class:list={{ accent: detail.accent }}>{detail.value}</dd>
+          </div>
+        ))
+      }
+    </dl>
+
+    <div class="case-cover">
+      <ProjectCover
+        cover={cover}
+        alt={`Captura de tela do projeto ${title}`}
+        ratio="16 / 8"
+        widths={[640, 1100, 1600]}
+        sizes="(max-width: 1180px) 100vw, 1100px"
+        loading="eager"
+      />
+    </div>
+
+    <div class="prose">
+      <Content />
+    </div>
+
+    {
+      next.id !== project.id && (
+        <nav class="next" aria-label="Próximo projeto">
+          <a href={`/trabalhos/${next.id}/`}>
+            <span class="next-label mono">Próximo projeto</span>
+            <span class="next-title">
+              {next.data.title}
+              <ArrowRight aria-hidden="true" />
+            </span>
+          </a>
+        </nav>
+      )
+    }
+  </article>
+</BaseLayout>
+
+<style>
+  .case {
+    padding: 40px var(--gutter) 0;
+  }
+
+  .back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    font-size: 14px;
+    color: var(--text-muted);
+    transition: color 0.15s ease;
+  }
+
+  .back:hover {
+    color: var(--text);
+  }
+
+  .back :global(svg) {
+    width: 16px;
+    height: 16px;
+    transition: transform 0.2s ease;
+  }
+
+  .back:hover :global(svg) {
+    transform: translateX(-3px);
+  }
+
+  .case-header {
+    padding: 40px 0 48px;
+  }
+
+  .meta {
+    font-size: 13px;
+    color: var(--accent);
+  }
+
+  h1 {
+    margin-top: 16px;
+    max-width: 20ch;
+    font-size: clamp(2rem, 4.5vw, 3.5rem);
+    font-weight: 600;
+    line-height: 1.05;
+    letter-spacing: -0.035em;
+  }
+
+  .summary {
+    margin-top: 20px;
+    max-width: 60ch;
+    font-size: clamp(1.0625rem, 1.6vw, 1.1875rem);
+    color: var(--text-soft);
+  }
+
+  .external {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 44px;
+    margin-top: 12px;
+    font-size: 14px;
+    color: var(--accent);
+  }
+
+  .external :global(svg) {
+    width: 16px;
+    height: 16px;
+  }
+
+  .external:hover {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+
+  .details {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .detail {
+    padding: 16px 20px;
+    border-left: 1px solid var(--border);
+  }
+
+  .detail:first-child {
+    padding-left: 0;
+    border-left: 0;
+  }
+
+  dt {
+    font-size: 12px;
+    color: var(--text-faint);
+  }
+
+  dd {
+    margin-top: 4px;
+    font-size: 15px;
+    color: var(--text);
+  }
+
+  dd.accent {
+    color: var(--accent);
+  }
+
+  .case-cover {
+    margin-top: 48px;
+  }
+
+  .prose {
+    padding: 56px 0 72px;
+    color: var(--text-soft);
+  }
+
+  .prose :global(h2) {
+    margin: 48px 0 16px;
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 1.3;
+    color: var(--text);
+    letter-spacing: -0.01em;
+  }
+
+  .prose :global(h2:first-child) {
+    margin-top: 0;
+  }
+
+  .prose :global(h3) {
+    margin: 32px 0 12px;
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .prose :global(p),
+  .prose :global(ul),
+  .prose :global(ol),
+  .prose :global(blockquote) {
+    max-width: 65ch;
+  }
+
+  .prose :global(p + p),
+  .prose :global(p + ul),
+  .prose :global(p + ol),
+  .prose :global(ul + p),
+  .prose :global(ol + p) {
+    margin-top: 16px;
+  }
+
+  .prose :global(ul),
+  .prose :global(ol) {
+    padding-left: 1.25em;
+  }
+
+  .prose :global(li + li) {
+    margin-top: 10px;
+  }
+
+  .prose :global(li::marker) {
+    color: var(--accent);
+  }
+
+  .prose :global(strong) {
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .prose :global(a) {
+    color: var(--accent);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+
+  .prose :global(code) {
+    font-family: var(--font-mono);
+    font-size: 0.875em;
+    padding: 2px 6px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--surface);
+  }
+
+  .prose :global(img) {
+    margin: 32px 0;
+    border: 1px solid var(--border);
+  }
+
+  .prose :global(blockquote) {
+    margin: 24px 0;
+    padding-left: 20px;
+    border-left: 1px solid var(--accent);
+    color: var(--text-muted);
+  }
+
+  .next {
+    margin: 0 calc(var(--gutter) * -1);
+    border-top: 1px solid var(--border);
+  }
+
+  .next a {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px 24px;
+    padding: 40px var(--gutter);
+    transition: background-color 0.15s ease;
+  }
+
+  .next a:hover {
+    background: var(--surface);
+  }
+
+  .next-label {
+    font-size: 12px;
+    color: var(--text-faint);
+  }
+
+  .next-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.025em;
+  }
+
+  .next-title :global(svg) {
+    flex: none;
+    width: 24px;
+    height: 24px;
+    color: var(--accent);
+    transition: transform 0.2s ease;
+  }
+
+  .next a:hover .next-title :global(svg) {
+    transform: translateX(4px);
+  }
+
+  @media (max-width: 720px) {
+    .details {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .detail:nth-child(odd) {
+      padding-left: 0;
+      border-left: 0;
+    }
+
+    .detail:nth-child(n + 3) {
+      border-top: 1px solid var(--border);
+    }
+  }
+</style>

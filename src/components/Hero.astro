@@ -1,0 +1,200 @@
+---
+import ArrowUpRight from '@lucide/astro/icons/arrow-up-right';
+import { fullName, githubUrl, site, whatsappUrl } from '../config/site';
+
+const facts = [
+  { label: 'Local', value: `${site.city}, ${site.stateName}` },
+  { label: 'Foco', value: 'Sistemas web, SaaS e sites' },
+  { label: 'Stack', value: 'React, Vite, NestJS, Supabase' },
+  { label: 'Status', value: 'Disponível para novos projetos', accent: true },
+  { label: 'GitHub', value: site.github, href: githubUrl },
+];
+---
+
+<section id="topo" class="hero" aria-labelledby="hero-title">
+  <p class="eyebrow mono">
+    <span class="dot" aria-hidden="true"></span>
+    {site.role} · {site.city}, {site.state}
+  </p>
+  <h1 id="hero-title" class="reveal">{fullName}</h1>
+  <div class="hero-body">
+    <div class="intro reveal">
+      <p class="lead">Construo sistemas de gestão, produtos SaaS e sites para empresas. Do banco de dados à interface.</p>
+      <div class="actions">
+        <a class="button button-primary" href={whatsappUrl} target="_blank" rel="noopener">
+          Conversar no WhatsApp
+          <ArrowUpRight aria-hidden="true" />
+        </a>
+        <a class="button button-secondary" href="#trabalhos">Ver trabalhos</a>
+      </div>
+    </div>
+    <dl class="facts reveal" aria-label="Ficha técnica">
+      {
+        facts.map((fact) => (
+          <div class="fact">
+            <dt class="mono">{fact.label}</dt>
+            <dd class:list={{ accent: fact.accent }}>
+              {fact.href ? (
+                <a href={fact.href} target="_blank" rel="noopener">
+                  {fact.value}
+                </a>
+              ) : (
+                fact.value
+              )}
+            </dd>
+          </div>
+        ))
+      }
+    </dl>
+  </div>
+</section>
+
+<style>
+  .hero {
+    padding: 96px var(--gutter) 80px;
+    background-color: var(--bg);
+    background-image: radial-gradient(var(--dot-grid) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+
+  .eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+    flex: none;
+  }
+
+  h1 {
+    margin-top: 24px;
+    font-size: clamp(3rem, 7.5vw, 6rem);
+    line-height: 1;
+    font-weight: 600;
+    letter-spacing: -0.04em;
+    overflow-wrap: anywhere;
+  }
+
+  .hero-body {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 48px 64px;
+    margin-top: 56px;
+  }
+
+  .intro {
+    flex: 1 1 380px;
+    min-width: 0;
+  }
+
+  .lead {
+    max-width: 34ch;
+    font-size: clamp(1.125rem, 2vw, 1.5rem);
+    line-height: 1.45;
+    color: var(--text-soft);
+    letter-spacing: -0.01em;
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 32px;
+  }
+
+  .facts {
+    flex: 1 1 340px;
+    max-width: 440px;
+    min-width: 0;
+    border: 1px solid var(--border);
+    background: var(--bg);
+  }
+
+  .fact {
+    display: flex;
+    align-items: baseline;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .fact:last-child {
+    border-bottom: 0;
+  }
+
+  dt {
+    flex: none;
+    width: 96px;
+    font-size: 12px;
+    color: var(--text-faint);
+  }
+
+  dd {
+    flex: 1;
+    min-width: 0;
+    font-size: 14px;
+    color: var(--text);
+  }
+
+  dd.accent {
+    color: var(--accent);
+  }
+
+  dd a {
+    text-decoration: underline;
+    text-decoration-color: var(--border-strong);
+    text-underline-offset: 4px;
+    transition: text-decoration-color 0.15s ease;
+  }
+
+  dd a:hover {
+    text-decoration-color: currentColor;
+  }
+
+  @media (max-width: 640px) {
+    .hero {
+      padding-top: 64px;
+      padding-bottom: 56px;
+    }
+
+    .hero-body {
+      margin-top: 40px;
+    }
+
+    .actions .button {
+      flex: 1 1 auto;
+    }
+
+    .facts {
+      max-width: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .reveal {
+      animation: rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    .intro.reveal {
+      animation-delay: 0.12s;
+    }
+
+    .facts.reveal {
+      animation-delay: 0.24s;
+    }
+
+    @keyframes rise {
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+    }
+  }
+</style>

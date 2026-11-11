@@ -1,0 +1,145 @@
+---
+import ArrowUpRight from '@lucide/astro/icons/arrow-up-right';
+import ProjectCover from './ProjectCover.astro';
+import StackTags from './StackTags.astro';
+import { padIndex, type Project } from '../lib/projects';
+
+interface Props {
+  project: Project;
+  index: number;
+}
+
+const { project, index } = Astro.props;
+const { title, meta, summary, stack, url, cover } = project.data;
+const href = `/trabalhos/${project.id}/`;
+const host = url ? new URL(url).hostname.replace(/^www\./, '') : undefined;
+---
+
+<article class="project">
+  <div class="media">
+    <ProjectCover
+      cover={cover}
+      alt={`Captura de tela do projeto ${title}`}
+      widths={[320, 640]}
+      sizes="(max-width: 640px) 100vw, 320px"
+    />
+  </div>
+  <div class="body">
+    <p class="meta mono">{padIndex(index)} · {meta}</p>
+    <h3>
+      <a class="stretched" href={href}>{title}</a>
+    </h3>
+    <p class="summary">{summary}</p>
+    <StackTags items={stack} />
+    {
+      url && (
+        <a class="external" href={url} target="_blank" rel="noopener">
+          {host}
+          <ArrowUpRight aria-hidden="true" />
+        </a>
+      )
+    }
+  </div>
+</article>
+
+<style>
+  .project {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px 40px;
+    padding: 36px 0;
+    border-top: 1px solid var(--border);
+  }
+
+  .project:has(.stretched:focus-visible) {
+    outline: 2px solid var(--accent);
+    outline-offset: 4px;
+  }
+
+  .media {
+    flex: 0 1 320px;
+    max-width: 320px;
+    min-width: 0;
+  }
+
+  .body {
+    flex: 1 1 300px;
+    min-width: 0;
+  }
+
+  .meta {
+    font-size: 12px;
+    color: var(--text-faint);
+  }
+
+  h3 {
+    margin-top: 10px;
+    font-size: clamp(1.5rem, 2.6vw, 2rem);
+    font-weight: 600;
+    line-height: 1.15;
+    letter-spacing: -0.025em;
+  }
+
+  .stretched {
+    text-decoration: underline;
+    text-decoration-color: transparent;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 6px;
+    transition: text-decoration-color 0.2s ease;
+  }
+
+  .stretched:focus-visible {
+    outline: none;
+  }
+
+  .stretched::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+
+  .project:hover .stretched {
+    text-decoration-color: currentColor;
+  }
+
+  .summary {
+    margin-top: 12px;
+    max-width: 62ch;
+    font-size: 15px;
+    color: var(--text-muted);
+  }
+
+  .body :global(.tags) {
+    margin-top: 20px;
+  }
+
+  .external {
+    position: relative;
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 44px;
+    margin-top: 8px;
+    font-size: 14px;
+    color: var(--accent);
+  }
+
+  .external :global(svg) {
+    width: 16px;
+    height: 16px;
+  }
+
+  .external:hover {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+
+  @media (max-width: 640px) {
+    .media {
+      flex-basis: 100%;
+      max-width: none;
+    }
+  }
+</style>

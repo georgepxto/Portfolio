@@ -1,0 +1,102 @@
+---
+import ArrowUpRight from '@lucide/astro/icons/arrow-up-right';
+import type { LabItem } from '../data/lab';
+
+interface Props {
+  items: LabItem[];
+}
+
+const { items } = Astro.props;
+---
+
+<ul class="lab" role="list">
+  {
+    items.map((item) => (
+      <li class="row">
+        <p class="name">
+          {item.repo ? (
+            <a href={item.repo} target="_blank" rel="noopener">
+              {item.name}
+              <ArrowUpRight aria-hidden="true" />
+              <span class="visually-hidden">(repositório)</span>
+            </a>
+          ) : (
+            item.name
+          )}
+        </p>
+        <p class="description">{item.description}</p>
+        <p class="stack mono">{item.stack}</p>
+      </li>
+    ))
+  }
+</ul>
+
+<style>
+  .lab {
+    border-top: 1px solid var(--border);
+  }
+
+  .row {
+    display: grid;
+    grid-template-columns: minmax(130px, 0.8fr) minmax(0, 2fr) minmax(120px, 1fr);
+    gap: 4px 24px;
+    align-items: baseline;
+    padding: 16px 12px;
+    border-bottom: 1px solid var(--border);
+    transition: background-color 0.15s ease;
+  }
+
+  .row:hover {
+    background: var(--surface);
+  }
+
+  .name {
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  .name a {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    min-height: 44px;
+    margin: -12px 0;
+  }
+
+  .name a:hover {
+    color: var(--accent);
+  }
+
+  .name :global(svg) {
+    width: 14px;
+    height: 14px;
+    color: var(--text-faint);
+  }
+
+  .description {
+    font-size: 15px;
+    color: var(--text-muted);
+  }
+
+  .stack {
+    font-size: 12px;
+    color: var(--text-faint);
+    text-align: right;
+  }
+
+  @media (max-width: 720px) {
+    .row {
+      grid-template-columns: 1fr;
+      padding: 16px 0;
+    }
+
+    .row:hover {
+      background: transparent;
+    }
+
+    .stack {
+      text-align: left;
+      margin-top: 4px;
+    }
+  }
+</style>

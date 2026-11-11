@@ -1,0 +1,118 @@
+---
+import GithubIcon from './GithubIcon.astro';
+import { githubUrl } from '../config/site';
+
+const links = [
+  { href: '/#trabalhos', label: 'Trabalhos' },
+  { href: '/#laboratorio', label: 'Laboratório' },
+  { href: '/#servicos', label: 'Serviços' },
+  { href: '/#sobre', label: 'Sobre' },
+  { href: '/#contato', label: 'Contato' },
+];
+---
+
+<header class="site-header">
+  <a class="logo mono" href="/#topo" aria-label="George, início">george<span aria-hidden="true">/</span></a>
+  <nav aria-label="Principal">
+    <ul role="list">
+      {
+        links.map((link) => (
+          <li>
+            <a href={link.href}>{link.label}</a>
+          </li>
+        ))
+      }
+    </ul>
+  </nav>
+  <a class="icon-link" href={githubUrl} aria-label="GitHub de George" rel="noopener" target="_blank">
+    <GithubIcon />
+  </a>
+</header>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0 4px;
+    min-height: var(--header-height);
+    padding: 0 var(--gutter);
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .logo {
+    margin-right: auto;
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  .logo span {
+    color: var(--accent);
+  }
+
+  ul {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0 4px;
+    margin: 0;
+  }
+
+  nav a,
+  .icon-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    min-width: 44px;
+    padding: 0 8px;
+    font-size: 14px;
+    color: var(--text-muted);
+    transition: color 0.15s ease;
+  }
+
+  nav a:hover,
+  .icon-link:hover {
+    color: var(--text);
+  }
+
+  .icon-link {
+    padding: 0;
+    margin-right: -12px;
+  }
+
+  @media (max-width: 640px) {
+    .site-header {
+      padding-top: 4px;
+      padding-bottom: 4px;
+    }
+
+    .icon-link {
+      order: 1;
+    }
+
+    nav {
+      order: 2;
+      flex-basis: 100%;
+    }
+
+    ul {
+      margin-left: -6px;
+      gap: 0;
+    }
+
+    nav a {
+      padding: 0 6px;
+      font-size: 13.5px;
+    }
+  }
+</style>

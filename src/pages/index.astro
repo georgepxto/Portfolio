@@ -1,0 +1,85 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Hero from '../components/Hero.astro';
+import Section from '../components/Section.astro';
+import ProjectCard from '../components/ProjectCard.astro';
+import LabList from '../components/LabList.astro';
+import ServicesGrid from '../components/ServicesGrid.astro';
+import StackList from '../components/StackList.astro';
+import About from '../components/About.astro';
+import Contact from '../components/Contact.astro';
+import { lab } from '../data/lab';
+import { services } from '../data/services';
+import { stack } from '../data/stack';
+import { getFeaturedProjects } from '../lib/projects';
+import { fullName, githubUrl, site } from '../config/site';
+
+const projects = await getFeaturedProjects();
+
+const title = `${fullName} · ${site.role} em ${site.city}, ${site.state}`;
+const description =
+  'Desenvolvedor web em Parnaíba, PI. Sistemas de gestão, produtos SaaS e sites para empresas, do banco de dados à interface.';
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: fullName,
+  jobTitle: site.role,
+  url: new URL('/', Astro.site).href,
+  sameAs: [githubUrl],
+  address: {
+    '@type': 'PostalAddress',
+    addressLocality: site.city,
+    addressRegion: site.state,
+    addressCountry: site.country,
+  },
+};
+---
+
+<BaseLayout title={title} description={description} jsonLd={jsonLd}>
+  <Hero />
+
+  <Section
+    id="trabalhos"
+    number="01"
+    title="Trabalhos selecionados"
+    subtitle="Sistemas e sites em produção, para clientes e produtos próprios."
+  >
+    <div class="projects">
+      {projects.map((project, index) => <ProjectCard project={project} index={index + 1} />)}
+    </div>
+  </Section>
+
+  <Section
+    id="laboratorio"
+    number="02"
+    title="Laboratório"
+    subtitle="Projetos pessoais e ferramentas que fiz para uso próprio."
+  >
+    <LabList items={lab} />
+  </Section>
+
+  <Section id="servicos" number="03" title="Serviços" subtitle="O que posso fazer pela sua empresa.">
+    <ServicesGrid items={services} />
+  </Section>
+
+  <Section id="stack" number="04" title="Stack" subtitle="Ferramentas que uso nos projetos desta página.">
+    <StackList groups={stack} />
+  </Section>
+
+  <Section id="sobre" number="05" title="Sobre" subtitle={`${site.role} em ${site.city}, ${site.state}.`}>
+    <About />
+  </Section>
+
+  <Contact />
+</BaseLayout>
+
+<style>
+  .projects {
+    margin-top: -36px;
+  }
+
+  .projects > :global(.project:first-child) {
+    border-top: 0;
+  }
+</style>

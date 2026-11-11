@@ -1,0 +1,115 @@
+---
+import ArrowUpRight from '@lucide/astro/icons/arrow-up-right';
+import { emailUrl, formatPhone, githubUrl, site, whatsappUrl } from '../config/site';
+
+const channels = [
+  { label: 'WhatsApp', value: formatPhone(site.whatsapp), href: whatsappUrl, accent: true, external: true },
+  { label: 'E-mail', value: site.email, href: emailUrl, external: false },
+  { label: 'GitHub', value: `github.com/${site.github}`, href: githubUrl, external: true },
+];
+---
+
+<section id="contato" class="contact" aria-labelledby="contato-titulo">
+  <h2 id="contato-titulo">Tem um projeto? Vamos conversar.</h2>
+  <ul class="channels" role="list">
+    {
+      channels.map((channel) => (
+        <li>
+          <a
+            class:list={['channel', { accent: channel.accent }]}
+            href={channel.href}
+            target={channel.external ? '_blank' : undefined}
+            rel={channel.external ? 'noopener' : undefined}
+          >
+            <span class="label mono">{channel.label}</span>
+            <span class="value">
+              {channel.value}
+              <ArrowUpRight aria-hidden="true" />
+            </span>
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</section>
+
+<style>
+  .contact {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 48px 64px;
+    padding: 96px var(--gutter);
+    border-top: 1px solid var(--border);
+  }
+
+  h2 {
+    flex: 1 1 360px;
+    max-width: 14ch;
+    font-size: clamp(2.25rem, 5.5vw, 4.5rem);
+    font-weight: 600;
+    line-height: 1.02;
+    letter-spacing: -0.035em;
+  }
+
+  .channels {
+    flex: 1 1 420px;
+    min-width: 0;
+    border-top: 1px solid var(--border);
+  }
+
+  .channel {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    min-height: 60px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .label {
+    flex: none;
+    font-size: 12px;
+    color: var(--text-faint);
+  }
+
+  .value {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    font-size: 18px;
+    color: var(--text);
+    overflow-wrap: anywhere;
+    text-align: right;
+  }
+
+  .value :global(svg) {
+    flex: none;
+    width: 18px;
+    height: 18px;
+    color: var(--text-faint);
+    transition: color 0.15s ease, transform 0.2s ease;
+  }
+
+  .accent .value {
+    color: var(--accent);
+  }
+
+  .channel:hover .value :global(svg) {
+    color: var(--accent);
+    transform: translate(2px, -2px);
+  }
+
+  .channel:hover .value {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 5px;
+  }
+
+  @media (max-width: 640px) {
+    .value {
+      font-size: 16px;
+    }
+  }
+</style>
