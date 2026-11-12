@@ -1,7 +1,6 @@
 <div class="pull-cord is-hinting" data-pull-cord>
   <div class="sway">
     <div class="swing" data-cord-swing>
-      <span class="mount" aria-hidden="true"></span>
       <span class="line" aria-hidden="true" data-cord-line></span>
       <button
         class="handle"
@@ -21,6 +20,7 @@
       </button>
     </div>
   </div>
+  <span class="mount" aria-hidden="true"></span>
 </div>
 
 <style>
@@ -44,7 +44,7 @@
   .swing {
     position: absolute;
     inset: 0;
-    transform-origin: 50% 0;
+    transform-origin: 50% 4px;
   }
 
   .sway {
@@ -71,6 +71,7 @@
     left: 50%;
     width: 12px;
     height: 5px;
+    z-index: 1;
     margin-left: -6px;
     border-radius: 0 0 3px 3px;
     background: var(--border-strong);
@@ -78,7 +79,7 @@
 
   .line {
     position: absolute;
-    top: 5px;
+    top: 4px;
     left: 50%;
     width: 1.5px;
     height: 56px;
@@ -88,7 +89,7 @@
 
   .handle {
     position: absolute;
-    top: 52px;
+    top: 51px;
     left: 0;
     display: grid;
     place-items: center;
@@ -406,7 +407,7 @@
     const polar = (event: PointerEvent) => {
       const rect = wrapper.getBoundingClientRect();
       const px = event.clientX - (rect.left + rect.width / 2);
-      const py = Math.max(event.clientY - rect.top, 1);
+      const py = Math.max(event.clientY - rect.top - 4, 1);
       return { angle: (-Math.atan2(px, py) * 180) / Math.PI, radius: Math.hypot(px, py) };
     };
 
