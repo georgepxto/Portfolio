@@ -1,5 +1,7 @@
 ---
+import ArrowUpRight from '@lucide/astro/icons/arrow-up-right';
 import GridRow from './GridRow.astro';
+import { padIndex } from '../lib/projects';
 import type { Testimonial } from '../data/testimonials';
 
 interface Props {
@@ -10,59 +12,219 @@ const { items } = Astro.props;
 ---
 
 <GridRow>
-  <ul class="testimonials" role="list" data-reveal>
-    {
-      items.map((item) => (
-        <li class="cell">
-          <figure>
+  <div class="testimonials" data-reveal data-testimonials>
+    <div class="tabs" role="tablist" aria-label="Clientes">
+      {
+        items.map((item, index) => (
+          <button
+            class="tab"
+            type="button"
+            role="tab"
+            id={`depoimento-aba-${index}`}
+            aria-selected={index === 0 ? 'true' : 'false'}
+            aria-controls={`depoimento-${index}`}
+            tabindex={index === 0 ? 0 : -1}
+          >
+            <span class="tab-number mono">{padIndex(index + 1)}</span>
+            <span class="tab-company">{item.company}</span>
+            <span class="tab-project mono">{item.project}</span>
+            <span class="progress" aria-hidden="true">
+              <span class="progress-fill" data-progress />
+            </span>
+          </button>
+        ))
+      }
+    </div>
+
+    <div class="panels">
+      {
+        items.map((item, index) => (
+          <figure
+            class="panel"
+            role="tabpanel"
+            id={`depoimento-${index}`}
+            aria-labelledby={`depoimento-aba-${index}`}
+            data-active={index === 0 ? '' : undefined}
+          >
+            <span class="mark" aria-hidden="true">
+              “
+            </span>
             <blockquote>
               <p>{item.text}</p>
             </blockquote>
             <figcaption>
-              <span class="name">{item.name}</span>
-              <span class="role mono">{item.role}</span>
+              <span class="who">
+                <span class="name">{item.name}</span>
+                <span class="role mono">{item.role}</span>
+              </span>
+              <a class="project-link" href={item.href}>
+                Ver o projeto
+                <ArrowUpRight aria-hidden="true" />
+              </a>
             </figcaption>
           </figure>
-        </li>
-      ))
-    }
-  </ul>
+        ))
+      }
+    </div>
+  </div>
 </GridRow>
 
 <style>
   .testimonials {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    display: flex;
+    flex-wrap: wrap;
   }
 
-  .cell {
+  .tabs {
+    display: flex;
+    flex: 1 1 280px;
+    flex-direction: column;
     min-width: 0;
-    padding: 24px 16px;
   }
 
-  .cell + .cell {
+  .tab {
+    position: relative;
+    display: grid;
+    grid-template-columns: 32px minmax(0, 1fr);
+    align-content: center;
+    gap: 2px 8px;
+    width: 100%;
+    min-height: 72px;
+    padding: 16px;
+    border: 0;
+    border-bottom: 1px solid var(--border);
+    background: none;
+    color: var(--text);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+  }
+
+  .tab:focus-visible {
+    outline-offset: -2px;
+  }
+
+  .tab[aria-selected='true'] {
+    background: var(--surface);
+  }
+
+  .tab-number {
+    grid-row: 1 / span 2;
+    padding-top: 3px;
+    font-size: 12px;
+    color: var(--text-faint);
+  }
+
+  .tab[aria-selected='true'] .tab-number {
+    color: var(--accent);
+  }
+
+  .tab-company {
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.3;
+    opacity: 0.6;
+    transition: opacity 0.15s ease;
+  }
+
+  .tab:hover .tab-company,
+  .tab[aria-selected='true'] .tab-company {
+    opacity: 1;
+  }
+
+  .tab-project {
+    grid-column: 2;
+    font-size: 12px;
+    color: var(--text-faint);
+  }
+
+  .progress {
+    position: absolute;
+    right: 0;
+    bottom: -1px;
+    left: 0;
+    display: none;
+    height: 2px;
+    background: var(--border);
+  }
+
+  :global(html.js) .tab[aria-selected='true'] .progress {
+    display: block;
+  }
+
+  .progress-fill {
+    position: absolute;
+    inset: 0;
+    background: var(--accent);
+    transform: scaleX(0);
+    transform-origin: left;
+  }
+
+  .panels {
+    display: grid;
+    flex: 3 1 420px;
+    min-width: 0;
+    margin-left: -1px;
     border-left: 1px solid var(--border);
   }
 
-  figure {
+  .panel {
+    grid-area: 1 / 1;
     display: flex;
     flex-direction: column;
-    gap: 20px;
-    height: 100%;
+    min-height: 300px;
+    margin: 0;
+    padding: 32px 40px 32px 32px;
+  }
+
+  :global(html.js) .panel:not([data-active]) {
+    visibility: hidden;
+  }
+
+  :global(html:not(.js)) .panel {
+    grid-area: auto;
+  }
+
+  :global(html:not(.js)) .panel + .panel {
+    border-top: 1px solid var(--border);
+  }
+
+  .mark {
+    display: block;
+    height: 0.6em;
+    font-size: 88px;
+    font-weight: 600;
+    line-height: 0.6;
+    color: var(--accent);
   }
 
   blockquote {
-    margin: 0;
-    font-size: 17px;
-    line-height: 1.55;
-    color: var(--text-soft);
+    max-width: 30ch;
+    margin: 16px 0 32px;
+    font-size: clamp(1.5rem, 2.6vw, 2.125rem);
+    font-weight: 500;
+    line-height: 1.25;
+    letter-spacing: -0.025em;
+    text-wrap: balance;
+    color: var(--text);
   }
 
   figcaption {
     display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px 24px;
+    margin-top: auto;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+  }
+
+  .who {
+    display: flex;
     flex-direction: column;
     gap: 2px;
-    margin-top: auto;
   }
 
   .name {
@@ -76,14 +238,188 @@ const { items } = Astro.props;
     color: var(--text-faint);
   }
 
-  @media (max-width: 719px) {
-    .testimonials {
-      grid-template-columns: minmax(0, 1fr);
-    }
+  .project-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 14px;
+    color: var(--accent);
+    text-decoration: underline;
+    text-decoration-color: transparent;
+    text-underline-offset: 4px;
+    transition: text-decoration-color 0.15s ease;
+  }
 
-    .cell + .cell {
-      border-left: 0;
-      border-top: 1px solid var(--border);
+  .project-link:hover {
+    text-decoration-color: currentColor;
+  }
+
+  .project-link :global(svg) {
+    width: 14px;
+    height: 14px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .progress-fill {
+      transform: none;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .panel {
+      min-height: 0;
+      padding: 28px 16px;
     }
   }
 </style>
+
+<script>
+  const DURATION = 7000;
+  const EASE = 'cubic-bezier(.2, .7, .2, 1)';
+
+  document.querySelectorAll<HTMLElement>('[data-testimonials]').forEach((root) => {
+    const tabs = Array.from(root.querySelectorAll<HTMLButtonElement>('[role="tab"]'));
+    const panels = Array.from(root.querySelectorAll<HTMLElement>('[role="tabpanel"]'));
+    if (tabs.length === 0 || tabs.length !== panels.length) return;
+
+    const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+    let active = 0;
+    let shown = 0;
+    let token = 0;
+    let hovering = false;
+    let visible = false;
+    let progress: Animation | undefined;
+    let swapping: Animation[] = [];
+
+    const parts = (panel: HTMLElement) =>
+      [panel.querySelector('blockquote'), panel.querySelector('figcaption')].filter(
+        (element): element is HTMLElement => element !== null,
+      );
+
+    const show = (index: number) => {
+      panels.forEach((panel, position) => panel.toggleAttribute('data-active', position === index));
+      shown = index;
+    };
+
+    const swap = async (index: number) => {
+      const id = ++token;
+      swapping.forEach((animation) => animation.cancel());
+      swapping = [];
+      if (index === shown) return;
+
+      if (reducedMotion.matches) {
+        show(index);
+        return;
+      }
+
+      const leaving = parts(panels[shown]).map((element) =>
+        element.animate(
+          [
+            { opacity: 1, transform: 'none' },
+            { opacity: 0, transform: 'translateY(-6px)' },
+          ],
+          { duration: 200, easing: 'ease-in', fill: 'forwards' },
+        ),
+      );
+      swapping = leaving;
+
+      try {
+        await Promise.all(leaving.map((animation) => animation.finished));
+      } catch {
+        return;
+      }
+      if (id !== token) return;
+
+      show(index);
+      leaving.forEach((animation) => animation.cancel());
+      swapping = parts(panels[index]).map((element, position) =>
+        element.animate(
+          [
+            { opacity: 0, transform: 'translateY(10px)' },
+            { opacity: 1, transform: 'none' },
+          ],
+          { duration: 450, delay: position * 60, easing: EASE, fill: 'backwards' },
+        ),
+      );
+    };
+
+    const syncProgress = () => {
+      if (!progress) return;
+      if (hovering || !visible) progress.pause();
+      else progress.play();
+    };
+
+    const startProgress = () => {
+      progress?.cancel();
+      progress = undefined;
+      if (reducedMotion.matches) return;
+
+      const fill = tabs[active].querySelector('[data-progress]');
+      if (!fill) return;
+      const current = fill.animate([{ transform: 'scaleX(0)' }, { transform: 'scaleX(1)' }], {
+        duration: DURATION,
+        easing: 'linear',
+        fill: 'forwards',
+      });
+      progress = current;
+      syncProgress();
+      current.finished
+        .then(() => {
+          if (progress === current) select((active + 1) % tabs.length, false);
+        })
+        .catch(() => {});
+    };
+
+    const select = (index: number, focus: boolean) => {
+      active = index;
+      tabs.forEach((tab, position) => {
+        const selected = position === index;
+        tab.setAttribute('aria-selected', String(selected));
+        tab.tabIndex = selected ? 0 : -1;
+      });
+      if (focus) tabs[index].focus();
+      void swap(index);
+      startProgress();
+    };
+
+    tabs.forEach((tab, index) => tab.addEventListener('click', () => select(index, false)));
+
+    root.querySelector('[role="tablist"]')?.addEventListener('keydown', (event) => {
+      const keyboard = event as KeyboardEvent;
+      const last = tabs.length - 1;
+      const moves: Record<string, number> = {
+        ArrowRight: active === last ? 0 : active + 1,
+        ArrowDown: active === last ? 0 : active + 1,
+        ArrowLeft: active === 0 ? last : active - 1,
+        ArrowUp: active === 0 ? last : active - 1,
+        Home: 0,
+        End: last,
+      };
+      const next = moves[keyboard.key];
+      if (next === undefined) return;
+      keyboard.preventDefault();
+      select(next, true);
+    });
+
+    root.addEventListener('mouseenter', () => {
+      hovering = true;
+      syncProgress();
+    });
+
+    root.addEventListener('mouseleave', () => {
+      hovering = false;
+      syncProgress();
+    });
+
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(([entry]) => {
+        visible = entry.isIntersecting;
+        syncProgress();
+      }).observe(root);
+    } else {
+      visible = true;
+    }
+
+    startProgress();
+  });
+</script>
