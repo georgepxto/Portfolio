@@ -18,13 +18,13 @@ const headingId = `${id}-titulo`;
 <section id={id} class="section" aria-labelledby={headingId}>
   <GridRow class="section-title-row">
     {dimension && <Dimension axis="vertical" size={tokens.titleRow} side="left" />}
-    <div class="section-title">
+    <div class="section-title" data-reveal>
       <p class="section-number mono" aria-hidden="true">{number}</p>
       <h2 id={headingId}>{title}</h2>
     </div>
   </GridRow>
   <GridRow>
-    <div class="section-subtitle">
+    <div class="section-subtitle" data-reveal>
       <p class="mono">{subtitle}</p>
       <slot name="aside" />
     </div>

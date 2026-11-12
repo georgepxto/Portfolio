@@ -247,6 +247,8 @@
     let audio: AudioContext | undefined;
     let motion: Animation[] = [];
     let transition: ViewTransition | undefined;
+    let flicker: number[] = [];
+    let target: Theme | undefined;
     let suppressClick = false;
     let angle = 0;
     let velocity = 0;
@@ -316,12 +318,49 @@
       return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
     };
 
+    const stopFlicker = () => {
+      flicker.forEach((timer) => window.clearTimeout(timer));
+      flicker = [];
+      target = undefined;
+      root.classList.remove('is-flickering');
+    };
+
+    const flickerOn = () => {
+      const steps: [number, Theme][] = [
+        [60, 'dark'],
+        [130, 'light'],
+        [185, 'dark'],
+        [330, 'light'],
+      ];
+      target = 'light';
+      root.classList.add('is-flickering');
+      apply('light', false);
+      flicker = steps.map(([delay, theme], index) =>
+        window.setTimeout(() => {
+          const last = index === steps.length - 1;
+          apply(theme, last);
+          if (last) stopFlicker();
+        }, delay),
+      );
+    };
+
     const switchTheme = (point: { x: number; y: number }) => {
-      const next: Theme = current() === 'light' ? 'dark' : 'light';
+      const next: Theme = (target ?? current()) === 'light' ? 'dark' : 'light';
+      stopFlicker();
       if (next === 'light') tone(2400, 700);
       else tone(1500, 300);
 
-      if (typeof document.startViewTransition !== 'function' || reducedMotion.matches) {
+      if (reducedMotion.matches) {
+        apply(next, true);
+        return;
+      }
+
+      if (next === 'light') {
+        flickerOn();
+        return;
+      }
+
+      if (typeof document.startViewTransition !== 'function') {
         apply(next, true);
         return;
       }
@@ -334,16 +373,13 @@
         .then(() => {
           const { x, y } = point;
           const radius = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
-          const closed = `circle(0px at ${x}px ${y}px)`;
-          const open = `circle(${radius}px at ${x}px ${y}px)`;
-          const lighting = next === 'light';
           root.animate(
-            { clipPath: lighting ? [closed, open] : [open, closed] },
+            { clipPath: [`circle(${radius}px at ${x}px ${y}px)`, `circle(0px at ${x}px ${y}px)`] },
             {
-              duration: lighting ? 800 : 560,
-              easing: lighting ? 'cubic-bezier(.55, 0, .2, 1)' : 'cubic-bezier(.6, 0, .85, .35)',
+              duration: 560,
+              easing: 'cubic-bezier(.6, 0, .85, .35)',
               fill: 'forwards',
-              pseudoElement: lighting ? '::view-transition-new(root)' : '::view-transition-old(root)',
+              pseudoElement: '::view-transition-old(root)',
             },
           );
         })

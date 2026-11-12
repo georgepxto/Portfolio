@@ -9,7 +9,7 @@ interface Props {
 const { groups } = Astro.props;
 ---
 
-<ul class="stack" role="list">
+<ul class="stack" role="list" data-reveal>
   {
     groups.map((group) => (
       <GridRow as="li">

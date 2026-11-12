@@ -47,17 +47,18 @@ const socials = [
               densities={[1, 2]}
               fit="cover"
               loading="eager"
+              data-hero="avatar"
             />
           ) : (
-            <div class="avatar-placeholder mono" aria-hidden="true">
+            <div class="avatar-placeholder mono" aria-hidden="true" data-hero="avatar">
               [FOTO]
             </div>
           )
         }
       </div>
       <div class="identity">
-        <h1 id="hero-title">{fullName}</h1>
-        <p class="role mono">{site.role}.</p>
+        <h1 id="hero-title" data-hero="line">{fullName}</h1>
+        <p class="role mono" data-hero="line2">{site.role}.</p>
       </div>
     </div>
   </GridRow>
@@ -66,7 +67,7 @@ const socials = [
 <HatchBand dimension />
 
 <GridRow>
-  <ul class="info" role="list">
+  <ul class="info" role="list" data-hero="list">
     <li class="info-focus">
       <span class="icon-box"><CodeXml aria-hidden="true" /></span>
       <span class="text">Sistemas e sites para empresas</span>
@@ -104,7 +105,7 @@ const socials = [
 </GridRow>
 
 <GridRow>
-  <div class="links">
+  <div class="links" data-hero="cta">
     {
       socials.length > 0 && (
         <ul class="socials" role="list">
@@ -265,6 +266,21 @@ const socials = [
     height: 8px;
     border-radius: 50%;
     background: var(--accent);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .status-dot {
+      animation: status-pulse 1800ms ease-out infinite;
+    }
+  }
+
+  @keyframes status-pulse {
+    from {
+      box-shadow: 0 0 0 0 color-mix(in oklab, var(--accent) 60%, transparent);
+    }
+    to {
+      box-shadow: 0 0 0 7px transparent;
+    }
   }
 
   .text {

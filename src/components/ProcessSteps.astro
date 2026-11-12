@@ -12,7 +12,7 @@ const { steps, guarantees } = Astro.props;
 ---
 
 <GridRow>
-  <ol class="steps" role="list">
+  <ol class="steps" role="list" data-reveal>
     {
       steps.map((step, index) => (
         <li class="step">
@@ -26,7 +26,7 @@ const { steps, guarantees } = Astro.props;
 </GridRow>
 
 <GridRow>
-  <dl class="guarantees">
+  <dl class="guarantees" data-reveal>
     {
       guarantees.map((guarantee) => (
         <div class="guarantee">

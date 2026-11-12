@@ -3,6 +3,8 @@ import ArrowUpRight from '@lucide/astro/icons/arrow-up-right';
 import GridRow from './GridRow.astro';
 import { emailUrl, formatPhone, githubUrl, site, whatsappNumber, whatsappUrl } from '../config/site';
 
+const titleWords = ['Tem', 'um', 'projeto?', 'Vamos', 'conversar.'];
+
 const channels = [
   { label: 'WhatsApp', value: formatPhone(whatsappNumber || site.whatsapp), href: whatsappUrl, accent: true, external: true },
   { label: 'E-mail', value: site.email, href: emailUrl, external: false },
@@ -12,9 +14,20 @@ const channels = [
 
 <section id="contato" class="contact" aria-labelledby="contato-titulo">
   <GridRow>
-    <h2 id="contato-titulo">Tem um projeto? Vamos conversar.</h2>
+    <h2 id="contato-titulo" data-words>
+      {
+        titleWords.map((word, index) => (
+          <>
+            {index > 0 && ' '}
+            <span style="display:inline-block" class:list={[{ 'word-accent': word === 'conversar.' }]}>
+              {word}
+            </span>
+          </>
+        ))
+      }
+    </h2>
   </GridRow>
-  <ul class="channels" role="list">
+  <ul class="channels" role="list" data-reveal>
     {
       channels.map((channel) => (
         <GridRow as="li">
@@ -37,6 +50,10 @@ const channels = [
 </section>
 
 <style>
+  .word-accent {
+    color: var(--accent);
+  }
+
   h2 {
     max-width: 18ch;
     padding: 48px 16px;

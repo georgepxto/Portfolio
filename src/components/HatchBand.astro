@@ -21,4 +21,19 @@ const { dimension = false } = Astro.props;
     box-shadow: inset 0 1px var(--border);
     background: repeating-linear-gradient(-45deg, var(--border) 0 1px, transparent 1px 6px);
   }
+
+  @media (prefers-reduced-motion: no-preference) {
+    :global(.hatch-band) {
+      animation: hatch-drift 9s linear infinite;
+    }
+  }
+
+  @keyframes hatch-drift {
+    from {
+      background-position: 0 0;
+    }
+    to {
+      background-position: 84.85px 0;
+    }
+  }
 </style>

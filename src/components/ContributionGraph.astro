@@ -75,10 +75,13 @@ const lastDay = lastWeek.days[lastWeek.days.length - 1];
 
 const stats = getContributionStats(weeks);
 const statItems = [
-  { label: 'Contribuições', value: number.format(stats.total) },
+  { label: 'Contribuições', value: number.format(stats.total), count: stats.total },
   {
     label: 'Maior sequência',
     value: `${number.format(stats.longestStreak)} ${stats.longestStreak === 1 ? 'dia' : 'dias'}`,
+    count: stats.longestStreak,
+    unitOne: 'dia',
+    unitOther: 'dias',
   },
   { label: 'Dia mais ativo', value: stats.busiestWeekday === null ? '—' : weekdayNames[stats.busiestWeekday] },
 ];
@@ -99,12 +102,14 @@ const summary = `${plural(stats.total)} no GitHub nos últimos 12 meses`;
   </a>
 
   <GridRow>
-    <dl class="stats">
+    <dl class="stats" data-reveal>
       {
         statItems.map((item) => (
           <div class="stat">
             <dt class="mono">{item.label}</dt>
-            <dd>{item.value}</dd>
+            <dd data-count={item.count} data-unit-one={item.unitOne} data-unit-other={item.unitOther}>
+              {item.value}
+            </dd>
           </div>
         ))
       }
@@ -113,7 +118,7 @@ const summary = `${plural(stats.total)} no GitHub nos últimos 12 meses`;
 
   <GridRow>
     <div class="activity" style={`--weeks: ${weeks.length}; --split: ${split}`}>
-      <div class="canvas" role="img" aria-label={summary}>
+      <div class="canvas" role="img" aria-label={summary} data-contrib-wave>
         <div class="months months-full" aria-hidden="true">
           {labels.map((label) => <span style={`grid-column: ${label.column + 1}`}>{monthNames[label.month]}</span>)}
         </div>

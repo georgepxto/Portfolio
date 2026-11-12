@@ -58,6 +58,26 @@ html[data-vt='dark']::view-transition-old(root) {
   display: none;
 }
 
+html.is-flickering *,
+html.is-flickering *::before,
+html.is-flickering *::after {
+  transition: none !important;
+}
+
+html.motion [data-reveal]:not([data-revealed]) > *,
+html.motion [data-words]:not([data-revealed]) > *,
+html.motion [data-contrib-wave]:not([data-revealed]) .cell,
+html.motion:not(.hero-in) [data-hero='avatar'],
+html.motion:not(.hero-in) [data-hero='list'] > *,
+html.motion:not(.hero-in) [data-hero='cta'] {
+  opacity: 0;
+}
+
+html.motion:not(.hero-in) [data-hero='line'],
+html.motion:not(.hero-in) [data-hero='line2'] {
+  clip-path: inset(0 100% 0 0);
+}
+
 *,
 *::before,
 *::after {

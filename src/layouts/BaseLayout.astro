@@ -35,6 +35,12 @@ const ogImage = image ? new URL(image, Astro.site).href : undefined;
         var root = document.documentElement;
         var theme;
         root.classList.add('js');
+        if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+          root.classList.add('motion');
+          setTimeout(function () {
+            if (!root.hasAttribute('data-motion-ready')) root.classList.remove('motion');
+          }, 3000);
+        }
         try {
           theme = localStorage.getItem('theme');
         } catch (error) {}
@@ -79,5 +85,8 @@ const ogImage = image ? new URL(image, Astro.site).href : undefined;
       <Footer />
     </div>
     <BackToTop />
+    <script>
+      import '../scripts/motion';
+    </script>
   </body>
 </html>

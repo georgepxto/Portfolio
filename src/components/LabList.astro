@@ -10,7 +10,7 @@ interface Props {
 const { items } = Astro.props;
 ---
 
-<ul class="lab" role="list">
+<ul class="lab" role="list" data-reveal>
   {
     items.map((item) => (
       <GridRow as="li">
