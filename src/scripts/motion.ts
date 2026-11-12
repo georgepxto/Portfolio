@@ -84,6 +84,24 @@ const reveal = (container: HTMLElement) => {
   });
 };
 
+const timeline = (list: HTMLElement) => {
+  list.dataset.revealed = '';
+
+  Array.from(list.children).forEach((step, index) => {
+    fadeUp(step, 120 + 300 * index);
+    const fill = step.querySelector('[data-tl]');
+    if (!fill) return;
+    settle(
+      fill.animate([{ transform: 'scaleX(0)' }, { transform: 'scaleX(1)' }], {
+        duration: 520,
+        delay: 200 + 300 * index,
+        easing: 'cubic-bezier(.6, 0, .4, 1)',
+        fill: 'backwards',
+      }),
+    );
+  });
+};
+
 const words = (heading: HTMLElement) => {
   heading.dataset.revealed = '';
   Array.from(heading.children).forEach((word, index) => fadeUp(word, index * 70, 48, 1000));
@@ -146,6 +164,7 @@ const watch = () => {
 
   add('[data-reveal]', reveal);
   add('[data-words]', words);
+  add('[data-timeline]', timeline);
   add('[data-contrib-wave]', wave);
 
   if (!('IntersectionObserver' in window)) {

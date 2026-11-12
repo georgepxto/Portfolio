@@ -61,10 +61,15 @@ html[data-vt='dark']::view-transition-old(root) {
 html.motion [data-reveal]:not([data-revealed]) > *,
 html.motion [data-words]:not([data-revealed]) > *,
 html.motion [data-contrib-wave]:not([data-revealed]) .cell,
+html.motion [data-timeline]:not([data-revealed]) > *,
 html.motion:not(.hero-in) [data-hero='avatar'],
 html.motion:not(.hero-in) [data-hero='list'] > *,
 html.motion:not(.hero-in) [data-hero='cta'] {
   opacity: 0;
+}
+
+html.motion [data-timeline]:not([data-revealed]) [data-tl] {
+  transform: scaleX(0);
 }
 
 html.motion:not(.hero-in) [data-hero='line'],
