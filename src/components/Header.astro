@@ -1,15 +1,15 @@
 ---
-import Menu from '@lucide/astro/icons/menu';
-import X from '@lucide/astro/icons/x';
+import ArrowUpRight from '@lucide/astro/icons/arrow-up-right';
 import GridRow from './GridRow.astro';
 import PullCord from './PullCord.astro';
+import { emailUrl, githubUrl, site, whatsappUrl } from '../config/site';
 
 const links = [
-  { href: '/#trabalhos', label: 'Trabalhos' },
-  { href: '/#como-funciona', label: 'Como funciona' },
-  { href: '/#servicos', label: 'Serviços' },
-  { href: '/#sobre', label: 'Sobre' },
-  { href: '/#contato', label: 'Contato' },
+  { href: '/#trabalhos', label: 'Trabalhos', number: '01' },
+  { href: '/#como-funciona', label: 'Como funciona', number: '02' },
+  { href: '/#servicos', label: 'Serviços', number: '03' },
+  { href: '/#sobre', label: 'Sobre', number: '06' },
+  { href: '/#contato', label: 'Contato', number: '—' },
 ];
 ---
 
@@ -36,23 +36,60 @@ const links = [
         aria-controls="menu-celular"
         data-menu-toggle
       >
-        <Menu class="icon-menu" aria-hidden="true" />
-        <X class="icon-close" aria-hidden="true" />
+        <span class="menu-label mono" aria-hidden="true">
+          <span class="label-open">Menu</span>
+          <span class="label-close">Fechar</span>
+        </span>
+        <span class="menu-icon" aria-hidden="true">
+          <span></span>
+          <span></span>
+        </span>
       </button>
     </div>
   </GridRow>
 
-  <nav id="menu-celular" class="menu-panel" aria-label="Principal" data-menu-panel>
-    <ul role="list">
-      {
-        links.map((link) => (
-          <GridRow as="li" class="menu-row">
-            <a href={link.href}>{link.label}</a>
-          </GridRow>
-        ))
-      }
-    </ul>
-  </nav>
+  <div id="menu-celular" class="menu-panel" data-menu-panel>
+    <nav aria-label="Principal">
+      <ul role="list">
+        {
+          links.map((link, index) => (
+            <GridRow as="li" class="menu-row" style={`--i: ${index}`}>
+              <a class="menu-link" href={link.href}>
+                <span class="menu-number mono" aria-hidden="true">
+                  {link.number}
+                </span>
+                <span class="menu-name">{link.label}</span>
+              </a>
+            </GridRow>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <GridRow class="menu-footer">
+      <div class="menu-footer-inner">
+        {
+          site.available && (
+            <p class="menu-status mono">
+              <span class="menu-status-dot" aria-hidden="true" />
+              Disponível para novos projetos
+            </p>
+          )
+        }
+        <a class="button button-primary menu-cta" href={whatsappUrl} target="_blank" rel="noopener">
+          Pedir orçamento no WhatsApp
+          <ArrowUpRight aria-hidden="true" />
+        </a>
+        <p class="menu-meta mono">
+          <a href={emailUrl}>{site.email}</a>
+          <a href={githubUrl} target="_blank" rel="noopener">
+            GitHub
+            <ArrowUpRight aria-hidden="true" />
+          </a>
+        </p>
+      </div>
+    </GridRow>
+  </div>
 
   <PullCord />
 </header>
@@ -64,8 +101,7 @@ const links = [
     z-index: 20;
   }
 
-  :global(.site-header-row),
-  :global(.menu-row) {
+  :global(.site-header-row) {
     background: var(--bg);
   }
 
@@ -122,6 +158,10 @@ const links = [
   }
 
   @media (max-width: 640px) {
+    .site-header {
+      --cord-right: 3px;
+    }
+
     .bar {
       gap: 0;
       padding: 0 6px 0 12px;
@@ -132,106 +172,374 @@ const links = [
     }
 
     .menu-toggle {
-      display: grid;
-      place-items: center;
-      width: 36px;
-      height: 36px;
-      margin-left: 4px;
-      padding: 0;
-      border: 1px solid var(--border-strong);
-      border-radius: 6px;
-      background: transparent;
-      color: var(--text-muted);
-      cursor: pointer;
-      transition: color 0.15s ease, border-color 0.15s ease;
-    }
-
-    .menu-toggle:hover {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 44px;
+      padding: 0 10px;
+      border: 0;
+      background: none;
       color: var(--text);
-      border-color: var(--text-faint);
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
     }
 
-    .menu-toggle :global(svg) {
+    .menu-label {
+      display: grid;
+      width: 52px;
+      font-size: 13px;
+      line-height: 1;
+      text-align: right;
+    }
+
+    .menu-label > span {
+      grid-area: 1 / 1;
+    }
+
+    .label-close {
+      opacity: 0;
+    }
+
+    .menu-toggle[aria-expanded='true'] .label-open,
+    .menu-toggle.is-animated[aria-expanded='false'] .label-close {
+      animation:
+        label-fade-out 250ms ease both,
+        label-rise-out 300ms cubic-bezier(0.7, 0, 0.2, 1) both;
+    }
+
+    .menu-toggle[aria-expanded='true'] .label-close,
+    .menu-toggle.is-animated[aria-expanded='false'] .label-open {
+      animation:
+        label-fade-in 250ms ease both,
+        label-rise-in 300ms cubic-bezier(0.7, 0, 0.2, 1) both;
+    }
+
+    .menu-icon {
+      position: relative;
+      flex: none;
       width: 18px;
-      height: 18px;
+      height: 12px;
     }
 
-    .menu-toggle :global(.icon-close),
-    .menu-toggle[aria-expanded='true'] :global(.icon-menu) {
-      display: none;
+    .menu-icon > span {
+      position: absolute;
+      left: 0;
+      width: 100%;
+      height: 1.5px;
+      background: currentColor;
+      transition:
+        top 350ms cubic-bezier(0.7, 0, 0.2, 1),
+        transform 350ms cubic-bezier(0.7, 0, 0.2, 1);
     }
 
-    .menu-toggle[aria-expanded='true'] :global(.icon-close) {
-      display: block;
+    .menu-icon > span:first-child {
+      top: 2px;
+    }
+
+    .menu-icon > span:last-child {
+      top: 8.5px;
+    }
+
+    .menu-toggle[aria-expanded='true'] .menu-icon > span {
+      top: 5.25px;
+    }
+
+    .menu-toggle[aria-expanded='true'] .menu-icon > span:first-child {
+      transform: rotate(45deg);
+    }
+
+    .menu-toggle[aria-expanded='true'] .menu-icon > span:last-child {
+      transform: rotate(-45deg);
     }
 
     .menu-panel {
-      display: block;
-    }
-
-    :global(html.js) .menu-panel {
       position: absolute;
       top: 100%;
-      left: 0;
-      right: 0;
+      left: calc(50% - 50cqw);
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      width: 100cqw;
+      height: calc(100vh - var(--header-height) - 1px);
+      height: calc(100dvh - var(--header-height) - 1px);
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      background: var(--bg);
+      clip-path: inset(0 0 100% 0);
+      visibility: hidden;
+      pointer-events: none;
+      transition:
+        clip-path 550ms cubic-bezier(0.7, 0, 0.2, 1),
+        visibility 550ms;
     }
 
-    :global(html.js) .menu-panel:not(.is-open) {
-      display: none;
+    .menu-panel.is-open {
+      clip-path: inset(0 0 0 0);
+      visibility: visible;
+      pointer-events: auto;
     }
 
-    .site-header:has(.menu-panel.is-open) :global(.pull-cord) {
+    .menu-panel ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .menu-link {
+      display: flex;
+      align-items: baseline;
+      min-height: 64px;
+      padding: 16px;
+      color: var(--text);
+      opacity: 0;
+      transform: translateY(-10px);
+      transition:
+        opacity 0s 550ms,
+        transform 0s 550ms;
+    }
+
+    .menu-panel.is-open .menu-link {
+      opacity: 1;
+      transform: none;
+      transition:
+        opacity 400ms ease,
+        transform 500ms cubic-bezier(0.2, 0.7, 0.2, 1);
+      transition-delay: calc(120ms + var(--i) * 45ms);
+    }
+
+    .menu-number {
+      flex: none;
+      width: 22px;
+      font-size: 12px;
+      color: var(--accent);
+    }
+
+    .menu-name {
+      font-size: 28px;
+      font-weight: 600;
+      line-height: 1.15;
+      letter-spacing: -0.025em;
+    }
+
+    :global(.menu-footer) {
+      margin-top: auto;
+      border-top: 1px solid var(--border);
+      --row-border: 0;
+    }
+
+    .menu-footer-inner {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      padding: 16px 16px 28px;
+      opacity: 0;
+      transform: translateY(-10px);
+      transition:
+        opacity 0s 550ms,
+        transform 0s 550ms;
+    }
+
+    .menu-panel.is-open .menu-footer-inner {
+      opacity: 1;
+      transform: none;
+      transition:
+        opacity 400ms ease 320ms,
+        transform 500ms cubic-bezier(0.2, 0.7, 0.2, 1) 320ms;
+    }
+
+    .menu-status {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      color: var(--accent);
+    }
+
+    .menu-status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow:
+        0 0 2px var(--accent),
+        0 0 8px color-mix(in oklab, var(--accent) 70%, transparent);
+    }
+
+    .menu-cta {
+      width: 100%;
+      min-height: 52px;
+    }
+
+    .menu-meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      font-size: 12px;
+      color: var(--text-faint);
+    }
+
+    .menu-meta a {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      min-width: 0;
+      transition: color 0.15s ease;
+    }
+
+    .menu-meta a:hover {
+      color: var(--text);
+    }
+
+    .menu-meta :global(svg) {
+      width: 12px;
+      height: 12px;
+    }
+
+    .site-header.is-menu-open :global(.pull-cord) {
       opacity: 0;
       visibility: hidden;
+      pointer-events: none;
+    }
+
+    :global(html.is-menu-open) {
+      overflow: hidden;
     }
 
     :global(html:not(.js)) .site-header {
       position: static;
     }
 
-    :global(.menu-row) {
-      height: 48px;
+    :global(html:not(.js)) .menu-toggle {
+      display: none;
     }
 
-    .menu-panel a {
-      display: flex;
-      align-items: center;
-      height: 100%;
-      padding: 0 12px;
-      font-size: 15px;
-      color: var(--text-muted);
-      transition: color 0.15s ease, background-color 0.15s ease;
+    :global(html:not(.js)) .menu-panel {
+      position: static;
+      width: auto;
+      height: auto;
+      margin-inline: 0;
+      clip-path: none;
+      visibility: visible;
+      pointer-events: auto;
     }
 
-    .menu-panel a:hover {
-      color: var(--text);
-      background: var(--surface);
+    :global(html:not(.js)) .menu-link,
+    :global(html:not(.js)) .menu-footer-inner {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @media (max-width: 640px) and (prefers-reduced-motion: reduce) {
+    .menu-panel,
+    .menu-panel.is-open,
+    .menu-link,
+    .menu-panel.is-open .menu-link,
+    .menu-footer-inner,
+    .menu-panel.is-open .menu-footer-inner,
+    .menu-icon > span {
+      transition: none;
+    }
+
+    .menu-link,
+    .menu-footer-inner {
+      opacity: 1;
+      transform: none;
+    }
+
+    .menu-toggle .menu-label > span {
+      animation: none;
+    }
+
+    .menu-toggle[aria-expanded='true'] .label-open,
+    .menu-toggle[aria-expanded='false'] .label-close {
+      opacity: 0;
+    }
+
+    .menu-toggle[aria-expanded='true'] .label-close,
+    .menu-toggle[aria-expanded='false'] .label-open {
+      opacity: 1;
+    }
+  }
+
+  @keyframes label-fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes label-fade-out {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
+  }
+
+  @keyframes label-rise-in {
+    from {
+      transform: translateY(8px);
+    }
+    to {
+      transform: none;
+    }
+  }
+
+  @keyframes label-rise-out {
+    from {
+      transform: none;
+    }
+    to {
+      transform: translateY(-8px);
     }
   }
 </style>
 
 <script>
+  const root = document.documentElement;
   const header = document.querySelector<HTMLElement>('[data-site-header]');
   const toggle = header?.querySelector<HTMLButtonElement>('[data-menu-toggle]');
   const panel = header?.querySelector<HTMLElement>('[data-menu-panel]');
 
   if (header && toggle && panel) {
+    const desktop = matchMedia('(min-width: 641px)');
+    const siblings = Array.from(header.parentElement?.children ?? []).filter(
+      (element): element is HTMLElement => element !== header && element instanceof HTMLElement,
+    );
+
+    const isOpen = () => toggle.getAttribute('aria-expanded') === 'true';
+
     const setOpen = (open: boolean) => {
+      if (open === isOpen()) return;
+      toggle.classList.add('is-animated');
       panel.classList.toggle('is-open', open);
+      header.classList.toggle('is-menu-open', open);
+      root.classList.toggle('is-menu-open', open);
       toggle.setAttribute('aria-expanded', String(open));
       toggle.setAttribute('aria-label', open ? 'Fechar menu' : 'Abrir menu');
+      siblings.forEach((element) => {
+        element.inert = open;
+      });
     };
 
-    toggle.addEventListener('click', () => setOpen(toggle.getAttribute('aria-expanded') !== 'true'));
+    toggle.addEventListener('click', () => setOpen(!isOpen()));
 
     panel.addEventListener('click', (event) => {
       if ((event.target as HTMLElement).closest('a')) setOpen(false);
     });
 
     document.addEventListener('keydown', (event) => {
-      if (event.key !== 'Escape' || toggle.getAttribute('aria-expanded') !== 'true') return;
+      if (event.key !== 'Escape' || !isOpen()) return;
       setOpen(false);
       toggle.focus();
+    });
+
+    desktop.addEventListener('change', (event) => {
+      if (event.matches) setOpen(false);
     });
   }
 </script>

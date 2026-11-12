@@ -12,6 +12,7 @@ export const site = {
   linkedin: '',
   instagram: '',
   siteUrl: '[PREENCHER]',
+  available: true,
 } as const;
 
 export const fullName = `${site.name} ${site.surname}`;

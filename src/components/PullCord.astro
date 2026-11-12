@@ -27,14 +27,14 @@
   .pull-cord {
     position: absolute;
     top: 100%;
-    right: 26px;
+    right: var(--cord-right, 26px);
     z-index: 1;
     width: 44px;
     height: 120px;
     pointer-events: none;
     --cord: 56px;
     view-transition-name: pull-cord;
-    transition: opacity 0.15s ease, visibility 0.15s;
+    transition: opacity 0.25s ease, visibility 0.25s;
   }
 
   :global(html:not(.js)) .pull-cord {
@@ -209,7 +209,6 @@
 
   @media (max-width: 640px) {
     .pull-cord {
-      right: 20px;
       height: 90px;
       --cord: 28px;
     }
