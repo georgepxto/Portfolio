@@ -1,0 +1,441 @@
+<div class="pull-cord is-hinting" data-pull-cord>
+  <div class="sway">
+    <div class="swing" data-cord-swing>
+      <span class="mount" aria-hidden="true"></span>
+      <span class="line" aria-hidden="true" data-cord-line></span>
+      <button
+        class="handle"
+        type="button"
+        role="switch"
+        aria-checked="false"
+        aria-label="Modo claro"
+        data-cord-handle
+      >
+        <span class="pill" data-cord-pill>
+          <span class="dot"></span>
+        </span>
+        <span class="hint mono" aria-hidden="true">
+          <span class="hint-on">puxe para acender</span>
+          <span class="hint-off">puxe para apagar</span>
+        </span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<style>
+  .pull-cord {
+    position: absolute;
+    top: 100%;
+    right: 26px;
+    z-index: 1;
+    width: 44px;
+    height: 120px;
+    pointer-events: none;
+    view-transition-name: pull-cord;
+    transition: opacity 0.15s ease, visibility 0.15s;
+  }
+
+  :global(html:not(.js)) .pull-cord {
+    display: none;
+  }
+
+  .sway,
+  .swing {
+    position: absolute;
+    inset: 0;
+    transform-origin: 50% 0;
+  }
+
+  .sway {
+    animation: cord-sway 5s ease-in-out infinite;
+  }
+
+  .pull-cord.is-active .sway {
+    animation-play-state: paused;
+  }
+
+  @keyframes cord-sway {
+    0%,
+    100% {
+      transform: rotate(-1.2deg);
+    }
+    50% {
+      transform: rotate(1.2deg);
+    }
+  }
+
+  .mount {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 12px;
+    height: 5px;
+    margin-left: -6px;
+    border-radius: 0 0 3px 3px;
+    background: var(--border-strong);
+  }
+
+  .line {
+    position: absolute;
+    top: 5px;
+    left: 50%;
+    width: 1.5px;
+    height: 56px;
+    margin-left: -0.75px;
+    background: var(--text-faint);
+  }
+
+  .handle {
+    position: absolute;
+    top: 52px;
+    left: 0;
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    cursor: grab;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    pointer-events: auto;
+  }
+
+  .pull-cord.is-active .handle {
+    cursor: grabbing;
+  }
+
+  .handle:focus-visible {
+    outline: none;
+  }
+
+  .pill {
+    position: relative;
+    width: 16px;
+    height: 26px;
+    border-radius: 8px;
+    border: 1px solid var(--border-strong);
+    background: var(--surface);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
+    transition: border-color 0.15s ease;
+  }
+
+  .handle:hover .pill,
+  .handle.is-armed .pill {
+    border-color: var(--text-faint);
+  }
+
+  .handle:focus-visible .pill {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  .dot {
+    position: absolute;
+    bottom: 5px;
+    left: 50%;
+    width: 6px;
+    height: 6px;
+    margin-left: -3px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow:
+      0 0 2px var(--accent),
+      0 0 7px color-mix(in oklab, var(--accent) 70%, transparent);
+  }
+
+  .handle.is-armed .dot {
+    box-shadow:
+      0 0 3px var(--accent),
+      0 0 10px color-mix(in oklab, var(--accent) 85%, transparent);
+  }
+
+  :global(:root[data-theme='light']) .dot {
+    background: var(--text-faint);
+    box-shadow: none;
+  }
+
+  .hint {
+    position: absolute;
+    top: 50%;
+    right: calc(100% - 6px);
+    font-size: 11px;
+    line-height: 1;
+    color: var(--text-faint);
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transform: translate(4px, -50%);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+  }
+
+  .pull-cord.is-hinting .hint,
+  .handle:hover .hint,
+  .handle:focus-visible .hint {
+    opacity: 1;
+    transform: translate(0, -50%);
+  }
+
+  .hint-off,
+  :global(:root[data-theme='light']) .hint-on {
+    display: none;
+  }
+
+  :global(:root[data-theme='light']) .hint-off {
+    display: inline;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sway {
+      animation: none;
+    }
+
+    .hint {
+      transition: opacity 0.3s ease;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .pull-cord {
+      right: 20px;
+    }
+
+    .hint {
+      display: none;
+    }
+  }
+</style>
+
+<script>
+  type Theme = 'dark' | 'light';
+
+  const REST = 56;
+  const MAX = 46;
+  const ARM = 18;
+  const TAP = 4;
+  const SPRING_EASE = 'cubic-bezier(.37, 0, .63, 1)';
+
+  const root = document.documentElement;
+  const wrapper = document.querySelector<HTMLElement>('[data-pull-cord]');
+  const swing = wrapper?.querySelector<HTMLElement>('[data-cord-swing]');
+  const line = wrapper?.querySelector<HTMLElement>('[data-cord-line]');
+  const handle = wrapper?.querySelector<HTMLButtonElement>('[data-cord-handle]');
+  const pill = wrapper?.querySelector<HTMLElement>('[data-cord-pill]');
+
+  if (wrapper && swing && line && handle && pill) {
+    const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+    const systemLight = matchMedia('(prefers-color-scheme: light)');
+    const themeColor = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
+
+    let audio: AudioContext | undefined;
+    let motion: Animation[] = [];
+    let sway: Animation | undefined;
+    let transition: ViewTransition | undefined;
+    let suppressClick = false;
+    let drag: { id: number; x: number; y: number; moved: boolean; armed: boolean; eff: number } | null = null;
+
+    const current = (): Theme => (root.dataset.theme === 'light' ? 'light' : 'dark');
+
+    const sync = () => {
+      handle.setAttribute('aria-checked', String(current() === 'light'));
+      const bg = getComputedStyle(root).getPropertyValue('--bg').trim();
+      if (themeColor && bg) themeColor.content = bg;
+    };
+
+    const apply = (theme: Theme, persist: boolean) => {
+      root.dataset.theme = theme;
+      if (persist) {
+        try {
+          localStorage.setItem('theme', theme);
+        } catch {}
+      }
+      sync();
+    };
+
+    const saved = () => {
+      try {
+        const value = localStorage.getItem('theme');
+        return value === 'light' || value === 'dark' ? value : null;
+      } catch {
+        return null;
+      }
+    };
+
+    const tone = (from: number, to: number, gain = 0.05, duration = 0.05) => {
+      try {
+        audio ??= new AudioContext();
+        if (audio.state === 'suspended') void audio.resume();
+        const start = audio.currentTime;
+        const osc = audio.createOscillator();
+        const volume = audio.createGain();
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(from, start);
+        osc.frequency.exponentialRampToValueAtTime(to, start + duration);
+        volume.gain.setValueAtTime(gain, start);
+        volume.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+        osc.connect(volume).connect(audio.destination);
+        osc.start(start);
+        osc.stop(start + duration);
+      } catch {}
+    };
+
+    const origin = () => {
+      const rect = pill.getBoundingClientRect();
+      return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+    };
+
+    const switchTheme = (point: { x: number; y: number }) => {
+      const next: Theme = current() === 'light' ? 'dark' : 'light';
+      if (next === 'light') tone(2400, 700);
+      else tone(1500, 300);
+
+      if (typeof document.startViewTransition !== 'function' || reducedMotion.matches) {
+        apply(next, true);
+        return;
+      }
+
+      root.dataset.vt = next;
+      const vt = document.startViewTransition(() => apply(next, true));
+      transition = vt;
+
+      vt.ready
+        .then(() => {
+          const { x, y } = point;
+          const radius = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
+          const closed = `circle(0px at ${x}px ${y}px)`;
+          const open = `circle(${radius}px at ${x}px ${y}px)`;
+          const lighting = next === 'light';
+          root.animate(
+            { clipPath: lighting ? [closed, open] : [open, closed] },
+            {
+              duration: lighting ? 800 : 560,
+              easing: lighting ? 'cubic-bezier(.55, 0, .2, 1)' : 'cubic-bezier(.6, 0, .85, .35)',
+              fill: 'forwards',
+              pseudoElement: lighting ? '::view-transition-new(root)' : '::view-transition-old(root)',
+            },
+          );
+        })
+        .catch(() => {});
+
+      vt.finished.finally(() => {
+        if (transition !== vt) return;
+        transition = undefined;
+        delete root.dataset.vt;
+      });
+    };
+
+    const setPull = (offset: number) => {
+      line.style.height = `${REST + offset}px`;
+      handle.style.transform = offset ? `translateY(${offset}px)` : '';
+    };
+
+    const stopMotion = () => {
+      motion.forEach((animation) => animation.cancel());
+      motion = [];
+    };
+
+    const swingCord = () => {
+      if (reducedMotion.matches) return;
+      const direction = Math.random() < 0.5 ? -1 : 1;
+      sway?.cancel();
+      sway = swing.animate(
+        [0, 7, -5, 3.2, -1.8, 0.8, 0].map((deg) => ({ transform: `rotate(${deg * direction}deg)` })),
+        { duration: 1700, easing: 'ease-out' },
+      );
+    };
+
+    const spring = (values: number[], duration: number) => {
+      stopMotion();
+      setPull(0);
+      motion = [
+        line.animate(
+          values.map((value) => ({ height: `${REST + value}px`, easing: SPRING_EASE })),
+          duration,
+        ),
+        handle.animate(
+          values.map((value) => ({ transform: `translateY(${value}px)`, easing: SPRING_EASE })),
+          duration,
+        ),
+      ];
+      motion[1].finished.then(swingCord).catch(() => {});
+    };
+
+    const setArmed = (armed: boolean) => {
+      if (!drag || drag.armed === armed) return;
+      drag.armed = armed;
+      handle.classList.toggle('is-armed', armed);
+      if (armed) tone(900, 220, 0.03, 0.03);
+    };
+
+    const endDrag = (event: PointerEvent, commit: boolean) => {
+      if (!drag || event.pointerId !== drag.id) return;
+      const ended = drag;
+      drag = null;
+      wrapper.classList.remove('is-active');
+      handle.classList.remove('is-armed');
+      if (handle.hasPointerCapture(event.pointerId)) handle.releasePointerCapture(event.pointerId);
+      if (!ended.moved) return;
+
+      suppressClick = true;
+      if (commit && ended.armed) switchTheme(origin());
+
+      if (reducedMotion.matches) setPull(0);
+      else spring([ended.eff, -8, 3.5, -1.2, 0], 560);
+    };
+
+    handle.addEventListener('pointerdown', (event) => {
+      if (event.button !== 0 || drag) return;
+      suppressClick = false;
+      stopMotion();
+      setPull(0);
+      drag = { id: event.pointerId, x: event.clientX, y: event.clientY, moved: false, armed: false, eff: 0 };
+      handle.setPointerCapture(event.pointerId);
+      wrapper.classList.add('is-active');
+    });
+
+    handle.addEventListener('pointermove', (event) => {
+      if (!drag || event.pointerId !== drag.id) return;
+      const dx = event.clientX - drag.x;
+      const dy = event.clientY - drag.y;
+      if (!drag.moved && Math.hypot(dx, dy) < TAP) return;
+      drag.moved = true;
+      drag.eff = dy > 0 ? MAX * (1 - Math.exp(-dy / MAX)) : 0;
+      setPull(drag.eff);
+      if (drag.eff > ARM) setArmed(true);
+      else if (drag.eff < ARM - 4) setArmed(false);
+    });
+
+    handle.addEventListener('pointerup', (event) => endDrag(event, true));
+    handle.addEventListener('pointercancel', (event) => endDrag(event, false));
+    handle.addEventListener('lostpointercapture', (event) => endDrag(event, false));
+
+    handle.addEventListener('click', () => {
+      if (suppressClick) {
+        suppressClick = false;
+        return;
+      }
+
+      if (reducedMotion.matches) {
+        switchTheme(origin());
+        return;
+      }
+
+      spring([0, 26, -7, 3, -1, 0], 720);
+      window.setTimeout(() => switchTheme(origin()), 170);
+    });
+
+    systemLight.addEventListener('change', (event) => {
+      if (!saved()) apply(event.matches ? 'light' : 'dark', false);
+    });
+
+    window.setTimeout(() => wrapper.classList.remove('is-hinting'), 5000);
+
+    sync();
+  }
+</script>

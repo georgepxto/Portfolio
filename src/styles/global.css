@@ -11,9 +11,9 @@
   --accent-ink: #06120b;
   --dot-grid: #171d19;
   --contrib-0: #161b18;
-  --contrib-1: color-mix(in oklab, var(--accent) 25%, #161b18);
-  --contrib-2: color-mix(in oklab, var(--accent) 50%, #161b18);
-  --contrib-3: color-mix(in oklab, var(--accent) 75%, #161b18);
+  --contrib-1: color-mix(in oklab, var(--accent) 25%, var(--contrib-0));
+  --contrib-2: color-mix(in oklab, var(--accent) 50%, var(--contrib-0));
+  --contrib-3: color-mix(in oklab, var(--accent) 75%, var(--contrib-0));
   --contrib-4: var(--accent);
   --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, Menlo, monospace;
@@ -23,7 +23,7 @@
   color-scheme: dark;
 }
 
-[data-theme='light'] {
+:root[data-theme='light'] {
   --bg: #f6f8f6;
   --surface: #edf1ee;
   --border: #dbe2dd;
@@ -35,7 +35,27 @@
   --accent: #1d8049;
   --accent-ink: #f3fbf6;
   --dot-grid: #e0e6e2;
+  --contrib-0: #e3e9e5;
   color-scheme: light;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+html[data-vt='dark']::view-transition-old(root) {
+  z-index: 2;
+}
+
+::view-transition-group(pull-cord),
+::view-transition-new(pull-cord) {
+  animation: none;
+}
+
+::view-transition-old(pull-cord) {
+  display: none;
 }
 
 *,

@@ -28,7 +28,23 @@ const ogImage = image ? new URL(image, Astro.site).href : undefined;
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <script is:inline>document.documentElement.classList.add('js');</script>
+    <meta name="theme-color" content="#0b0e0c" />
+    <script is:inline>
+      (function () {
+        var root = document.documentElement;
+        var theme;
+        root.classList.add('js');
+        try {
+          theme = localStorage.getItem('theme');
+        } catch (error) {}
+        if (theme !== 'light' && theme !== 'dark') {
+          theme = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+        }
+        root.dataset.theme = theme;
+        var meta = document.querySelector('meta[name="theme-color"]');
+        if (meta) meta.setAttribute('content', theme === 'light' ? '#f6f8f6' : '#0b0e0c');
+      })();
+    </script>
     <style is:inline set:html={tokenCss}></style>
     <title>{title}</title>
     <meta name="description" content={description} />
@@ -38,8 +54,6 @@ const ogImage = image ? new URL(image, Astro.site).href : undefined;
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/site.webmanifest" />
     <link rel="sitemap" href="/sitemap-index.xml" />
-    <meta name="theme-color" content="#0b0e0c" media="(prefers-color-scheme: dark)" />
-    <meta name="theme-color" content="#f6f8f6" media="(prefers-color-scheme: light)" />
     <meta name="generator" content={Astro.generator} />
     <meta property="og:type" content={type} />
     <meta property="og:locale" content="pt_BR" />

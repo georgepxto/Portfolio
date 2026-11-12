@@ -2,6 +2,7 @@
 import Menu from '@lucide/astro/icons/menu';
 import X from '@lucide/astro/icons/x';
 import GridRow from './GridRow.astro';
+import PullCord from './PullCord.astro';
 
 const links = [
   { href: '/#trabalhos', label: 'Trabalhos' },
@@ -52,6 +53,8 @@ const links = [
       }
     </ul>
   </nav>
+
+  <PullCord />
 </header>
 
 <style>
@@ -175,6 +178,11 @@ const links = [
 
     :global(html.js) .menu-panel:not(.is-open) {
       display: none;
+    }
+
+    .site-header:has(.menu-panel.is-open) :global(.pull-cord) {
+      opacity: 0;
+      visibility: hidden;
     }
 
     :global(html:not(.js)) .site-header {
