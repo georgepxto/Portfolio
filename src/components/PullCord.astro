@@ -182,6 +182,10 @@
     transform: translate(0, -50%);
   }
 
+  .pull-cord.is-active .hint {
+    opacity: 0;
+  }
+
   .hint-off,
   :global(:root[data-theme='light']) .hint-on {
     display: none;
@@ -220,6 +224,11 @@
   const ARM = 18;
   const TAP = 4;
   const SPRING_EASE = 'cubic-bezier(.37, 0, .63, 1)';
+  const MAX_ANGLE = 38;
+  const STIFFNESS = 103;
+  const DAMPING = 2.4;
+  const KICK = 72;
+  const MAX_SPEED = 420;
 
   const root = document.documentElement;
   const wrapper = document.querySelector<HTMLElement>('[data-pull-cord]');
@@ -235,10 +244,25 @@
 
     let audio: AudioContext | undefined;
     let motion: Animation[] = [];
-    let sway: Animation | undefined;
     let transition: ViewTransition | undefined;
     let suppressClick = false;
-    let drag: { id: number; x: number; y: number; moved: boolean; armed: boolean; eff: number } | null = null;
+    let angle = 0;
+    let velocity = 0;
+    let frame = 0;
+    let last = 0;
+    let drag: {
+      id: number;
+      x: number;
+      y: number;
+      moved: boolean;
+      armed: boolean;
+      eff: number;
+      offset: number;
+      radius: number;
+      samples: { angle: number; time: number }[];
+    } | null = null;
+
+    const clamp = (value: number, limit: number) => Math.max(-limit, Math.min(limit, value));
 
     const current = (): Theme => (root.dataset.theme === 'light' ? 'light' : 'dark');
 
@@ -340,17 +364,62 @@
       motion = [];
     };
 
-    const swingCord = () => {
-      if (reducedMotion.matches) return;
-      const direction = Math.random() < 0.5 ? -1 : 1;
-      sway?.cancel();
-      sway = swing.animate(
-        [0, 7, -5, 3.2, -1.8, 0.8, 0].map((deg) => ({ transform: `rotate(${deg * direction}deg)` })),
-        { duration: 1700, easing: 'ease-out' },
-      );
+    const render = () => {
+      swing.style.transform = angle ? `rotate(${angle}deg)` : '';
     };
 
-    const spring = (values: number[], duration: number) => {
+    const step = (time: number) => {
+      const dt = Math.min(0.032, Math.max(0, time - last) / 1000);
+      last = time;
+      velocity += (-STIFFNESS * angle - DAMPING * velocity) * dt;
+      angle += velocity * dt;
+
+      if (Math.abs(angle) < 0.02 && Math.abs(velocity) < 0.5) {
+        angle = 0;
+        velocity = 0;
+        frame = 0;
+        render();
+        return;
+      }
+
+      render();
+      frame = requestAnimationFrame(step);
+    };
+
+    const swingFree = () => {
+      if (frame || drag) return;
+      last = performance.now();
+      frame = requestAnimationFrame(step);
+    };
+
+    const holdSwing = () => {
+      cancelAnimationFrame(frame);
+      frame = 0;
+    };
+
+    const kick = () => {
+      if (reducedMotion.matches || drag) return;
+      velocity += KICK * (Math.random() < 0.5 ? -1 : 1);
+      swingFree();
+    };
+
+    const polar = (event: PointerEvent) => {
+      const rect = wrapper.getBoundingClientRect();
+      const px = event.clientX - (rect.left + rect.width / 2);
+      const py = Math.max(event.clientY - rect.top, 1);
+      return { angle: (-Math.atan2(px, py) * 180) / Math.PI, radius: Math.hypot(px, py) };
+    };
+
+    const releaseSpeed = (samples: { angle: number; time: number }[], now: number) => {
+      const recent = samples.filter((sample) => now - sample.time <= 100);
+      if (recent.length < 2) return 0;
+      const first = recent[0];
+      const latest = recent[recent.length - 1];
+      const elapsed = (latest.time - first.time) / 1000;
+      return elapsed > 0 ? clamp((latest.angle - first.angle) / elapsed, MAX_SPEED) : 0;
+    };
+
+    const spring = (values: number[], duration: number, after?: () => void) => {
       stopMotion();
       setPull(0);
       motion = [
@@ -363,7 +432,7 @@
           duration,
         ),
       ];
-      motion[1].finished.then(swingCord).catch(() => {});
+      if (after) motion[1].finished.then(after).catch(() => {});
     };
 
     const setArmed = (armed: boolean) => {
@@ -380,13 +449,29 @@
       wrapper.classList.remove('is-active');
       handle.classList.remove('is-armed');
       if (handle.hasPointerCapture(event.pointerId)) handle.releasePointerCapture(event.pointerId);
-      if (!ended.moved) return;
+      if (!ended.moved) {
+        if (angle) swingFree();
+        return;
+      }
 
       suppressClick = true;
       if (commit && ended.armed) switchTheme(origin());
 
-      if (reducedMotion.matches) setPull(0);
-      else spring([ended.eff, -8, 3.5, -1.2, 0], 560);
+      if (reducedMotion.matches) {
+        setPull(0);
+        angle = 0;
+        velocity = 0;
+        render();
+        return;
+      }
+
+      velocity = releaseSpeed(ended.samples, event.timeStamp);
+      const swinging = Math.abs(angle) > 1 || Math.abs(velocity) > 20;
+
+      if (ended.eff > 1) spring([ended.eff, -8, 3.5, -1.2, 0], 560, swinging ? undefined : kick);
+      else setPull(0);
+
+      if (swinging) swingFree();
     };
 
     handle.addEventListener('pointerdown', (event) => {
@@ -394,18 +479,47 @@
       suppressClick = false;
       stopMotion();
       setPull(0);
-      drag = { id: event.pointerId, x: event.clientX, y: event.clientY, moved: false, armed: false, eff: 0 };
+      holdSwing();
+      velocity = 0;
+      const start = polar(event);
+      drag = {
+        id: event.pointerId,
+        x: event.clientX,
+        y: event.clientY,
+        moved: false,
+        armed: false,
+        eff: 0,
+        offset: angle - start.angle,
+        radius: start.radius,
+        samples: [{ angle, time: event.timeStamp }],
+      };
       handle.setPointerCapture(event.pointerId);
       wrapper.classList.add('is-active');
     });
 
     handle.addEventListener('pointermove', (event) => {
-      if (!drag || event.pointerId !== drag.id) return;
+      if (!drag) {
+        if (event.pointerType === 'mouse' && !event.buttons && !reducedMotion.matches) {
+          velocity = clamp(velocity - event.movementX * 4, 260);
+          swingFree();
+        }
+        return;
+      }
+
+      if (event.pointerId !== drag.id) return;
       const dx = event.clientX - drag.x;
       const dy = event.clientY - drag.y;
       if (!drag.moved && Math.hypot(dx, dy) < TAP) return;
       drag.moved = true;
-      drag.eff = dy > 0 ? MAX * (1 - Math.exp(-dy / MAX)) : 0;
+
+      const point = polar(event);
+      angle = MAX_ANGLE * Math.tanh((point.angle + drag.offset) / MAX_ANGLE);
+      render();
+      drag.samples.push({ angle, time: event.timeStamp });
+      if (drag.samples.length > 12) drag.samples.shift();
+
+      const stretch = point.radius - drag.radius;
+      drag.eff = stretch > 0 ? MAX * (1 - Math.exp(-stretch / MAX)) : 0;
       setPull(drag.eff);
       if (drag.eff > ARM) setArmed(true);
       else if (drag.eff < ARM - 4) setArmed(false);
@@ -426,7 +540,7 @@
         return;
       }
 
-      spring([0, 26, -7, 3, -1, 0], 720);
+      spring([0, 26, -7, 3, -1, 0], 720, kick);
       window.setTimeout(() => switchTheme(origin()), 170);
     });
 
