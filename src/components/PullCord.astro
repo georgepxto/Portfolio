@@ -1,7 +1,3 @@
----
-import '@fontsource/gochi-hand/400.css';
----
-
 <div class="pull-cord is-hinting" data-pull-cord>
   <div class="sway">
     <div class="swing" data-cord-swing>
@@ -25,18 +21,6 @@ import '@fontsource/gochi-hand/400.css';
     </div>
   </div>
   <span class="mount" aria-hidden="true"></span>
-  <div class="note" aria-hidden="true">
-    <div class="note-body">
-      <svg class="note-arrow" width="46" height="40" viewBox="0 0 46 40">
-        <path class="note-curve" d="M6 36 C 10 20, 22 10, 40 6"></path>
-        <path class="note-tip" d="M31 2 L 40 6 L 33 13"></path>
-      </svg>
-      <p class="note-text">
-        puxe a cordinha<br />
-        <span class="note-on">pra acender a luz</span><span class="note-off">pra apagar a luz</span>
-      </p>
-    </div>
-  </div>
 </div>
 
 <style>
@@ -213,106 +197,13 @@ import '@fontsource/gochi-hand/400.css';
     display: inline;
   }
 
-  .note {
-    display: none;
-  }
-
   @media (min-width: 1540px) {
     .hint {
       display: none;
     }
-
-    .note {
-      position: absolute;
-      top: 70px;
-      left: 62px;
-      display: block;
-      width: 170px;
-      text-align: left;
-      pointer-events: none;
-      transition: opacity 500ms ease;
-    }
-
-    .pull-cord.is-pulled .note {
-      opacity: 0;
-    }
-
-    .note-body {
-      font-family: 'Gochi Hand', cursive;
-      font-size: 18px;
-      line-height: 1.1;
-      color: var(--text-muted);
-      transform-origin: 0 0;
-      animation: noteIn 700ms cubic-bezier(0.2, 0.7, 0.2, 1) 1.6s both;
-    }
-
-    .note-arrow {
-      display: block;
-      fill: none;
-      stroke: currentColor;
-      stroke-width: 1.8;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-      transform: scaleX(-1);
-    }
-
-    .note-arrow path {
-      stroke-dasharray: 60;
-    }
-
-    .note-curve {
-      animation: arrowDraw 600ms ease-out 2s both;
-    }
-
-    .note-tip {
-      animation: arrowDraw 300ms ease-out 2.45s both;
-    }
-
-    .note-text {
-      padding-left: 30px;
-    }
-
-    .note-off,
-    :global(:root[data-theme='light']) .note-on {
-      display: none;
-    }
-
-    :global(:root[data-theme='light']) .note-off {
-      display: inline;
-    }
-  }
-
-  @keyframes noteIn {
-    from {
-      opacity: 0;
-      transform: translate(-6px, 6px) rotate(4deg);
-    }
-    to {
-      opacity: 1;
-      transform: rotate(4deg);
-    }
-  }
-
-  @keyframes arrowDraw {
-    from {
-      stroke-dashoffset: 60;
-    }
-    to {
-      stroke-dashoffset: 0;
-    }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .note-body {
-      animation: none;
-      transform: rotate(4deg);
-    }
-
-    .note-curve,
-    .note-tip {
-      animation: none;
-    }
-
     .sway {
       animation: none;
     }
@@ -432,7 +323,7 @@ import '@fontsource/gochi-hand/400.css';
     };
 
     const switchTheme = (point: { x: number; y: number }) => {
-      wrapper.classList.add('is-pulled');
+      document.querySelector('[data-cord-note]')?.classList.add('is-dismissed');
       const next: Theme = current() === 'light' ? 'dark' : 'light';
       if (next === 'light') tone(2400, 700);
       else tone(1500, 300);
