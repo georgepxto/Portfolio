@@ -3,7 +3,7 @@ export interface ProcessStep {
   description: string;
 }
 
-export interface PriceItem {
+export interface Guarantee {
   label: string;
   value: string;
 }
@@ -27,8 +27,8 @@ export const processSteps: ProcessStep[] = [
   },
 ];
 
-export const pricing: PriceItem[] = [
-  { label: 'Sites', value: 'a partir de [R$ —]' },
-  { label: 'Sistemas', value: 'sob orçamento' },
-  { label: 'Manutenção', value: 'mensal, [R$ —]' },
+export const guarantees: Guarantee[] = [
+  { label: 'Orçamento', value: 'sem custo e sem compromisso' },
+  { label: 'Resposta', value: 'em até 1 dia útil' },
+  { label: 'Valor', value: 'fechado antes de começar' },
 ];

@@ -1,14 +1,14 @@
 ---
 import GridRow from './GridRow.astro';
 import { padIndex } from '../lib/projects';
-import type { PriceItem, ProcessStep } from '../data/process';
+import type { Guarantee, ProcessStep } from '../data/process';
 
 interface Props {
   steps: ProcessStep[];
-  prices: PriceItem[];
+  guarantees: Guarantee[];
 }
 
-const { steps, prices } = Astro.props;
+const { steps, guarantees } = Astro.props;
 ---
 
 <GridRow>
@@ -26,12 +26,12 @@ const { steps, prices } = Astro.props;
 </GridRow>
 
 <GridRow>
-  <dl class="pricing">
+  <dl class="guarantees">
     {
-      prices.map((price) => (
-        <div class="price">
-          <dt class="mono">{price.label}</dt>
-          <dd>{price.value}</dd>
+      guarantees.map((guarantee) => (
+        <div class="guarantee">
+          <dt class="mono">{guarantee.label}</dt>
+          <dd>{guarantee.value}</dd>
         </div>
       ))
     }
@@ -72,12 +72,12 @@ const { steps, prices } = Astro.props;
     color: var(--text-muted);
   }
 
-  .pricing {
+  .guarantees {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
-  .price {
+  .guarantee {
     display: flex;
     flex-wrap: wrap;
     align-items: baseline;
@@ -87,16 +87,16 @@ const { steps, prices } = Astro.props;
     padding: 14px 16px;
   }
 
-  .price + .price {
+  .guarantee + .guarantee {
     border-left: 1px solid var(--border);
   }
 
-  .price dt {
+  .guarantee dt {
     font-size: 12px;
     color: var(--text-faint);
   }
 
-  .price dd {
+  .guarantee dd {
     font-size: 15px;
     color: var(--text);
     text-align: right;
@@ -117,11 +117,11 @@ const { steps, prices } = Astro.props;
   }
 
   @media (max-width: 640px) {
-    .pricing {
+    .guarantees {
       grid-template-columns: minmax(0, 1fr);
     }
 
-    .price + .price {
+    .guarantee + .guarantee {
       border-left: 0;
       border-top: 1px solid var(--border);
     }

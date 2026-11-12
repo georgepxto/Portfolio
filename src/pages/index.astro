@@ -15,7 +15,7 @@ import Contact from '../components/Contact.astro';
 import { lab } from '../data/lab';
 import { services } from '../data/services';
 import { stack } from '../data/stack';
-import { pricing, processSteps } from '../data/process';
+import { guarantees, processSteps } from '../data/process';
 import { testimonials } from '../data/testimonials';
 import { getFeaturedProjects } from '../lib/projects';
 import { getContributions } from '../lib/github';
@@ -88,7 +88,7 @@ const jsonLd = {
   <HatchBand />
 
   <Section id="como-funciona" number="02" title="Como funciona" subtitle="Da primeira mensagem ao sistema no ar.">
-    <ProcessSteps steps={processSteps} prices={pricing} />
+    <ProcessSteps steps={processSteps} guarantees={guarantees} />
   </Section>
 
   <HatchBand />
