@@ -32,6 +32,7 @@
     width: 44px;
     height: 120px;
     pointer-events: none;
+    --cord: 56px;
     view-transition-name: pull-cord;
     transition: opacity 0.15s ease, visibility 0.15s;
   }
@@ -82,14 +83,14 @@
     top: 4px;
     left: 50%;
     width: 1.5px;
-    height: 56px;
+    height: var(--cord);
     margin-left: -0.75px;
     background: var(--text-faint);
   }
 
   .handle {
     position: absolute;
-    top: 51px;
+    top: calc(var(--cord) - 5px);
     left: 0;
     display: grid;
     place-items: center;
@@ -209,6 +210,8 @@
   @media (max-width: 640px) {
     .pull-cord {
       right: 20px;
+      height: 90px;
+      --cord: 28px;
     }
 
     .hint {
@@ -220,7 +223,6 @@
 <script>
   type Theme = 'dark' | 'light';
 
-  const REST = 56;
   const MAX = 46;
   const ARM = 18;
   const TAP = 4;
@@ -355,8 +357,10 @@
       });
     };
 
+    const rest = () => parseFloat(getComputedStyle(wrapper).getPropertyValue('--cord')) || 56;
+
     const setPull = (offset: number) => {
-      line.style.height = `${REST + offset}px`;
+      line.style.height = offset ? `${rest() + offset}px` : '';
       handle.style.transform = offset ? `translateY(${offset}px)` : '';
     };
 
@@ -423,9 +427,10 @@
     const spring = (values: number[], duration: number, after?: () => void) => {
       stopMotion();
       setPull(0);
+      const base = rest();
       motion = [
         line.animate(
-          values.map((value) => ({ height: `${REST + value}px`, easing: SPRING_EASE })),
+          values.map((value) => ({ height: `${base + value}px`, easing: SPRING_EASE })),
           duration,
         ),
         handle.animate(
