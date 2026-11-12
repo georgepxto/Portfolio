@@ -7,6 +7,7 @@ import '@fontsource/jetbrains-mono/500.css';
 import '../styles/global.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import BackToTop from '../components/BackToTop.astro';
 import { fullName } from '../config/site';
 import { tokenCss } from '../config/tokens';
 
@@ -77,5 +78,6 @@ const ogImage = image ? new URL(image, Astro.site).href : undefined;
       </main>
       <Footer />
     </div>
+    <BackToTop />
   </body>
 </html>
