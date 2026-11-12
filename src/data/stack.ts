@@ -4,9 +4,11 @@ export interface StackGroup {
 }
 
 export const stack: StackGroup[] = [
-  { label: 'Front-end', items: ['React', 'Vite'] },
-  { label: 'Back-end', items: ['NestJS', 'Node', 'Express'] },
-  { label: 'Dados', items: ['MariaDB', 'Supabase', 'SQLite'] },
-  { label: 'Infraestrutura', items: ['Vercel', 'Hostinger Cloud'] },
-  { label: 'Outros', items: ['Rust', 'Python', 'Playwright'] },
+  { label: 'Linguagens', items: ['TypeScript', 'JavaScript', 'Python', 'Rust'] },
+  { label: 'Front-end', items: ['React', 'Vite', 'React Router', 'Tailwind', 'HTML', 'CSS', 'PWA'] },
+  { label: 'Back-end', items: ['Node.js', 'NestJS', 'Express', 'Hono'] },
+  { label: 'Dados', items: ['MariaDB', 'MySQL', 'Supabase', 'Firebase', 'SQLite'] },
+  { label: 'Infraestrutura', items: ['VPS', 'Hostinger Cloud', 'Vercel'] },
+  { label: 'Integrações', items: ['Google Calendar', 'Telegram', 'WhatsApp'] },
+  { label: 'Outros', items: ['Playwright', 'ffmpeg', 'Google TV', 'SEO local'] },
 ];
