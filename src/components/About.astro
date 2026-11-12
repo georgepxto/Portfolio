@@ -4,15 +4,14 @@ import GridRow from './GridRow.astro';
 
 <GridRow>
   <div class="text">
-    <p class="lead">Construo sistemas de gestão, produtos SaaS e sites para empresas. Do banco de dados à interface.</p>
-    <p class="lead">
-      Sou desenvolvedor web freelancer em Parnaíba, no Piauí. Trabalho com sistemas para a OIG, produtos SaaS
-      próprios e sites para empresas da região.
+    <p class="opening">Construo sistemas de gestão, produtos SaaS e sites para empresas. Do banco de dados à interface.</p>
+    <p class="body">
+      Comecei a programar em 2020, entre a faculdade e muitos projetos por conta própria. Hoje atendo o Instituto OIG
+      e empresas da região, e mantenho produtos próprios.
     </p>
-    <p class="secondary">
-      Comecei a programar em 2020, entre a faculdade e muitos projetos por conta própria. Hoje cuido de tudo
-      sozinho, do banco de dados à interface. Você fala direto comigo, recebe a proposta por escrito antes de começar e
-      acompanha versões que já dá para testar.
+    <p class="body">
+      Você fala direto comigo, recebe a proposta por escrito antes de começar e acompanha versões que já dá para
+      testar.
     </p>
   </div>
 </GridRow>
@@ -22,20 +21,27 @@ import GridRow from './GridRow.astro';
     padding: 16px;
   }
 
-  .lead {
-    max-width: 58ch;
+  .opening {
+    max-width: 34ch;
+    font-size: 22px;
+    font-weight: 500;
+    line-height: 1.4;
+    letter-spacing: -0.01em;
+    color: var(--text);
+  }
+
+  .body {
+    max-width: 60ch;
     font-size: 17px;
+    line-height: 1.65;
     color: var(--text-soft);
   }
 
-  .lead + .lead {
-    margin-top: 16px;
+  .opening + .body {
+    margin-top: 20px;
   }
 
-  .secondary {
-    max-width: 58ch;
-    margin-top: 16px;
-    font-size: 15px;
-    color: var(--text-muted);
+  .body + .body {
+    margin-top: 14px;
   }
 </style>
