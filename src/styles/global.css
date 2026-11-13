@@ -72,7 +72,8 @@ html[data-astro-transition] [data-cord-note] {
 }
 
 html[data-vt] [data-astro-transition-scope],
-html[data-dir] [data-astro-transition-scope] {
+html[data-dir] [data-astro-transition-scope],
+html[data-return] [data-astro-transition-scope] {
   view-transition-name: none;
 }
 
@@ -105,25 +106,33 @@ html.motion [data-pd]:not([data-pd-shown]) {
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  html[data-astro-transition]:not([data-dir])::view-transition-group(*) {
+  html[data-astro-transition]:not([data-dir]):not([data-return])::view-transition-group(*) {
     animation-duration: 620ms;
     animation-timing-function: cubic-bezier(0.7, 0, 0.2, 1);
   }
 
-  html[data-astro-transition]:not([data-dir])::view-transition-old(root) {
+  html[data-astro-transition]:not([data-dir]):not([data-return])::view-transition-old(root) {
     animation: vt-fade-out 220ms cubic-bezier(0.4, 0, 1, 1) both;
   }
 
-  html[data-astro-transition]:not([data-dir])::view-transition-new(root) {
+  html[data-astro-transition]:not([data-dir]):not([data-return])::view-transition-new(root) {
     animation: vt-fade-in 400ms cubic-bezier(0.2, 0.7, 0.2, 1) 180ms both;
   }
 
-  html[data-astro-transition]:not([data-dir])::view-transition-old(*):only-child {
+  html[data-astro-transition]:not([data-dir]):not([data-return])::view-transition-old(*):only-child {
     animation: vt-fade-out 220ms cubic-bezier(0.4, 0, 1, 1) both;
   }
 
-  html[data-astro-transition]:not([data-dir])::view-transition-new(*):only-child {
+  html[data-astro-transition]:not([data-dir]):not([data-return])::view-transition-new(*):only-child {
     animation: vt-fade-in 400ms cubic-bezier(0.2, 0.7, 0.2, 1) 180ms both;
+  }
+
+  html[data-astro-transition][data-return]::view-transition-old(root) {
+    animation: vt-return-out 200ms cubic-bezier(0.4, 0, 1, 1) both;
+  }
+
+  html[data-astro-transition][data-return]::view-transition-new(root) {
+    animation: vt-fade-in 260ms ease-out both;
   }
 
   html[data-dir='next']::view-transition-old(root) {
@@ -168,6 +177,13 @@ html.motion [data-pd]:not([data-pd-shown]) {
 @keyframes vt-fade-in {
   from {
     opacity: 0;
+  }
+}
+
+@keyframes vt-return-out {
+  to {
+    opacity: 0;
+    transform: translateY(16px);
   }
 }
 

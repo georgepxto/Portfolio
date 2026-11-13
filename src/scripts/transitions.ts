@@ -5,6 +5,8 @@ type Dir = 'next' | 'prev';
 
 const root = document.documentElement;
 const PROJECT = /^\/trabalhos\/([^/]+)\/?$/;
+const RETURN_GAP = 96;
+const HIGHLIGHT = 1400;
 
 const slugOf = (url: URL) => url.pathname.match(PROJECT)?.[1];
 const isHome = (url: URL) => url.pathname === '/';
@@ -28,8 +30,20 @@ document.addEventListener('astro:before-preparation', (event) => {
   if (from && to && from !== to && isDir(dir)) root.dataset.dir = dir;
   else delete root.dataset.dir;
 
-  const back = closest(event.sourceElement, '[data-back]') !== null;
-  returnTo = from && isHome(event.to) && event.navigationType !== 'traverse' && back ? from : undefined;
+  const returning = Boolean(from) && isHome(event.to);
+  if (returning) {
+    root.dataset.return = '';
+    document
+      .querySelectorAll('[data-astro-transition-scope]')
+      .forEach((element) => element.removeAttribute('data-astro-transition-scope'));
+  } else {
+    delete root.dataset.return;
+  }
+
+  const back =
+    closest(event.sourceElement, '[data-back]') !== null ||
+    (event.navigationType === 'traverse' && event.direction === 'back');
+  returnTo = returning && back ? from : undefined;
 });
 
 document.addEventListener('astro:before-swap', (event) => {
@@ -37,6 +51,8 @@ document.addEventListener('astro:before-swap', (event) => {
   const next = event.newDocument;
   const dir = root.dataset.dir;
   const from = slugOf(event.from);
+
+  if (root.hasAttribute('data-return')) next.documentElement.dataset.return = '';
 
   if (dir) {
     next.documentElement.dataset.dir = dir;
@@ -53,15 +69,48 @@ document.addEventListener('astro:before-swap', (event) => {
     .finally(() => {
       if (current !== token) return;
       delete root.dataset.dir;
+      delete root.dataset.return;
       document.querySelectorAll('[data-pd-enter]').forEach((cover) => cover.removeAttribute('data-pd-enter'));
     });
 });
 
+const highlight = (card: HTMLElement) => {
+  const styles = getComputedStyle(root);
+  const surface = styles.getPropertyValue('--surface').trim();
+  const accent = styles.getPropertyValue('--accent').trim();
+  const border = styles.getPropertyValue('--border').trim();
+  const timing = { duration: HIGHLIGHT, easing: 'ease-out' };
+  const animations = [
+    card.animate(
+      [
+        { backgroundColor: surface },
+        { backgroundColor: surface, offset: 0.4 },
+        { backgroundColor: 'transparent' },
+      ],
+      timing,
+    ),
+  ];
+  const cover = card.querySelector('.cover');
+  if (cover) {
+    animations.push(
+      cover.animate(
+        [{ borderColor: accent }, { borderColor: accent, offset: 0.45 }, { borderColor: border }],
+        timing,
+      ),
+    );
+  }
+  animations.forEach((animation) => animation.finished.then(() => animation.cancel()).catch(() => {}));
+};
+
 document.addEventListener('astro:after-swap', () => {
   if (!returnTo) return;
-  const card = document.querySelector(`[data-card="${CSS.escape(returnTo)}"]`);
+  const card = document.querySelector<HTMLElement>(`[data-card="${CSS.escape(returnTo)}"]`);
   returnTo = undefined;
-  card?.scrollIntoView({ block: 'center', behavior: 'instant' });
+  if (!card) return;
+  const rect = card.getBoundingClientRect();
+  const offset = Math.max(RETURN_GAP, (innerHeight - rect.height) / 2);
+  scrollTo({ top: rect.top + scrollY - offset, behavior: 'instant' });
+  highlight(card);
 });
 
 const typing = (target: EventTarget | null) =>
