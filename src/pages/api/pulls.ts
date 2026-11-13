@@ -9,6 +9,7 @@ const READ_CACHE = 's-maxage=10, stale-while-revalidate=30';
 const BURST_MS = 2_000;
 const HOURLY_LIMIT = 60;
 const HOUR_S = 3_600;
+const MAX_BATCH = 5;
 
 const url = UPSTASH_REDIS_REST_URL ?? KV_REST_API_URL;
 const token = UPSTASH_REDIS_REST_TOKEN ?? KV_REST_API_TOKEN;
@@ -38,12 +39,22 @@ const clientId = async ({ request, clientAddress }: APIContext) => {
   return Array.from(new Uint8Array(digest).slice(0, 16), (byte) => byte.toString(16).padStart(2, '0')).join('');
 };
 
-const limited = async (client: Redis, id: string): Promise<number | null> => {
+const batchSize = async (request: Request) => {
+  try {
+    const body: unknown = await request.json();
+    const pulls = typeof body === 'object' && body !== null ? (body as { pulls?: unknown }).pulls : undefined;
+    return typeof pulls === 'number' && Number.isInteger(pulls) ? Math.min(MAX_BATCH, Math.max(1, pulls)) : 1;
+  } catch {
+    return 1;
+  }
+};
+
+const limited = async (client: Redis, id: string, pulls: number): Promise<number | null> => {
   const burst = await client.set(`pulls:rl:burst:${id}`, 1, { nx: true, px: BURST_MS });
   if (burst === null) return Math.ceil(BURST_MS / 1000);
 
   const hourKey = `pulls:rl:hour:${id}`;
-  const [used] = await client.multi().incr(hourKey).expire(hourKey, HOUR_S, 'NX').exec<[number, number]>();
+  const [used] = await client.multi().incrby(hourKey, pulls).expire(hourKey, HOUR_S, 'NX').exec<[number, number]>();
   if (used <= HOURLY_LIMIT) return null;
 
   const ttl = await client.ttl(hourKey);
@@ -70,12 +81,13 @@ export const POST: APIRoute = async (context) => {
   if (!redis) return json({ count: null }, 503, { 'Cache-Control': 'no-store' });
 
   try {
-    const retryAfter = await limited(redis, await clientId(context));
+    const pulls = await batchSize(context.request);
+    const retryAfter = await limited(redis, await clientId(context), pulls);
     if (retryAfter !== null) {
       return json({ count: await read() }, 429, { 'Cache-Control': 'no-store', 'Retry-After': String(retryAfter) });
     }
 
-    return json({ count: toCount(await redis.incr(KEY)) }, 200, { 'Cache-Control': 'no-store' });
+    return json({ count: toCount(await redis.incrby(KEY, pulls)) }, 200, { 'Cache-Control': 'no-store' });
   } catch (error) {
     console.error('[pulls] increment failed:', (error as Error).message);
     return json({ count: null }, 503, { 'Cache-Control': 'no-store' });

@@ -1,21 +1,49 @@
 const ENDPOINT = '/api/pulls';
 const REFRESH = 30_000;
-const DEBOUNCE = 2_000;
+const BATCH_WINDOW = 2_000;
+const RETRY = 30_000;
+const MAX_BATCH = 5;
+const MAX_PENDING = 60;
+const CONFIRMED_TTL = 120_000;
+const PENDING_TTL = 600_000;
+const STORAGE_KEY = 'pulls';
 const EASE = 'cubic-bezier(.2, .7, .2, 1)';
 
 const format = new Intl.NumberFormat('pt-BR');
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
 
-let count: number | null = null;
-let unsent = 0;
-let sequence = 0;
-let applied = 0;
+const toInt = (value: unknown) => (typeof value === 'number' && Number.isSafeInteger(value) && value >= 0 ? value : 0);
+
+const restore = () => {
+  try {
+    const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? 'null') as Record<string, unknown> | null;
+    const now = Date.now();
+    return {
+      confirmed: now - toInt(stored?.confirmedAt) < CONFIRMED_TTL ? toInt(stored?.confirmed) : 0,
+      pending: now - toInt(stored?.pendingAt) < PENDING_TTL ? Math.min(MAX_PENDING, toInt(stored?.pending)) : 0,
+    };
+  } catch {
+    return { confirmed: 0, pending: 0 };
+  }
+};
+
+let { confirmed, pending } = restore();
+let available = false;
+let inflight = false;
 let lastFetch = 0;
 let refreshTimer = 0;
-let sendTimer = 0;
+let flushTimer = 0;
 let badges = 0;
 
+const persist = () => {
+  try {
+    const now = Date.now();
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ confirmed, confirmedAt: now, pending, pendingAt: now }));
+  } catch {}
+};
+
 const render = (animate: boolean) => {
+  const count = available ? confirmed + pending : null;
   document.querySelectorAll<HTMLElement>('[data-pulls]').forEach((element) => {
     element.hidden = count === null;
     if (count === null) return;
@@ -41,49 +69,80 @@ const render = (animate: boolean) => {
   });
 };
 
-const apply = (id: number, value: unknown) => {
-  if (id < applied) return;
-  applied = id;
-  count = typeof value === 'number' && Number.isSafeInteger(value) && value >= 0 ? value + unsent : null;
+const accept = (value: unknown) => {
+  if (typeof value === 'number' && Number.isSafeInteger(value) && value >= 0) {
+    available = true;
+    confirmed = Math.max(confirmed, value);
+    persist();
+  } else {
+    available = false;
+  }
   render(true);
 };
 
-const request = async (method: 'GET' | 'POST', keepalive = false) => {
-  const id = ++sequence;
+const scheduleFlush = (delay = BATCH_WINDOW) => {
+  if (flushTimer || inflight || pending === 0) return;
+  flushTimer = window.setTimeout(flush, delay);
+};
+
+const flush = async () => {
+  flushTimer = 0;
+  if (inflight || pending === 0) return;
+  inflight = true;
+  const batch = Math.min(MAX_BATCH, pending);
+  let retry = BATCH_WINDOW;
+
   try {
     const response = await fetch(ENDPOINT, {
-      method,
-      keepalive,
+      method: 'POST',
       cache: 'no-store',
-      headers: { Accept: 'application/json' },
+      headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+      body: JSON.stringify({ pulls: batch }),
     });
-    const body: unknown = await response.json();
-    apply(id, (body as { count?: unknown } | null)?.count);
+    const body = (await response.json().catch(() => null)) as { count?: unknown } | null;
+
+    if (response.ok) {
+      pending = Math.max(0, pending - batch);
+      accept(body?.count);
+    } else if (response.status === 429) {
+      const wait = Number(response.headers.get('Retry-After')) * 1000;
+      if (!Number.isFinite(wait) || wait > 60_000) pending = 0;
+      else retry = Math.max(BATCH_WINDOW, wait);
+      accept(body?.count);
+    } else if (response.status === 403) {
+      pending = 0;
+    } else {
+      retry = RETRY;
+    }
   } catch {
-    if (method === 'GET') apply(id, null);
+    retry = RETRY;
+  } finally {
+    inflight = false;
+    persist();
+    render(true);
+    scheduleFlush(retry);
   }
 };
 
-const refresh = () => {
+const refresh = async () => {
   if (document.visibilityState !== 'visible') return;
   lastFetch = Date.now();
-  void request('GET');
+  try {
+    const response = await fetch(ENDPOINT, { cache: 'no-store', headers: { Accept: 'application/json' } });
+    const body = (await response.json()) as { count?: unknown } | null;
+    accept(body?.count);
+  } catch {
+    accept(null);
+  }
+  if (available) scheduleFlush(0);
 };
 
 const schedule = () => {
   window.clearInterval(refreshTimer);
   refreshTimer = 0;
   if (document.visibilityState !== 'visible') return;
-  if (Date.now() - lastFetch >= REFRESH) refresh();
-  refreshTimer = window.setInterval(refresh, REFRESH);
-};
-
-const send = (keepalive = false) => {
-  window.clearTimeout(sendTimer);
-  sendTimer = 0;
-  if (unsent === 0) return;
-  unsent = 0;
-  void request('POST', keepalive);
+  if (Date.now() - lastFetch >= REFRESH) void refresh();
+  refreshTimer = window.setInterval(() => void refresh(), REFRESH);
 };
 
 const restingPill = () => {
@@ -128,21 +187,15 @@ const floatUp = () => {
 };
 
 document.addEventListener('cord:pull', () => {
-  if (count === null) return;
-  count += 1;
-  unsent += 1;
+  if (!available) return;
+  pending = Math.min(MAX_PENDING, pending + 1);
+  persist();
   render(true);
   floatUp();
-  window.clearTimeout(sendTimer);
-  sendTimer = window.setTimeout(send, DEBOUNCE);
+  scheduleFlush();
 });
 
-document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState === 'hidden') send(true);
-  schedule();
-});
-
-addEventListener('pagehide', () => send(true));
+document.addEventListener('visibilitychange', schedule);
 document.addEventListener('astro:page-load', () => render(false));
 
 render(false);
