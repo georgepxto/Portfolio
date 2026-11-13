@@ -17,8 +17,8 @@ const host = url ? new URL(url).hostname.replace(/^www\./, '') : undefined;
 ---
 
 <GridRow>
-  <article class="project" data-reveal>
-    <div class="media" data-reveal-clip>
+  <article class="project" data-reveal data-card={project.id}>
+    <div class="media" data-reveal-clip transition:name={`cover-${project.id}`} transition:animate="initial">
       <ProjectCover
         cover={cover}
         alt={`Captura de tela do projeto ${title}`}
@@ -28,7 +28,7 @@ const host = url ? new URL(url).hostname.replace(/^www\./, '') : undefined;
     </div>
     <div class="body">
       <p class="meta mono">{padIndex(index)} · {meta}</p>
-      <h3>
+      <h3 transition:name={`title-${project.id}`} transition:animate="initial">
         <a class="stretched" href={href}>{title}</a>
       </h3>
       <p class="summary">{summary}</p>

@@ -45,6 +45,8 @@
 </style>
 
 <script>
+  import { onPage } from '../scripts/page';
+
   const zone = 'America/Fortaleza';
   const clockFormat = new Intl.DateTimeFormat('pt-BR', { hour: '2-digit', minute: '2-digit', timeZone: zone });
   const partsFormat = new Intl.DateTimeFormat('en-US', {
@@ -99,6 +101,10 @@
     });
   }
 
-  update();
-  setInterval(update, 30_000);
+  onPage(() => {
+    if (!document.querySelector('[data-local-clock]')) return;
+    update();
+    const timer = window.setInterval(update, 30_000);
+    return () => window.clearInterval(timer);
+  });
 </script>

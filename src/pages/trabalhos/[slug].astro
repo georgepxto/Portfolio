@@ -15,16 +15,21 @@ export async function getStaticPaths() {
   const projects = await getProjects();
   return projects.map((project, index) => ({
     params: { slug: project.id },
-    props: { project, next: projects[(index + 1) % projects.length] },
+    props: {
+      project,
+      prev: projects[(index - 1 + projects.length) % projects.length],
+      next: projects[(index + 1) % projects.length],
+    },
   }));
 }
 
 interface Props {
   project: Project;
+  prev: Project;
   next: Project;
 }
 
-const { project, next } = Astro.props;
+const { project, prev, next } = Astro.props;
 const { title, label, year, client, role, stack, status, summary, url, cover } = project.data;
 const { Content } = await render(project);
 const ogImage = cover ? (await getImage({ src: cover, width: 1200, format: 'jpg' })).src : undefined;
@@ -44,10 +49,15 @@ const details = [
   image={ogImage}
   type="article"
 >
-  <article class="case" aria-labelledby="case-title">
+  <article
+    class="case"
+    aria-labelledby="case-title"
+    data-project={project.id}
+    data-prev={prev.id !== project.id ? `/trabalhos/${prev.id}/` : undefined}
+  >
     <GridRow>
       <div class="back-row">
-        <a class="back" href="/#trabalhos">
+        <a class="back" href="/#trabalhos" data-back>
           <ArrowLeft aria-hidden="true" />
           Trabalhos
         </a>
@@ -57,7 +67,7 @@ const details = [
     <GridRow class="case-header-row">
       <header class="case-header">
         <p class="meta mono">{label} · {year}</p>
-        <h1 id="case-title">{title}</h1>
+        <h1 id="case-title" transition:name={`title-${project.id}`} transition:animate="initial">{title}</h1>
         <p class="summary">{summary}</p>
         {
           url && (
@@ -88,6 +98,9 @@ const details = [
     <GridRow>
       <div class="case-cover">
         <ProjectCover
+          transition:name={`cover-${project.id}`}
+          transition:animate="initial"
+          data-pd-cover
           cover={cover}
           alt={`Captura de tela do projeto ${title}`}
           widths={[800, 1280, 1920, 2560]}
@@ -99,7 +112,7 @@ const details = [
 
     <HatchBand />
 
-    <GridRow>
+    <GridRow data-pd>
       <div class="prose">
         <Content />
       </div>
@@ -109,8 +122,8 @@ const details = [
       next.id !== project.id && (
         <>
           <HatchBand />
-          <GridRow as="nav" aria-label="Próximo projeto">
-            <a class="next" href={`/trabalhos/${next.id}/`}>
+          <GridRow as="nav" aria-label="Próximo projeto" data-pd>
+            <a class="next" href={`/trabalhos/${next.id}/`} data-dir="next" data-astro-history="push">
               <span class="next-label mono">Próximo projeto</span>
               <span class="next-title">
                 {next.data.title}

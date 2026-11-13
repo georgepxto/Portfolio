@@ -14,7 +14,7 @@ const links = [
 ];
 ---
 
-<header class="site-header" data-site-header>
+<header class="site-header" data-site-header transition:persist="site-header">
   <GridRow class="site-header-row">
     <div class="bar">
       <a class="logo mono" href="/#topo" aria-label="George, início">george.dev<span aria-hidden="true">/</span></a>
@@ -503,16 +503,20 @@ const links = [
 </style>
 
 <script>
-  const root = document.documentElement;
-  const header = document.querySelector<HTMLElement>('[data-site-header]');
-  const toggle = header?.querySelector<HTMLButtonElement>('[data-menu-toggle]');
-  const panel = header?.querySelector<HTMLElement>('[data-menu-panel]');
+  import { onElement } from '../scripts/page';
 
-  if (header && toggle && panel) {
+  const root = document.documentElement;
+
+  onElement<HTMLElement>('[data-site-header]', (header, signal) => {
+    const toggle = header.querySelector<HTMLButtonElement>('[data-menu-toggle]');
+    const panel = header.querySelector<HTMLElement>('[data-menu-panel]');
+    if (!toggle || !panel) return;
+
     const desktop = matchMedia('(min-width: 641px)');
-    const siblings = Array.from(header.parentElement?.children ?? []).filter(
-      (element): element is HTMLElement => element !== header && element instanceof HTMLElement,
-    );
+    const siblings = () =>
+      Array.from(header.parentElement?.children ?? []).filter(
+        (element): element is HTMLElement => element !== header && element instanceof HTMLElement,
+      );
 
     const isOpen = () => toggle.getAttribute('aria-expanded') === 'true';
 
@@ -524,25 +528,39 @@ const links = [
       root.classList.toggle('is-menu-open', open);
       toggle.setAttribute('aria-expanded', String(open));
       toggle.setAttribute('aria-label', open ? 'Fechar menu' : 'Abrir menu');
-      siblings.forEach((element) => {
+      siblings().forEach((element) => {
         element.inert = open;
       });
     };
 
-    toggle.addEventListener('click', () => setOpen(!isOpen()));
+    toggle.addEventListener('click', () => setOpen(!isOpen()), { signal });
 
-    panel.addEventListener('click', (event) => {
-      if ((event.target as HTMLElement).closest('a')) setOpen(false);
-    });
+    panel.addEventListener(
+      'click',
+      (event) => {
+        if ((event.target as HTMLElement).closest('a')) setOpen(false);
+      },
+      { signal },
+    );
 
-    document.addEventListener('keydown', (event) => {
-      if (event.key !== 'Escape' || !isOpen()) return;
-      setOpen(false);
-      toggle.focus();
-    });
+    document.addEventListener(
+      'keydown',
+      (event) => {
+        if (event.key !== 'Escape' || !isOpen()) return;
+        setOpen(false);
+        toggle.focus();
+      },
+      { signal },
+    );
 
-    desktop.addEventListener('change', (event) => {
-      if (event.matches) setOpen(false);
-    });
-  }
+    document.addEventListener('astro:before-swap', () => setOpen(false), { signal });
+
+    desktop.addEventListener(
+      'change',
+      (event) => {
+        if (event.matches) setOpen(false);
+      },
+      { signal },
+    );
+  });
 </script>

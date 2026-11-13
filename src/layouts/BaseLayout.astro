@@ -10,6 +10,7 @@ import Footer from '../components/Footer.astro';
 import BackToTop from '../components/BackToTop.astro';
 import { fullName } from '../config/site';
 import { tokenCss } from '../config/tokens';
+import { ClientRouter } from 'astro:transitions';
 
 interface Props {
   title: string;
@@ -47,9 +48,22 @@ const ogImage = image ? new URL(image, Astro.site).href : undefined;
         if (theme !== 'light' && theme !== 'dark') {
           theme = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
         }
-        root.dataset.theme = theme;
-        var meta = document.querySelector('meta[name="theme-color"]');
-        if (meta) meta.setAttribute('content', theme === 'light' ? '#f6f8f6' : '#0b0e0c');
+        var paint = function (value) {
+          root.dataset.theme = value;
+          var meta = document.querySelector('meta[name="theme-color"]');
+          if (meta) meta.setAttribute('content', value === 'light' ? '#f6f8f6' : '#0b0e0c');
+        };
+        paint(theme);
+        var kept = { theme: theme, motion: false };
+        document.addEventListener('astro:before-swap', function () {
+          kept.theme = root.dataset.theme === 'light' ? 'light' : 'dark';
+          kept.motion = root.classList.contains('motion');
+        });
+        document.addEventListener('astro:after-swap', function () {
+          root.classList.add('js');
+          if (kept.motion) root.classList.add('motion');
+          paint(kept.theme);
+        });
       })();
     </script>
     <style is:inline set:html={tokenCss}></style>
@@ -74,6 +88,7 @@ const ogImage = image ? new URL(image, Astro.site).href : undefined;
     <meta name="twitter:description" content={description} />
     {ogImage && <meta name="twitter:image" content={ogImage} />}
     {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
+    <ClientRouter />
   </head>
   <body>
     <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
@@ -87,6 +102,7 @@ const ogImage = image ? new URL(image, Astro.site).href : undefined;
     <BackToTop />
     <script>
       import '../scripts/motion';
+      import '../scripts/transitions';
     </script>
   </body>
 </html>

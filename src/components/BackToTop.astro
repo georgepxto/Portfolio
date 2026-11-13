@@ -94,12 +94,15 @@ import ArrowUp from '@lucide/astro/icons/arrow-up';
 </style>
 
 <script>
+  import { onPage } from '../scripts/page';
+
   const CIRCUMFERENCE = 141.37;
 
-  const button = document.querySelector<HTMLButtonElement>('[data-back-to-top]');
-  const ring = button?.querySelector<SVGCircleElement>('[data-back-to-top-ring]');
+  onPage((signal) => {
+    const button = document.querySelector<HTMLButtonElement>('[data-back-to-top]');
+    const ring = button?.querySelector<SVGCircleElement>('[data-back-to-top-ring]');
+    if (!button || !ring) return;
 
-  if (button && ring) {
     const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
     let frame = 0;
     let visible = false;
@@ -121,14 +124,20 @@ import ArrowUp from '@lucide/astro/icons/arrow-up';
       if (!frame) frame = requestAnimationFrame(update);
     };
 
-    addEventListener('scroll', schedule, { passive: true });
-    addEventListener('resize', schedule, { passive: true });
+    addEventListener('scroll', schedule, { passive: true, signal });
+    addEventListener('resize', schedule, { passive: true, signal });
 
-    button.addEventListener('click', () => {
-      scrollTo({ top: 0, behavior: reducedMotion.matches ? 'auto' : 'smooth' });
-      document.querySelector<HTMLAnchorElement>('[data-site-header] .logo')?.focus({ preventScroll: true });
-    });
+    button.addEventListener(
+      'click',
+      () => {
+        scrollTo({ top: 0, behavior: reducedMotion.matches ? 'auto' : 'smooth' });
+        document.querySelector<HTMLAnchorElement>('[data-site-header] .logo')?.focus({ preventScroll: true });
+      },
+      { signal },
+    );
 
     update();
-  }
+
+    return () => cancelAnimationFrame(frame);
+  });
 </script>

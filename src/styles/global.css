@@ -58,6 +58,165 @@ html[data-vt='dark']::view-transition-old(root) {
   display: none;
 }
 
+html[data-astro-transition] {
+  scroll-behavior: auto;
+  overflow-anchor: none;
+}
+
+html[data-astro-transition] [data-site-header] {
+  view-transition-name: site-header;
+}
+
+html[data-astro-transition] [data-cord-note] {
+  view-transition-name: cord-note;
+}
+
+html[data-vt] [data-astro-transition-scope],
+html[data-dir] [data-astro-transition-scope] {
+  view-transition-name: none;
+}
+
+html[data-dir] [data-astro-transition-scope][data-pd-enter] {
+  view-transition-name: pd-cover;
+}
+
+::view-transition-group(site-header),
+::view-transition-new(site-header),
+::view-transition-group(cord-note),
+::view-transition-new(cord-note) {
+  animation: none;
+}
+
+::view-transition-old(site-header),
+::view-transition-old(cord-note) {
+  display: none;
+}
+
+html[data-astro-transition]::view-transition-group(site-header) {
+  z-index: 1;
+}
+
+html[data-astro-transition]::view-transition-group(pull-cord) {
+  z-index: 2;
+}
+
+html.motion [data-pd]:not([data-pd-shown]) {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html[data-astro-transition]:not([data-dir])::view-transition-group(*) {
+    animation-duration: 620ms;
+    animation-timing-function: cubic-bezier(0.7, 0, 0.2, 1);
+  }
+
+  html[data-astro-transition]:not([data-dir])::view-transition-old(root) {
+    animation: vt-fade-out 220ms cubic-bezier(0.4, 0, 1, 1) both;
+  }
+
+  html[data-astro-transition]:not([data-dir])::view-transition-new(root) {
+    animation: vt-fade-in 400ms cubic-bezier(0.2, 0.7, 0.2, 1) 180ms both;
+  }
+
+  html[data-astro-transition]:not([data-dir])::view-transition-old(*):only-child {
+    animation: vt-fade-out 220ms cubic-bezier(0.4, 0, 1, 1) both;
+  }
+
+  html[data-astro-transition]:not([data-dir])::view-transition-new(*):only-child {
+    animation: vt-fade-in 400ms cubic-bezier(0.2, 0.7, 0.2, 1) 180ms both;
+  }
+
+  html[data-dir='next']::view-transition-old(root) {
+    animation: vt-out-next 230ms cubic-bezier(0.4, 0, 1, 1) both;
+  }
+
+  html[data-dir='next']::view-transition-new(root) {
+    animation: vt-in-next 520ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  }
+
+  html[data-dir='next']::view-transition-new(pd-cover) {
+    animation: vt-cover-next 760ms cubic-bezier(0.7, 0, 0.2, 1) 80ms both;
+  }
+
+  html[data-dir='prev']::view-transition-old(root) {
+    animation: vt-out-prev 230ms cubic-bezier(0.4, 0, 1, 1) both;
+  }
+
+  html[data-dir='prev']::view-transition-new(root) {
+    animation: vt-in-prev 520ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  }
+
+  html[data-dir='prev']::view-transition-new(pd-cover) {
+    animation: vt-cover-prev 760ms cubic-bezier(0.7, 0, 0.2, 1) 80ms both;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-astro-transition]::view-transition-group(*),
+  html[data-astro-transition]::view-transition-old(*),
+  html[data-astro-transition]::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+
+@keyframes vt-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes vt-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes vt-out-next {
+  to {
+    opacity: 0;
+    transform: translateX(-48px);
+  }
+}
+
+@keyframes vt-in-next {
+  from {
+    opacity: 0;
+    transform: translateX(48px);
+  }
+}
+
+@keyframes vt-out-prev {
+  to {
+    opacity: 0;
+    transform: translateX(48px);
+  }
+}
+
+@keyframes vt-in-prev {
+  from {
+    opacity: 0;
+    transform: translateX(-48px);
+  }
+}
+
+@keyframes vt-cover-next {
+  from {
+    clip-path: inset(0 0 0 100%);
+  }
+  to {
+    clip-path: inset(0);
+  }
+}
+
+@keyframes vt-cover-prev {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0);
+  }
+}
+
 html.motion [data-reveal]:not([data-revealed]) > *,
 html.motion [data-words]:not([data-revealed]) > *,
 html.motion [data-contrib-wave]:not([data-revealed]) .cell,

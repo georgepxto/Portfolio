@@ -274,152 +274,179 @@ const { items } = Astro.props;
 </style>
 
 <script>
+  import { onPage } from '../scripts/page';
+
   const DURATION = 7000;
   const EASE = 'cubic-bezier(.2, .7, .2, 1)';
 
-  document.querySelectorAll<HTMLElement>('[data-testimonials]').forEach((root) => {
-    const tabs = Array.from(root.querySelectorAll<HTMLButtonElement>('[role="tab"]'));
-    const panels = Array.from(root.querySelectorAll<HTMLElement>('[role="tabpanel"]'));
-    if (tabs.length === 0 || tabs.length !== panels.length) return;
+  onPage((signal) => {
+    const stops: (() => void)[] = [];
 
-    const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
-    let active = 0;
-    let shown = 0;
-    let token = 0;
-    let hovering = false;
-    let visible = false;
-    let progress: Animation | undefined;
-    let swapping: Animation[] = [];
+    document.querySelectorAll<HTMLElement>('[data-testimonials]').forEach((root) => {
+      const tabs = Array.from(root.querySelectorAll<HTMLButtonElement>('[role="tab"]'));
+      const panels = Array.from(root.querySelectorAll<HTMLElement>('[role="tabpanel"]'));
+      if (tabs.length === 0 || tabs.length !== panels.length) return;
 
-    const parts = (panel: HTMLElement) =>
-      [panel.querySelector('blockquote'), panel.querySelector('figcaption')].filter(
-        (element): element is HTMLElement => element !== null,
-      );
+      const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+      let active = 0;
+      let shown = 0;
+      let token = 0;
+      let hovering = false;
+      let visible = false;
+      let progress: Animation | undefined;
+      let swapping: Animation[] = [];
 
-    const show = (index: number) => {
-      panels.forEach((panel, position) => panel.toggleAttribute('data-active', position === index));
-      shown = index;
-    };
+      const parts = (panel: HTMLElement) =>
+        [panel.querySelector('blockquote'), panel.querySelector('figcaption')].filter(
+          (element): element is HTMLElement => element !== null,
+        );
 
-    const swap = async (index: number) => {
-      const id = ++token;
-      swapping.forEach((animation) => animation.cancel());
-      swapping = [];
-      if (index === shown) return;
-
-      if (reducedMotion.matches) {
-        show(index);
-        return;
-      }
-
-      const leaving = parts(panels[shown]).map((element) =>
-        element.animate(
-          [
-            { opacity: 1, transform: 'none' },
-            { opacity: 0, transform: 'translateY(-6px)' },
-          ],
-          { duration: 200, easing: 'ease-in', fill: 'forwards' },
-        ),
-      );
-      swapping = leaving;
-
-      try {
-        await Promise.all(leaving.map((animation) => animation.finished));
-      } catch {
-        return;
-      }
-      if (id !== token) return;
-
-      show(index);
-      leaving.forEach((animation) => animation.cancel());
-      swapping = parts(panels[index]).map((element, position) =>
-        element.animate(
-          [
-            { opacity: 0, transform: 'translateY(10px)' },
-            { opacity: 1, transform: 'none' },
-          ],
-          { duration: 450, delay: position * 60, easing: EASE, fill: 'backwards' },
-        ),
-      );
-    };
-
-    const syncProgress = () => {
-      if (!progress) return;
-      if (hovering || !visible) progress.pause();
-      else progress.play();
-    };
-
-    const startProgress = () => {
-      progress?.cancel();
-      progress = undefined;
-      if (reducedMotion.matches) return;
-
-      const fill = tabs[active].querySelector('[data-progress]');
-      if (!fill) return;
-      const current = fill.animate([{ transform: 'scaleX(0)' }, { transform: 'scaleX(1)' }], {
-        duration: DURATION,
-        easing: 'linear',
-        fill: 'forwards',
-      });
-      progress = current;
-      syncProgress();
-      current.finished
-        .then(() => {
-          if (progress === current) select((active + 1) % tabs.length, false);
-        })
-        .catch(() => {});
-    };
-
-    const select = (index: number, focus: boolean) => {
-      active = index;
-      tabs.forEach((tab, position) => {
-        const selected = position === index;
-        tab.setAttribute('aria-selected', String(selected));
-        tab.tabIndex = selected ? 0 : -1;
-      });
-      if (focus) tabs[index].focus();
-      void swap(index);
-      startProgress();
-    };
-
-    tabs.forEach((tab, index) => tab.addEventListener('click', () => select(index, false)));
-
-    root.querySelector('[role="tablist"]')?.addEventListener('keydown', (event) => {
-      const keyboard = event as KeyboardEvent;
-      const last = tabs.length - 1;
-      const moves: Record<string, number> = {
-        ArrowRight: active === last ? 0 : active + 1,
-        ArrowDown: active === last ? 0 : active + 1,
-        ArrowLeft: active === 0 ? last : active - 1,
-        ArrowUp: active === 0 ? last : active - 1,
-        Home: 0,
-        End: last,
+      const show = (index: number) => {
+        panels.forEach((panel, position) => panel.toggleAttribute('data-active', position === index));
+        shown = index;
       };
-      const next = moves[keyboard.key];
-      if (next === undefined) return;
-      keyboard.preventDefault();
-      select(next, true);
-    });
 
-    root.addEventListener('mouseenter', () => {
-      hovering = true;
-      syncProgress();
-    });
+      const swap = async (index: number) => {
+        const id = ++token;
+        swapping.forEach((animation) => animation.cancel());
+        swapping = [];
+        if (index === shown) return;
 
-    root.addEventListener('mouseleave', () => {
-      hovering = false;
-      syncProgress();
-    });
+        if (reducedMotion.matches) {
+          show(index);
+          return;
+        }
 
-    if ('IntersectionObserver' in window) {
-      new IntersectionObserver(([entry]) => {
-        visible = entry.isIntersecting;
+        const leaving = parts(panels[shown]).map((element) =>
+          element.animate(
+            [
+              { opacity: 1, transform: 'none' },
+              { opacity: 0, transform: 'translateY(-6px)' },
+            ],
+            { duration: 200, easing: 'ease-in', fill: 'forwards' },
+          ),
+        );
+        swapping = leaving;
+
+        try {
+          await Promise.all(leaving.map((animation) => animation.finished));
+        } catch {
+          return;
+        }
+        if (id !== token) return;
+
+        show(index);
+        leaving.forEach((animation) => animation.cancel());
+        swapping = parts(panels[index]).map((element, position) =>
+          element.animate(
+            [
+              { opacity: 0, transform: 'translateY(10px)' },
+              { opacity: 1, transform: 'none' },
+            ],
+            { duration: 450, delay: position * 60, easing: EASE, fill: 'backwards' },
+          ),
+        );
+      };
+
+      const syncProgress = () => {
+        if (!progress) return;
+        if (hovering || !visible) progress.pause();
+        else progress.play();
+      };
+
+      const startProgress = () => {
+        progress?.cancel();
+        progress = undefined;
+        if (reducedMotion.matches) return;
+
+        const fill = tabs[active].querySelector('[data-progress]');
+        if (!fill) return;
+        const current = fill.animate([{ transform: 'scaleX(0)' }, { transform: 'scaleX(1)' }], {
+          duration: DURATION,
+          easing: 'linear',
+          fill: 'forwards',
+        });
+        progress = current;
         syncProgress();
-      }).observe(root);
-    } else {
-      visible = true;
-    }
+        current.finished
+          .then(() => {
+            if (progress === current) select((active + 1) % tabs.length, false);
+          })
+          .catch(() => {});
+      };
 
-    startProgress();
+      const select = (index: number, focus: boolean) => {
+        active = index;
+        tabs.forEach((tab, position) => {
+          const selected = position === index;
+          tab.setAttribute('aria-selected', String(selected));
+          tab.tabIndex = selected ? 0 : -1;
+        });
+        if (focus) tabs[index].focus();
+        void swap(index);
+        startProgress();
+      };
+
+      tabs.forEach((tab, index) => tab.addEventListener('click', () => select(index, false), { signal }));
+
+      root.querySelector('[role="tablist"]')?.addEventListener('keydown', (event) => {
+        const keyboard = event as KeyboardEvent;
+        const last = tabs.length - 1;
+        const moves: Record<string, number> = {
+          ArrowRight: active === last ? 0 : active + 1,
+          ArrowDown: active === last ? 0 : active + 1,
+          ArrowLeft: active === 0 ? last : active - 1,
+          ArrowUp: active === 0 ? last : active - 1,
+          Home: 0,
+          End: last,
+        };
+        const next = moves[keyboard.key];
+        if (next === undefined) return;
+        keyboard.preventDefault();
+        select(next, true);
+      }, { signal });
+
+      root.addEventListener(
+        'mouseenter',
+        () => {
+          hovering = true;
+          syncProgress();
+        },
+        { signal },
+      );
+
+      root.addEventListener(
+        'mouseleave',
+        () => {
+          hovering = false;
+          syncProgress();
+        },
+        { signal },
+      );
+
+      let observer: IntersectionObserver | undefined;
+      if ('IntersectionObserver' in window) {
+        observer = new IntersectionObserver(([entry]) => {
+          visible = entry.isIntersecting;
+          syncProgress();
+        });
+        observer.observe(root);
+      } else {
+        visible = true;
+      }
+
+      startProgress();
+
+      stops.push(() => {
+        observer?.disconnect();
+        const running = progress;
+        progress = undefined;
+        running?.cancel();
+        swapping.forEach((animation) => animation.cancel());
+        token++;
+      });
+    });
+
+    return () => stops.forEach((stop) => stop());
   });
 </script>

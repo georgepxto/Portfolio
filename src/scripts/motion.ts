@@ -1,3 +1,5 @@
+import { onPage } from './page';
+
 const EASE = 'cubic-bezier(.2, .7, .2, 1)';
 const LINE_EASE = 'cubic-bezier(.7, 0, .2, 1)';
 const DURATION = 850;
@@ -5,6 +7,8 @@ const DISTANCE = 30;
 const MAX_STEPS = 6;
 const WAVE = 1100;
 const COUNT = 1300;
+const BLOCK_DELAY = 260;
+const BLOCK_STEP = 90;
 
 const root = document.documentElement;
 
@@ -156,10 +160,19 @@ const hero = () => {
   root.classList.add('hero-in');
 };
 
+const blocks = () => {
+  document.querySelectorAll<HTMLElement>('[data-pd]:not([data-pd-shown])').forEach((block, index) => {
+    block.dataset.pdShown = '';
+    fadeUp(block, BLOCK_DELAY + index * BLOCK_STEP, 18, 650);
+  });
+};
+
 const watch = () => {
   const targets = new Map<Element, () => void>();
   const add = (selector: string, run: (element: HTMLElement) => void) => {
-    document.querySelectorAll<HTMLElement>(selector).forEach((element) => targets.set(element, () => run(element)));
+    document
+      .querySelectorAll<HTMLElement>(`${selector}:not([data-revealed])`)
+      .forEach((element) => targets.set(element, () => run(element)));
   };
 
   add('[data-reveal]', reveal);
@@ -185,9 +198,10 @@ const watch = () => {
   );
 
   targets.forEach((_, element) => observer.observe(element));
+  return () => observer.disconnect();
 };
 
-const start = () => {
+onPage(() => {
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
     root.classList.remove('motion');
     return;
@@ -195,7 +209,6 @@ const start = () => {
 
   root.dataset.motionReady = '';
   hero();
-  watch();
-};
-
-start();
+  blocks();
+  return watch();
+});

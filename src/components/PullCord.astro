@@ -226,6 +226,8 @@
 </style>
 
 <script>
+  import { onElement } from '../scripts/page';
+
   type Theme = 'dark' | 'light';
 
   const MAX = 46;
@@ -239,16 +241,16 @@
   const MAX_SPEED = 420;
 
   const root = document.documentElement;
-  const wrapper = document.querySelector<HTMLElement>('[data-pull-cord]');
-  const swing = wrapper?.querySelector<HTMLElement>('[data-cord-swing]');
-  const line = wrapper?.querySelector<HTMLElement>('[data-cord-line]');
-  const handle = wrapper?.querySelector<HTMLButtonElement>('[data-cord-handle]');
-  const pill = wrapper?.querySelector<HTMLElement>('[data-cord-pill]');
 
-  if (wrapper && swing && line && handle && pill) {
+  onElement<HTMLElement>('[data-pull-cord]', (wrapper, signal) => {
+    const swing = wrapper.querySelector<HTMLElement>('[data-cord-swing]');
+    const line = wrapper.querySelector<HTMLElement>('[data-cord-line]');
+    const handle = wrapper.querySelector<HTMLButtonElement>('[data-cord-handle]');
+    const pill = wrapper.querySelector<HTMLElement>('[data-cord-pill]');
+    if (!swing || !line || !handle || !pill) return;
+
     const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
     const systemLight = matchMedia('(prefers-color-scheme: light)');
-    const themeColor = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
 
     let audio: AudioContext | undefined;
     let motion: Animation[] = [];
@@ -277,6 +279,7 @@
     const sync = () => {
       handle.setAttribute('aria-checked', String(current() === 'light'));
       const bg = getComputedStyle(root).getPropertyValue('--bg').trim();
+      const themeColor = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
       if (themeColor && bg) themeColor.content = bg;
     };
 
@@ -507,7 +510,7 @@
       };
       handle.setPointerCapture(event.pointerId);
       wrapper.classList.add('is-active');
-    });
+    }, { signal });
 
     handle.addEventListener('pointermove', (event) => {
       if (!drag) {
@@ -535,11 +538,11 @@
       setPull(drag.eff);
       if (drag.eff > ARM) setArmed(true);
       else if (drag.eff < ARM - 4) setArmed(false);
-    });
+    }, { signal });
 
-    handle.addEventListener('pointerup', (event) => endDrag(event, true));
-    handle.addEventListener('pointercancel', (event) => endDrag(event, false));
-    handle.addEventListener('lostpointercapture', (event) => endDrag(event, false));
+    handle.addEventListener('pointerup', (event) => endDrag(event, true), { signal });
+    handle.addEventListener('pointercancel', (event) => endDrag(event, false), { signal });
+    handle.addEventListener('lostpointercapture', (event) => endDrag(event, false), { signal });
 
     handle.addEventListener('click', () => {
       if (suppressClick) {
@@ -554,14 +557,24 @@
 
       spring([0, 26, -7, 3, -1, 0], 720, kick);
       window.setTimeout(() => switchTheme(origin()), 170);
-    });
+    }, { signal });
 
-    systemLight.addEventListener('change', (event) => {
-      if (!saved()) apply(event.matches ? 'light' : 'dark', false);
-    });
+    systemLight.addEventListener(
+      'change',
+      (event) => {
+        if (!saved()) apply(event.matches ? 'light' : 'dark', false);
+      },
+      { signal },
+    );
 
-    window.setTimeout(() => wrapper.classList.remove('is-hinting'), 5000);
+    const hint = window.setTimeout(() => wrapper.classList.remove('is-hinting'), 5000);
 
     sync();
-  }
+
+    return () => {
+      window.clearTimeout(hint);
+      cancelAnimationFrame(frame);
+      stopMotion();
+    };
+  });
 </script>

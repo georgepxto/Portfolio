@@ -519,26 +519,37 @@ const socials = [
 </style>
 
 <script>
-  const status = document.querySelector<HTMLElement>('[data-copy-status]');
-  const timers = new WeakMap<HTMLElement, number>();
+  import { onPage } from '../scripts/page';
 
-  document.querySelectorAll<HTMLButtonElement>('[data-copy]').forEach((button) => {
-    button.addEventListener('click', async () => {
-      try {
-        await navigator.clipboard.writeText(button.dataset.copy ?? '');
-      } catch {
-        return;
-      }
-      button.dataset.copied = '';
-      if (status) status.textContent = button.dataset.done ?? '';
-      window.clearTimeout(timers.get(button));
-      timers.set(
-        button,
-        window.setTimeout(() => {
-          delete button.dataset.copied;
-          if (status) status.textContent = '';
-        }, 1500),
+  onPage((signal) => {
+    const status = document.querySelector<HTMLElement>('[data-copy-status]');
+    const timers = new Set<number>();
+
+    document.querySelectorAll<HTMLButtonElement>('[data-copy]').forEach((button) => {
+      let timer = 0;
+
+      button.addEventListener(
+        'click',
+        async () => {
+          try {
+            await navigator.clipboard.writeText(button.dataset.copy ?? '');
+          } catch {
+            return;
+          }
+          button.dataset.copied = '';
+          if (status) status.textContent = button.dataset.done ?? '';
+          window.clearTimeout(timer);
+          timers.delete(timer);
+          timer = window.setTimeout(() => {
+            delete button.dataset.copied;
+            if (status) status.textContent = '';
+          }, 1500);
+          timers.add(timer);
+        },
+        { signal },
       );
     });
+
+    return () => timers.forEach((timer) => window.clearTimeout(timer));
   });
 </script>
