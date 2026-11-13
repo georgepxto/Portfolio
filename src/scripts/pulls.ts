@@ -1,5 +1,6 @@
 const ENDPOINT = '/api/pulls';
 const REFRESH = 30_000;
+const LIVE_REFRESH = 3_000;
 const BATCH_WINDOW = 2_000;
 const RETRY = 30_000;
 const MAX_BATCH = 5;
@@ -34,6 +35,8 @@ let lastFetch = 0;
 let refreshTimer = 0;
 let flushTimer = 0;
 let badges = 0;
+let inView = false;
+const onScreen = new Set<Element>();
 
 const persist = () => {
   try {
@@ -138,11 +141,35 @@ const refresh = async () => {
 };
 
 const schedule = () => {
-  window.clearInterval(refreshTimer);
+  window.clearTimeout(refreshTimer);
   refreshTimer = 0;
   if (document.visibilityState !== 'visible') return;
-  if (Date.now() - lastFetch >= REFRESH) void refresh();
-  refreshTimer = window.setInterval(() => void refresh(), REFRESH);
+  const wait = Math.max(0, lastFetch + (inView ? LIVE_REFRESH : REFRESH) - Date.now());
+  refreshTimer = window.setTimeout(async () => {
+    await refresh();
+    schedule();
+  }, wait);
+};
+
+const observer =
+  'IntersectionObserver' in window
+    ? new IntersectionObserver((entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) onScreen.add(entry.target);
+          else onScreen.delete(entry.target);
+        }
+        const next = onScreen.size > 0;
+        if (next === inView) return;
+        inView = next;
+        schedule();
+      })
+    : null;
+
+const observe = () => {
+  if (!observer) return;
+  observer.disconnect();
+  onScreen.clear();
+  document.querySelectorAll('[data-pulls]').forEach((element) => observer.observe(element));
 };
 
 const restingPill = () => {
@@ -156,10 +183,19 @@ const restingPill = () => {
   return { left, top, right: left + pill.offsetWidth };
 };
 
+const counterAnchor = () => {
+  const counter = document.querySelector<HTMLElement>('[data-cord-count]');
+  const value = counter?.querySelector<HTMLElement>('[data-pulls-value]');
+  if (!counter || !value || counter.hidden || !counter.getClientRects().length) return null;
+  const box = counter.getBoundingClientRect();
+  return { left: value.getBoundingClientRect().left, top: box.top - 4 };
+};
+
 const floatUp = () => {
   if (reducedMotion.matches) return;
-  const rect = restingPill();
-  if (!rect) return;
+  const anchor = counterAnchor();
+  const rect = anchor ? null : restingPill();
+  if (!anchor && !rect) return;
 
   const badge = document.createElement('span');
   badge.className = 'pull-plus mono';
@@ -168,11 +204,15 @@ const floatUp = () => {
   badge.style.viewTransitionName = `pull-plus-${++badges}`;
   document.body.append(badge);
 
-  const width = badge.offsetWidth;
-  const right = rect.right + 6;
-  const left = right + width <= innerWidth - 4 ? right : rect.left - 6 - width;
-  badge.style.left = `${left}px`;
-  badge.style.top = `${rect.top - 14}px`;
+  if (anchor) {
+    badge.style.left = `${anchor.left}px`;
+    badge.style.top = `${anchor.top - badge.offsetHeight}px`;
+  } else if (rect) {
+    const width = badge.offsetWidth;
+    const right = rect.right + 6;
+    badge.style.left = `${right + width <= innerWidth - 4 ? right : rect.left - 6 - width}px`;
+    badge.style.top = `${rect.top - 14}px`;
+  }
 
   const animation = badge.animate(
     [
@@ -196,7 +236,11 @@ document.addEventListener('cord:pull', () => {
 });
 
 document.addEventListener('visibilitychange', schedule);
-document.addEventListener('astro:page-load', () => render(false));
+document.addEventListener('astro:page-load', () => {
+  render(false);
+  observe();
+});
 
 render(false);
+observe();
 schedule();

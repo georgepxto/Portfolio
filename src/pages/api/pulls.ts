@@ -5,7 +5,7 @@ import { KV_REST_API_TOKEN, KV_REST_API_URL, UPSTASH_REDIS_REST_TOKEN, UPSTASH_R
 export const prerender = false;
 
 const KEY = 'pulls';
-const READ_CACHE = 's-maxage=10, stale-while-revalidate=30';
+const READ_CACHE = 's-maxage=2, stale-while-revalidate=2';
 const BURST_MS = 2_000;
 const HOURLY_LIMIT = 60;
 const HOUR_S = 3_600;
