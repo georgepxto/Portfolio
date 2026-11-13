@@ -15,15 +15,21 @@ import '@fontsource/gochi-hand/400.css';
   </div>
 </div>
 
+<p class="cord-count mono" aria-hidden="true" data-pulls data-cord-count hidden transition:persist="cord-count">
+  <span class="cord-count-dot"></span>
+  <span><span class="cord-count-value" data-pulls-value></span>{' '}<span data-pulls-unit data-one="puxada" data-other="puxadas">puxadas</span></span>
+</p>
+
 <style>
-  .cord-note {
+  .cord-note,
+  .cord-count {
     display: none;
   }
 
   @media (min-width: 1540px) {
     .cord-note {
       position: absolute;
-      top: calc(var(--header-height) + 1px + 70px);
+      top: calc(var(--header-height) + 1px + 88px);
       left: calc(50% + 598px);
       display: block;
       width: 170px;
@@ -70,6 +76,40 @@ import '@fontsource/gochi-hand/400.css';
 
     .note-text {
       padding-left: 30px;
+    }
+
+    .cord-count {
+      position: absolute;
+      top: calc(var(--header-height) + 1px + 60px);
+      left: calc(50% + 555px);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin: 0;
+      font-size: 11px;
+      line-height: 1;
+      color: var(--text-faint);
+      white-space: nowrap;
+      pointer-events: none;
+    }
+
+    .cord-count[hidden] {
+      display: none;
+    }
+
+    .cord-count-dot {
+      flex: none;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 6px color-mix(in oklab, var(--accent) 70%, transparent);
+    }
+
+    .cord-count-value {
+      display: inline-block;
+      color: var(--text-muted);
+      font-variant-numeric: tabular-nums;
     }
 
     .note-off,

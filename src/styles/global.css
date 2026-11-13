@@ -71,6 +71,11 @@ html[data-astro-transition] [data-cord-note] {
   view-transition-name: cord-note;
 }
 
+html[data-astro-transition] [data-cord-count],
+html[data-vt] [data-cord-count] {
+  view-transition-name: cord-count;
+}
+
 html[data-vt] [data-astro-transition-scope],
 html[data-dir] [data-astro-transition-scope],
 html[data-return] [data-astro-transition-scope] {
@@ -84,12 +89,15 @@ html[data-dir] [data-astro-transition-scope][data-pd-enter] {
 ::view-transition-group(site-header),
 ::view-transition-new(site-header),
 ::view-transition-group(cord-note),
-::view-transition-new(cord-note) {
+::view-transition-new(cord-note),
+::view-transition-group(cord-count),
+::view-transition-new(cord-count) {
   animation: none;
 }
 
 ::view-transition-old(site-header),
-::view-transition-old(cord-note) {
+::view-transition-old(cord-note),
+::view-transition-old(cord-count) {
   display: none;
 }
 
@@ -103,6 +111,29 @@ html[data-astro-transition]::view-transition-group(pull-cord) {
 
 html.motion [data-pd]:not([data-pd-shown]) {
   opacity: 0;
+}
+
+.pull-plus {
+  position: fixed;
+  z-index: 30;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1;
+  color: var(--accent);
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  view-transition-class: pull-plus;
+}
+
+::view-transition-group(.pull-plus),
+::view-transition-new(.pull-plus) {
+  animation: none;
+}
+
+::view-transition-old(.pull-plus) {
+  display: none;
 }
 
 @media (prefers-reduced-motion: no-preference) {

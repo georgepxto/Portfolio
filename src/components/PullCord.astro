@@ -327,6 +327,7 @@
 
     const switchTheme = (point: { x: number; y: number }) => {
       document.querySelector('[data-cord-note]')?.classList.add('is-dismissed');
+      document.dispatchEvent(new CustomEvent('cord:pull'));
       const next: Theme = current() === 'light' ? 'dark' : 'light';
       if (next === 'light') tone(2400, 700);
       else tone(1500, 300);
