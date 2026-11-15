@@ -16,24 +16,36 @@ const { dimension = false } = Astro.props;
 
 <style>
   :global(.hatch-band) {
+    --hatch-tile: 8px;
+    position: relative;
     height: var(--band);
     margin-top: -1px;
+    overflow: clip;
     box-shadow: inset 0 1px var(--border);
-    background: repeating-linear-gradient(-45deg, var(--border) 0 1px, transparent 1px 6px);
+  }
+
+  :global(.hatch-band)::before {
+    content: '';
+    position: absolute;
+    top: 1px;
+    bottom: 0;
+    left: calc(-1 * var(--hatch-tile));
+    right: 0;
+    pointer-events: none;
+    background: var(--border);
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3E%3Cpath d='M-1 9L9-1M-1 1L1-1M7 9L9 7' stroke='%23000'/%3E%3C/svg%3E") 0 0 / var(--hatch-tile) var(--hatch-tile);
   }
 
   @media (prefers-reduced-motion: no-preference) {
-    :global(.hatch-band) {
-      animation: hatch-drift 9s linear infinite;
+    :global(.hatch-band)::before {
+      will-change: transform;
+      animation: hatch-drift 850ms linear infinite;
     }
   }
 
   @keyframes hatch-drift {
-    from {
-      background-position: 0 0;
-    }
     to {
-      background-position: 84.85px 0;
+      transform: translateX(var(--hatch-tile));
     }
   }
 </style>
