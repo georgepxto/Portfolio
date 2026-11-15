@@ -9,6 +9,7 @@ export const site = {
   whatsapp: 'http://wa.me/+5586994767818',
   email: 'georgepxto@gmail.com',
   github: 'georgepxto',
+  repo: { owner: 'georgepxto', name: 'Portfolio', branch: 'main' },
   linkedin: '',
   instagram: '',
   siteUrl: '[PREENCHER]',
@@ -20,6 +21,7 @@ export const whatsappNumber = site.whatsapp.replace(/^https?:\/\/wa\.me\//, '').
 export const whatsappMessage = 'Olá, George! Vi seu site e quero um orçamento.';
 export const whatsappUrl = `https://wa.me/${whatsappNumber || site.whatsapp}?text=${encodeURIComponent(whatsappMessage)}`;
 export const githubUrl = `https://github.com/${site.github}`;
+export const repoCommitsUrl = `https://github.com/${site.repo.owner}/${site.repo.name}/commits`;
 export const emailUrl = `mailto:${site.email}`;
 
 export function formatPhone(value: string): string {

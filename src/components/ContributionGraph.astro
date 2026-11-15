@@ -1,9 +1,10 @@
 ---
 import ArrowUpRight from '@lucide/astro/icons/arrow-up-right';
+import GitCommitHorizontal from '@lucide/astro/icons/git-commit-horizontal';
 import Section from './Section.astro';
 import GridRow from './GridRow.astro';
-import { getContributionStats, type Contributions, type ContributionWeek } from '../lib/github';
-import { githubUrl, site } from '../config/site';
+import { getContributionStats, getRepoCommitCount, type Contributions, type ContributionWeek } from '../lib/github';
+import { githubUrl, repoCommitsUrl, site } from '../config/site';
 
 interface Props {
   data: Contributions;
@@ -87,6 +88,8 @@ const statItems = [
 ];
 
 const summary = `${plural(stats.total)} no GitHub nos últimos 12 meses`;
+
+const siteCommits = await getRepoCommitCount();
 ---
 
 <Section
@@ -100,6 +103,37 @@ const summary = `${plural(stats.total)} no GitHub nos últimos 12 meses`;
     {site.github}
     <ArrowUpRight aria-hidden="true" />
   </a>
+
+  {
+    siteCommits !== null && (
+      <GridRow>
+        <div class="site-commits" data-reveal>
+          <div class="site-count">
+            <p class="site-label mono">
+              <GitCommitHorizontal aria-hidden="true" />
+              Este site
+            </p>
+            <p class="site-total">
+              <span class="site-number" data-count={siteCommits}>
+                {number.format(siteCommits)}
+              </span>
+              <span class="site-unit">{siteCommits === 1 ? 'atualização' : 'atualizações'} até chegar aqui</span>
+            </p>
+          </div>
+          <div class="site-note">
+            <p>
+              A primeira versão quase nunca é a final. Cada parte desta página foi escrita, testada e refeita várias
+              vezes. É assim que trabalho nos projetos dos clientes também.
+            </p>
+            <a class="history-link mono" href={repoCommitsUrl} target="_blank" rel="noopener">
+              ver o histórico
+              <ArrowUpRight aria-hidden="true" />
+            </a>
+          </div>
+        </div>
+      </GridRow>
+    )
+  }
 
   <GridRow>
     <dl class="stats" data-reveal>
@@ -188,6 +222,83 @@ const summary = `${plural(stats.total)} no GitHub nos últimos 12 meses`;
   }
 
   .profile-link :global(svg) {
+    width: 14px;
+    height: 14px;
+    flex: none;
+  }
+
+  .site-commits {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+    align-items: center;
+    gap: 12px 40px;
+    height: 100%;
+    padding: 20px 16px;
+    background: var(--surface);
+  }
+
+  .site-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--accent);
+  }
+
+  .site-label :global(svg) {
+    width: 14px;
+    height: 14px;
+    flex: none;
+  }
+
+  .site-total {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 4px 12px;
+    margin-top: 8px;
+  }
+
+  .site-number {
+    font-size: clamp(2.25rem, 4.5vw, 3rem);
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: -0.035em;
+    font-variant-numeric: tabular-nums;
+    color: var(--text);
+  }
+
+  .site-unit {
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--text-soft);
+  }
+
+  .site-note p {
+    max-width: 48ch;
+    font-size: 15px;
+    color: var(--text-muted);
+  }
+
+  .history-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 10px;
+    font-size: 12px;
+    color: var(--text-muted);
+    text-decoration: underline;
+    text-decoration-color: var(--border-strong);
+    text-underline-offset: 4px;
+    transition: color 0.15s ease, text-decoration-color 0.15s ease;
+  }
+
+  .history-link:hover {
+    color: var(--text);
+    text-decoration-color: currentColor;
+  }
+
+  .history-link :global(svg) {
     width: 14px;
     height: 14px;
     flex: none;

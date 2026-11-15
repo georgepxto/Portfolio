@@ -194,6 +194,94 @@ export function getContributionStats(weeks: ContributionWeek[]): ContributionSta
   };
 }
 
+interface RepoCommitCount {
+  repo: string;
+  total: number;
+}
+
+const commitCachePath = resolve(process.cwd(), 'src/data/repo-commits.json');
+
+async function fetchRepoCommitCount(owner: string, repo: string, branch: string, token?: string): Promise<number> {
+  const url = new URL(`https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/commits`);
+  url.searchParams.set('per_page', '1');
+  url.searchParams.set('sha', branch);
+
+  const response = await fetch(url, {
+    headers: {
+      Accept: 'application/vnd.github+json',
+      'User-Agent': 'portfolio-build',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    signal: AbortSignal.timeout(15_000),
+  });
+
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+  const last = response.headers.get('link')?.match(/[?&]page=(\d+)[^>]*>;\s*rel="last"/);
+  if (last) return Number(last[1]);
+
+  const commits: unknown = await response.json();
+  if (!Array.isArray(commits)) throw new Error('resposta inesperada');
+  return commits.length;
+}
+
+async function readCommitCache(repo: string): Promise<number | null> {
+  if (!existsSync(commitCachePath)) return null;
+  try {
+    const { repo: cachedRepo, total } = JSON.parse(await readFile(commitCachePath, 'utf8')) as Partial<RepoCommitCount>;
+    return cachedRepo === repo && typeof total === 'number' && Number.isInteger(total) && total > 0 ? total : null;
+  } catch {
+    return null;
+  }
+}
+
+async function writeCommitCache(data: RepoCommitCount): Promise<void> {
+  try {
+    await mkdir(dirname(commitCachePath), { recursive: true });
+    await writeFile(commitCachePath, `${JSON.stringify(data, null, 2)}\n`, 'utf8');
+  } catch (error) {
+    console.warn(`[github] não foi possível salvar ${commitCachePath}: ${(error as Error).message}`);
+  }
+}
+
+const commitCounts = new Map<string, Promise<number | null>>();
+
+async function loadRepoCommitCount(owner: string, repo: string, branch: string): Promise<number | null> {
+  const key = `${owner}/${repo}`;
+  const token = import.meta.env.GITHUB_TOKEN ?? process.env.GITHUB_TOKEN;
+
+  try {
+    const total = await fetchRepoCommitCount(owner, repo, branch, token);
+    if (total > 0) {
+      await writeCommitCache({ repo: key, total });
+      return total;
+    }
+    throw new Error('nenhum commit encontrado');
+  } catch (error) {
+    console.warn(`[github] falha ao contar commits de ${key}: ${(error as Error).message}. Usando o último resultado salvo.`);
+  }
+
+  const cached = await readCommitCache(key);
+  if (cached === null) console.warn('[github] sem contagem salva; a faixa de commits do site não será renderizada.');
+  return cached;
+}
+
+export async function getRepoCommitCount(
+  owner: string = site.repo.owner,
+  repo: string = site.repo.name,
+  branch: string = site.repo.branch,
+): Promise<number | null> {
+  const key = `${owner}/${repo}@${branch}`;
+  let pendingCount = commitCounts.get(key);
+  if (!pendingCount) {
+    pendingCount = loadRepoCommitCount(owner, repo, branch);
+    commitCounts.set(key, pendingCount);
+  }
+  const total = await pendingCount;
+  if (total === null) commitCounts.delete(key);
+  return total;
+}
+
 export async function getContributions(): Promise<Contributions | null> {
   pending ??= load();
   const data = await pending;
