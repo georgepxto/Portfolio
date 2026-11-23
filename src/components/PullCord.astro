@@ -184,7 +184,8 @@
     transform: translate(0, -50%);
   }
 
-  .pull-cord.is-active .hint {
+  .pull-cord.is-active .hint,
+  .pull-cord:not(.is-pulled) .hint {
     opacity: 0;
   }
 
@@ -327,6 +328,7 @@
 
     const switchTheme = (point: { x: number; y: number }) => {
       document.querySelector('[data-cord-note]')?.classList.add('is-dismissed');
+      wrapper.classList.add('is-pulled');
       document.dispatchEvent(new CustomEvent('cord:pull'));
       const next: Theme = current() === 'light' ? 'dark' : 'light';
       if (next === 'light') tone(2400, 700);

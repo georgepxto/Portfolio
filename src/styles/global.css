@@ -20,6 +20,7 @@
   --gutter: 40px;
   --header-height: 64px;
   --page-margin: 0px;
+  --cord-right: 26px;
   color-scheme: dark;
 }
 
@@ -475,5 +476,6 @@ main {
     --gutter: 24px;
     --header-height: 48px;
     --page-margin: 12px;
+    --cord-right: 3px;
   }
 }

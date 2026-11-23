@@ -13,6 +13,15 @@ import '@fontsource/gochi-hand/400.css';
       <span class="note-on">pra acender a luz</span><span class="note-off">pra apagar a luz</span>
     </p>
   </div>
+  <div class="note-compact">
+    <span>
+      puxe a cordinha <span class="note-on">pra acender a luz</span><span class="note-off">pra apagar a luz</span>
+    </span>
+    <svg class="note-arrow" width="24" height="30" viewBox="0 0 24 30">
+      <path class="note-curve" d="M2 4 C 12 4, 18 12, 19 26"></path>
+      <path class="note-tip" d="M14 21 L 19 27 L 23 20"></path>
+    </svg>
+  </div>
 </div>
 
 <p class="cord-count mono" aria-hidden="true" data-pulls data-cord-count hidden transition:persist="cord-count">
@@ -23,27 +32,118 @@ import '@fontsource/gochi-hand/400.css';
 <style>
   .cord-note,
   .cord-count {
+    --cord-box-top: calc(var(--header-height) + 1px);
+    --cord-box-right: calc(50% - min(590px, 50% - var(--page-margin)) + 1px + var(--cord-right));
+    position: absolute;
+    pointer-events: none;
+  }
+
+  .cord-note {
+    top: calc(var(--cord-box-top) + 14px);
+    right: calc(var(--cord-box-right) + 40px);
+    transition: opacity 500ms ease;
+  }
+
+  :global(html:not(.js)) .cord-note,
+  .cord-note.is-dismissed {
+    opacity: 0;
+  }
+
+  .note-body {
     display: none;
+  }
+
+  .note-compact {
+    display: flex;
+    align-items: flex-start;
+    gap: 2px;
+    font-family: 'Gochi Hand', cursive;
+    font-size: 17px;
+    line-height: 1.1;
+    color: var(--text-muted);
+    white-space: nowrap;
+    transform-origin: 100% 0;
+    animation: noteIn 700ms cubic-bezier(0.2, 0.7, 0.2, 1) 1.6s both;
+  }
+
+  .note-arrow {
+    display: block;
+    flex: none;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .note-arrow path {
+    stroke-dasharray: 60;
+  }
+
+  .note-curve {
+    animation: arrowDraw 600ms ease-out 2s both;
+  }
+
+  .note-tip {
+    animation: arrowDraw 300ms ease-out 2.4s both;
+  }
+
+  .cord-count {
+    top: calc(var(--cord-box-top) + 44px);
+    right: calc(var(--cord-box-right) + 40px);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+    font-size: 11px;
+    line-height: 1;
+    color: var(--text-faint);
+    white-space: nowrap;
+  }
+
+  .cord-count[hidden] {
+    display: none;
+  }
+
+  .cord-count-dot {
+    flex: none;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 6px color-mix(in oklab, var(--accent) 70%, transparent);
+  }
+
+  .cord-count-value {
+    display: inline-block;
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .note-off,
+  :global(:root[data-theme='light']) .note-on {
+    display: none;
+  }
+
+  :global(:root[data-theme='light']) .note-off {
+    display: inline;
   }
 
   @media (min-width: 1540px) {
     .cord-note {
-      position: absolute;
       top: calc(var(--header-height) + 1px + 88px);
+      right: auto;
       left: calc(50% + 598px);
-      display: block;
       width: 170px;
       text-align: left;
-      pointer-events: none;
-      transition: opacity 500ms ease;
     }
 
-    :global(html:not(.js)) .cord-note,
-    .cord-note.is-dismissed {
-      opacity: 0;
+    .note-compact {
+      display: none;
     }
 
     .note-body {
+      display: block;
       font-family: 'Gochi Hand', cursive;
       font-size: 18px;
       line-height: 1.1;
@@ -52,26 +152,12 @@ import '@fontsource/gochi-hand/400.css';
       animation: noteIn 700ms cubic-bezier(0.2, 0.7, 0.2, 1) 1.6s both;
     }
 
-    .note-arrow {
-      display: block;
-      fill: none;
-      stroke: currentColor;
-      stroke-width: 1.8;
-      stroke-linecap: round;
-      stroke-linejoin: round;
+    .note-body .note-arrow {
       transform: scaleX(-1);
     }
 
-    .note-arrow path {
-      stroke-dasharray: 60;
-    }
-
-    .note-curve {
-      animation: arrowDraw 600ms ease-out 2s both;
-    }
-
-    .note-tip {
-      animation: arrowDraw 300ms ease-out 2.45s both;
+    .note-body .note-tip {
+      animation-delay: 2.45s;
     }
 
     .note-text {
@@ -79,46 +165,9 @@ import '@fontsource/gochi-hand/400.css';
     }
 
     .cord-count {
-      position: absolute;
       top: calc(var(--header-height) + 1px + 60px);
+      right: auto;
       left: calc(50% + 598px);
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      margin: 0;
-      font-size: 11px;
-      line-height: 1;
-      color: var(--text-faint);
-      white-space: nowrap;
-      pointer-events: none;
-    }
-
-    .cord-count[hidden] {
-      display: none;
-    }
-
-    .cord-count-dot {
-      flex: none;
-      width: 5px;
-      height: 5px;
-      border-radius: 50%;
-      background: var(--accent);
-      box-shadow: 0 0 6px color-mix(in oklab, var(--accent) 70%, transparent);
-    }
-
-    .cord-count-value {
-      display: inline-block;
-      color: var(--text-muted);
-      font-variant-numeric: tabular-nums;
-    }
-
-    .note-off,
-    :global(:root[data-theme='light']) .note-on {
-      display: none;
-    }
-
-    :global(:root[data-theme='light']) .note-off {
-      display: inline;
     }
   }
 
@@ -143,7 +192,8 @@ import '@fontsource/gochi-hand/400.css';
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .note-body {
+    .note-body,
+    .note-compact {
       animation: none;
       transform: rotate(4deg);
     }
