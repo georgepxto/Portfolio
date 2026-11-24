@@ -21,6 +21,7 @@
   --header-height: 64px;
   --page-margin: 0px;
   --cord-right: 26px;
+  --cord: 56px;
   color-scheme: dark;
 }
 
@@ -477,5 +478,6 @@ main {
     --header-height: 48px;
     --page-margin: 12px;
     --cord-right: 3px;
+    --cord: 28px;
   }
 }

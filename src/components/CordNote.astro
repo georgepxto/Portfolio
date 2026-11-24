@@ -34,12 +34,15 @@ import '@fontsource/gochi-hand/400.css';
   .cord-count {
     --cord-box-top: calc(var(--header-height) + 1px);
     --cord-box-right: calc(50% - min(590px, 50% - var(--page-margin)) + 1px + var(--cord-right));
+    --cord-pill-center: calc(var(--cord-box-top) + var(--cord) - 5px + 22px);
+    --cord-count-height: 11px;
+    --cord-count-top: calc(var(--cord-pill-center) - var(--cord-count-height) / 2);
     position: absolute;
     pointer-events: none;
   }
 
   .cord-note {
-    top: calc(var(--cord-box-top) + 14px);
+    top: calc(var(--cord-box-top) + 20px);
     right: calc(var(--cord-box-right) + 40px);
     transition: opacity 500ms ease;
   }
@@ -62,8 +65,7 @@ import '@fontsource/gochi-hand/400.css';
     line-height: 1.1;
     color: var(--text-muted);
     white-space: nowrap;
-    transform-origin: 100% 0;
-    animation: noteIn 700ms cubic-bezier(0.2, 0.7, 0.2, 1) 1.6s both;
+    animation: noteInFlat 700ms cubic-bezier(0.2, 0.7, 0.2, 1) 1.6s both;
   }
 
   .note-arrow {
@@ -89,7 +91,7 @@ import '@fontsource/gochi-hand/400.css';
   }
 
   .cord-count {
-    top: calc(var(--cord-box-top) + 44px);
+    top: var(--cord-count-top);
     right: calc(var(--cord-box-right) + 40px);
     display: flex;
     align-items: center;
@@ -97,6 +99,7 @@ import '@fontsource/gochi-hand/400.css';
     margin: 0;
     font-size: 11px;
     line-height: 1;
+    height: var(--cord-count-height);
     color: var(--text-faint);
     white-space: nowrap;
   }
@@ -127,6 +130,12 @@ import '@fontsource/gochi-hand/400.css';
 
   :global(:root[data-theme='light']) .note-off {
     display: inline;
+  }
+
+  @media (max-width: 640px) {
+    .note-compact {
+      display: none;
+    }
   }
 
   @media (min-width: 1540px) {
@@ -182,6 +191,17 @@ import '@fontsource/gochi-hand/400.css';
     }
   }
 
+  @keyframes noteInFlat {
+    from {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
   @keyframes arrowDraw {
     from {
       stroke-dashoffset: 60;
@@ -192,10 +212,13 @@ import '@fontsource/gochi-hand/400.css';
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .note-body,
-    .note-compact {
+    .note-body {
       animation: none;
       transform: rotate(4deg);
+    }
+
+    .note-compact {
+      animation: none;
     }
 
     .note-curve,
