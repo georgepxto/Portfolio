@@ -15,13 +15,13 @@ export const services: Service[] = [
   {
     title: 'Sistemas sob medida',
     description: 'Plataformas de gestão com níveis de acesso, relatórios e auditoria.',
-    example: 'ex.: Instituto OIG',
+    example: 'ex.: gestão de assistência social',
     href: '/trabalhos/gestao-assistencia-social/',
   },
   {
-    title: 'Manutenção e evolução',
-    description: 'Contratos recorrentes para manter no ar e evoluir o que já foi entregue.',
-    example: 'ex.: plataforma de vídeos',
-    href: '/trabalhos/plataforma-de-videos/',
+    title: 'Ajustes e evolução',
+    description: 'Correções, melhorias e novas funções em sistemas e sites que já estão no ar.',
+    example: 'ex.: Escalas e folgas',
+    href: '/trabalhos/escalas-e-folgas/',
   },
 ];

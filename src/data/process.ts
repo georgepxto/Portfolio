@@ -22,8 +22,8 @@ export const processSteps: ProcessStep[] = [
     description: 'Você acompanha versões que já dá para testar e ajusta no caminho.',
   },
   {
-    title: 'Entrega e manutenção',
-    description: 'Coloco no ar, mostro como usar e, se fizer sentido, sigo cuidando com um contrato mensal.',
+    title: 'Entrega',
+    description: 'Coloco no ar, mostro como usar e continuo disponível para ajustes e novas funções.',
   },
 ];
 
