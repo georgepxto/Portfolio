@@ -18,7 +18,9 @@
   --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, Menlo, monospace;
   --gutter: 40px;
-  --header-height: 64px;
+  --nav-top: 14px;
+  --nav-height: 60px;
+  --nav-offset: 88px;
   --page-margin: 0px;
   --cord-right: 26px;
   --cord: 56px;
@@ -297,7 +299,19 @@ html {
 }
 
 main [id] {
-  scroll-margin-top: var(--header-height);
+  scroll-margin-top: var(--nav-offset);
+}
+
+html.lenis {
+  scroll-behavior: auto;
+}
+
+html.lenis main [id] {
+  scroll-margin-top: 0;
+}
+
+[data-scroll-target]:focus {
+  outline: none;
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -475,9 +489,7 @@ main {
 @media (max-width: 640px) {
   :root {
     --gutter: 24px;
-    --header-height: 48px;
     --page-margin: 12px;
-    --cord-right: 3px;
     --cord: 28px;
   }
 }

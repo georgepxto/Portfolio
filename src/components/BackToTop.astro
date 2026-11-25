@@ -95,6 +95,7 @@ import ArrowUp from '@lucide/astro/icons/arrow-up';
 
 <script>
   import { onPage } from '../scripts/page';
+  import { scrollToY } from '../scripts/smooth-scroll';
 
   const CIRCUMFERENCE = 141.37;
 
@@ -103,7 +104,6 @@ import ArrowUp from '@lucide/astro/icons/arrow-up';
     const ring = button?.querySelector<SVGCircleElement>('[data-back-to-top-ring]');
     if (!button || !ring) return;
 
-    const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
     let frame = 0;
     let visible = false;
 
@@ -130,7 +130,7 @@ import ArrowUp from '@lucide/astro/icons/arrow-up';
     button.addEventListener(
       'click',
       () => {
-        scrollTo({ top: 0, behavior: reducedMotion.matches ? 'auto' : 'smooth' });
+        scrollToY(0);
         document.querySelector<HTMLAnchorElement>('[data-site-header] .logo')?.focus({ preventScroll: true });
       },
       { signal },

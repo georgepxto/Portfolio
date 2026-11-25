@@ -1,4 +1,5 @@
 ---
+import ArrowRight from '@lucide/astro/icons/arrow-right';
 import ArrowUpRight from '@lucide/astro/icons/arrow-up-right';
 import GridRow from './GridRow.astro';
 import PullCord from './PullCord.astro';
@@ -15,41 +16,44 @@ const links = [
 ---
 
 <header class="site-header" data-site-header transition:persist="site-header">
-  <GridRow class="site-header-row">
-    <div class="bar">
-      <a class="logo mono" href="/#topo" aria-label="George, início">george.dev<span aria-hidden="true">/</span></a>
-      <nav class="nav-inline" aria-label="Principal">
-        <ul role="list">
-          {
-            links.map((link) => (
-              <li>
-                <a href={link.href}>{link.label}</a>
-              </li>
-            ))
-          }
-        </ul>
-      </nav>
-      <button
-        class="menu-toggle"
-        type="button"
-        aria-label="Abrir menu"
-        aria-expanded="false"
-        aria-controls="menu-celular"
-        data-menu-toggle
-      >
-        <span class="menu-label mono" aria-hidden="true">
-          <span class="label-open">Menu</span>
-          <span class="label-close">Fechar</span>
-        </span>
-        <span class="menu-icon" aria-hidden="true">
-          <span></span>
-          <span></span>
-        </span>
-      </button>
-    </div>
-  </GridRow>
+  <div class="bar" data-site-bar>
+    <a class="logo mono" href="/#topo" aria-label="George, início">george.dev<span aria-hidden="true">/</span></a>
+    <nav class="nav-inline" aria-label="Principal">
+      <ul role="list">
+        {
+          links.map((link) => (
+            <li>
+              <a href={link.href}>{link.label}</a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+    <a class="nav-cta" href="/#contato">
+      Fale comigo
+      <ArrowRight size={16} stroke-width={2} aria-hidden="true" />
+    </a>
+    <button
+      class="menu-toggle"
+      type="button"
+      aria-label="Abrir menu"
+      aria-expanded="false"
+      aria-controls="menu-celular"
+      data-menu-toggle
+    >
+      <span class="menu-label mono" aria-hidden="true">
+        <span class="label-open">Menu</span>
+        <span class="label-close">Fechar</span>
+      </span>
+      <span class="menu-icon" aria-hidden="true">
+        <span></span>
+        <span></span>
+      </span>
+    </button>
+    <PullCord />
+  </div>
 
-  <div id="menu-celular" class="menu-panel" data-menu-panel>
+  <div id="menu-celular" class="menu-panel" data-menu-panel data-lenis-prevent>
     <nav aria-label="Principal">
       <ul role="list">
         {
@@ -91,8 +95,6 @@ const links = [
       </div>
     </GridRow>
   </div>
-
-  <PullCord />
 </header>
 
 <CordNote />
@@ -102,19 +104,30 @@ const links = [
     position: sticky;
     top: 0;
     z-index: 20;
-  }
-
-  :global(.site-header-row) {
-    background: var(--bg);
+    height: 0;
   }
 
   .bar {
+    position: relative;
+    top: var(--nav-top);
+    z-index: 3;
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
     gap: 0 4px;
-    min-height: var(--header-height);
-    padding: 0 var(--gutter);
+    width: min(1148px, calc(100% - 24px));
+    min-height: 58px;
+    margin: 0 auto;
+    padding: 7px 8px 7px 24px;
+    border: 1px solid color-mix(in oklab, var(--text) 12%, transparent);
+    border-radius: 30px;
+    background: color-mix(in oklab, var(--bg) 58%, transparent);
+    -webkit-backdrop-filter: blur(18px) saturate(160%);
+    backdrop-filter: blur(18px) saturate(160%);
+    box-shadow:
+      0 12px 32px -8px rgba(0, 0, 0, 0.28),
+      inset 0 1px color-mix(in oklab, var(--text) 7%, transparent);
   }
 
   .logo {
@@ -136,7 +149,6 @@ const links = [
     flex-wrap: wrap;
     align-items: center;
     gap: 0 4px;
-    margin: 0 -8px 0 0;
   }
 
   .nav-inline a {
@@ -155,15 +167,47 @@ const links = [
     color: var(--text);
   }
 
+  .nav-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    margin-left: 12px;
+    padding: 0 18px;
+    border-radius: 999px;
+    background: var(--accent);
+    color: var(--accent-ink);
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1;
+    white-space: nowrap;
+    transition: filter 0.2s ease;
+  }
+
+  .nav-cta:hover {
+    filter: brightness(1.08);
+  }
+
+  .nav-cta :global(svg) {
+    flex: none;
+    width: 16px;
+    height: 16px;
+  }
+
   .menu-toggle,
   .menu-panel {
     display: none;
   }
 
+  @media (max-width: 760px) {
+    .nav-cta {
+      display: none;
+    }
+  }
+
   @media (max-width: 640px) {
     .bar {
       gap: 0;
-      padding: 0 6px 0 12px;
     }
 
     .nav-inline {
@@ -253,14 +297,15 @@ const links = [
 
     .menu-panel {
       position: absolute;
-      top: 100%;
+      top: 0;
       left: calc(50% - 50cqw);
       z-index: 2;
       display: flex;
       flex-direction: column;
       width: 100cqw;
-      height: calc(100vh - var(--header-height) - 1px);
-      height: calc(100dvh - var(--header-height) - 1px);
+      height: 100vh;
+      height: 100dvh;
+      padding-top: calc(var(--nav-top) * 2 + var(--nav-height));
       overflow-y: auto;
       overscroll-behavior: contain;
       background: var(--bg);
@@ -276,6 +321,10 @@ const links = [
       clip-path: inset(0 0 0 0);
       visibility: visible;
       pointer-events: auto;
+    }
+
+    .menu-panel nav {
+      border-top: 1px solid var(--border);
     }
 
     .menu-panel ul {
@@ -406,6 +455,7 @@ const links = [
 
     :global(html:not(.js)) .site-header {
       position: static;
+      height: auto;
     }
 
     :global(html:not(.js)) .menu-toggle {
@@ -417,6 +467,7 @@ const links = [
       width: auto;
       height: auto;
       margin-inline: 0;
+      padding-top: calc(var(--nav-top) * 2);
       clip-path: none;
       visibility: visible;
       pointer-events: auto;
@@ -500,13 +551,18 @@ const links = [
 
 <script>
   import { onElement } from '../scripts/page';
+  import { getLenis } from '../scripts/smooth-scroll';
 
   const root = document.documentElement;
 
   onElement<HTMLElement>('[data-site-header]', (header, signal) => {
     const toggle = header.querySelector<HTMLButtonElement>('[data-menu-toggle]');
     const panel = header.querySelector<HTMLElement>('[data-menu-panel]');
-    if (!toggle || !panel) return;
+    const bar = header.querySelector<HTMLElement>('[data-site-bar]');
+    if (!toggle || !panel || !bar) return;
+
+    const barSize = new ResizeObserver(() => root.style.setProperty('--nav-height', `${bar.offsetHeight}px`));
+    barSize.observe(bar);
 
     const desktop = matchMedia('(min-width: 641px)');
     const siblings = () =>
@@ -522,6 +578,8 @@ const links = [
       panel.classList.toggle('is-open', open);
       header.classList.toggle('is-menu-open', open);
       root.classList.toggle('is-menu-open', open);
+      if (open) getLenis()?.stop();
+      else getLenis()?.start();
       toggle.setAttribute('aria-expanded', String(open));
       toggle.setAttribute('aria-label', open ? 'Fechar menu' : 'Abrir menu');
       siblings().forEach((element) => {
@@ -558,5 +616,7 @@ const links = [
       },
       { signal },
     );
+
+    return () => barSize.disconnect();
   });
 </script>

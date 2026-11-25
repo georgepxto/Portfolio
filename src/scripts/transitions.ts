@@ -1,5 +1,6 @@
 import { navigate } from 'astro:transitions/client';
 import { onPage } from './page';
+import { scrollToHash, scrollToY } from './smooth-scroll';
 
 type Dir = 'next' | 'prev';
 
@@ -16,9 +17,11 @@ const closest = (element: Element | undefined, selector: string) =>
 
 let token = 0;
 let returnTo: string | undefined;
+let traversing = false;
 
 document.addEventListener('astro:before-preparation', (event) => {
   token++;
+  traversing = event.navigationType === 'traverse';
   const from = slugOf(event.from);
   const to = slugOf(event.to);
   let dir: unknown = closest(event.sourceElement, '[data-dir]')?.dataset.dir ?? event.info?.dir;
@@ -103,13 +106,15 @@ const highlight = (card: HTMLElement) => {
 };
 
 document.addEventListener('astro:after-swap', () => {
-  if (!returnTo) return;
-  const card = document.querySelector<HTMLElement>(`[data-card="${CSS.escape(returnTo)}"]`);
+  const card = returnTo ? document.querySelector<HTMLElement>(`[data-card="${CSS.escape(returnTo)}"]`) : null;
   returnTo = undefined;
-  if (!card) return;
+  if (!card) {
+    if (!traversing && location.hash) scrollToHash(location.hash);
+    return;
+  }
   const rect = card.getBoundingClientRect();
   const offset = Math.max(RETURN_GAP, (innerHeight - rect.height) / 2);
-  scrollTo({ top: rect.top + scrollY - offset, behavior: 'instant' });
+  scrollToY(rect.top + scrollY - offset, true);
   highlight(card);
 });
 

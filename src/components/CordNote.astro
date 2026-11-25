@@ -32,8 +32,9 @@ import '@fontsource/gochi-hand/400.css';
 <style>
   .cord-note,
   .cord-count {
-    --cord-box-top: calc(var(--header-height) + 1px);
-    --cord-box-right: calc(50% - min(590px, 50% - var(--page-margin)) + 1px + var(--cord-right));
+    --cord-box-top: calc(var(--nav-top) + var(--nav-height));
+    --cord-bar-inset: max(12px, (min(1180px, 100% - 2 * var(--page-margin)) - 1150px) / 2);
+    --cord-box-right: calc(50% - min(590px, 50% - var(--page-margin)) + 1px + var(--cord-bar-inset) + var(--cord-right));
     --cord-pill-center: calc(var(--cord-box-top) + var(--cord) - 5px + 22px);
     --cord-count-height: 11px;
     --cord-count-top: calc(var(--cord-pill-center) - var(--cord-count-height) / 2);
@@ -140,7 +141,7 @@ import '@fontsource/gochi-hand/400.css';
 
   @media (min-width: 1540px) {
     .cord-note {
-      top: calc(var(--header-height) + 1px + 88px);
+      top: calc(var(--cord-box-top) + 88px);
       right: auto;
       left: calc(50% + 598px);
       width: 170px;
@@ -174,7 +175,7 @@ import '@fontsource/gochi-hand/400.css';
     }
 
     .cord-count {
-      top: calc(var(--header-height) + 1px + 60px);
+      top: calc(var(--cord-box-top) + 60px);
       right: auto;
       left: calc(50% + 598px);
     }
