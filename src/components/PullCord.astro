@@ -254,6 +254,7 @@
     let audio: AudioContext | undefined;
     let motion: Animation[] = [];
     let transition: ViewTransition | undefined;
+    let reveal: Animation | undefined;
     let suppressClick = false;
     let angle = 0;
     let velocity = 0;
@@ -337,9 +338,12 @@
         return;
       }
 
+      reveal?.cancel();
+      reveal = undefined;
       root.dataset.vt = next;
       const vt = document.startViewTransition(() => apply(next, true));
       transition = vt;
+      let animation: Animation | undefined;
 
       vt.ready
         .then(() => {
@@ -348,7 +352,7 @@
           const closed = `circle(0px at ${x}px ${y}px)`;
           const open = `circle(${radius}px at ${x}px ${y}px)`;
           const lighting = next === 'light';
-          root.animate(
+          animation = root.animate(
             { clipPath: lighting ? [closed, open] : [open, closed] },
             {
               duration: lighting ? 800 : 560,
@@ -357,10 +361,13 @@
               pseudoElement: lighting ? '::view-transition-new(root)' : '::view-transition-old(root)',
             },
           );
+          reveal = animation;
         })
         .catch(() => {});
 
       vt.finished.finally(() => {
+        animation?.cancel();
+        if (reveal === animation) reveal = undefined;
         if (transition !== vt) return;
         transition = undefined;
         delete root.dataset.vt;
