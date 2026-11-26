@@ -3,6 +3,7 @@ title: Lunna Pijama
 slug: lunna-pijama
 order: 7
 featured: true
+category: sites
 meta: Cliente · Teresina, PI · 2026
 year: 2026
 client: Lunna Pijama
@@ -17,6 +18,7 @@ stack:
 summary: Site de apresentação da marca de uma loja de pijamas em Teresina. O design partiu do Instagram e do logo da loja, e o site leva a cliente das fotos dos pijamas direto para a conversa no WhatsApp.
 url: https://lunnapijama.com.br
 cover: ../../assets/projects/lunna-pijama.png
+video: ''
 ---
 
 ## O problema

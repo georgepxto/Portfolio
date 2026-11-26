@@ -1,0 +1,136 @@
+---
+interface Option {
+  value: string;
+  label: string;
+}
+
+interface Props {
+  label: string;
+  target: string;
+  options: Option[];
+}
+
+const { label, target, options } = Astro.props;
+const all: Option = { value: 'todos', label: 'Todos' };
+---
+
+<div class="filters" role="group" aria-label={label} aria-controls={target} data-filters={target}>
+  {
+    [all, ...options].map((option) => (
+      <button class="pill mono" type="button" aria-pressed={option.value === all.value ? 'true' : 'false'} data-filter={option.value}>
+        {option.label}
+      </button>
+    ))
+  }
+</div>
+
+<style>
+  .filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  :global(html:not(.js)) .filters {
+    display: none;
+  }
+
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    min-height: 36px;
+    padding: 0 14px;
+    border: 1px solid var(--border-strong);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 12px;
+    line-height: 1;
+    white-space: nowrap;
+    cursor: pointer;
+    transition:
+      background-color 0.15s ease,
+      border-color 0.15s ease,
+      color 0.15s ease;
+  }
+
+  .pill:hover {
+    border-color: var(--text-faint);
+    color: var(--text);
+  }
+
+  .pill[aria-pressed='true'] {
+    border-color: var(--text);
+    background: var(--text);
+    color: var(--bg);
+  }
+</style>
+
+<script>
+  import { onPage } from '../scripts/page';
+
+  const OUT = 160;
+  const IN = 240;
+  const EASE = 'cubic-bezier(.2, .7, .2, 1)';
+
+  onPage((signal) => {
+    const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+
+    document.querySelectorAll<HTMLElement>('[data-filters]').forEach((group) => {
+      const list = document.getElementById(group.dataset.filters ?? '');
+      if (!list) return;
+      const buttons = Array.from(group.querySelectorAll<HTMLButtonElement>('[data-filter]'));
+      const items = () => Array.from(list.querySelectorAll<HTMLElement>('[data-filter-item]'));
+      const empty = list.querySelector<HTMLElement>('[data-filter-empty]');
+      let token = 0;
+
+      const apply = async (value: string) => {
+        const id = ++token;
+        const matches = (item: HTMLElement) => value === 'todos' || item.dataset.category === value;
+        const leaving = items().filter((item) => !item.hidden && !matches(item));
+        const entering = items().filter((item) => item.hidden && matches(item));
+        const animate = !reducedMotion.matches && typeof list.animate === 'function';
+
+        if (animate && leaving.length) {
+          const fades = leaving.map((item) =>
+            item.animate([{ opacity: 1 }, { opacity: 0 }], { duration: OUT, easing: 'ease-in', fill: 'forwards' }),
+          );
+          await Promise.allSettled(fades.map((fade) => fade.finished));
+          fades.forEach((fade) => fade.cancel());
+          if (id !== token) return;
+        }
+
+        items().forEach((item) => {
+          item.hidden = !matches(item);
+        });
+        const visible = items().filter((item) => !item.hidden);
+        if (empty) empty.hidden = visible.length > 0;
+        list.dispatchEvent(new CustomEvent('filterchange', { detail: { value, visible } }));
+
+        if (animate) {
+          entering.forEach((item, index) =>
+            item.animate(
+              [
+                { opacity: 0, transform: 'translateY(8px)' },
+                { opacity: 1, transform: 'none' },
+              ],
+              { duration: IN, delay: index * 40, easing: EASE, fill: 'backwards' },
+            ),
+          );
+        }
+      };
+
+      buttons.forEach((button) =>
+        button.addEventListener(
+          'click',
+          () => {
+            if (button.getAttribute('aria-pressed') === 'true') return;
+            buttons.forEach((other) => other.setAttribute('aria-pressed', String(other === button)));
+            void apply(button.dataset.filter ?? 'todos');
+          },
+          { signal },
+        ),
+      );
+    });
+  });
+</script>

@@ -3,6 +3,7 @@ title: Plataforma de vídeos
 slug: plataforma-de-videos
 order: 2
 featured: true
+category: sistemas
 meta: Cliente · OIG
 year: 2025
 client: OIG
@@ -15,6 +16,7 @@ stack:
   - JavaScript
 summary: Plataforma de vídeos de treinamento. Treina os colaboradores com cursos em vídeo e PDFs organizados em módulos, acompanha o progresso de cada pessoa e reúne escalas de RH, mentorias e relatórios.
 cover: ../../assets/projects/plataforma-de-videos.png
+video: ''
 ---
 
 ## O problema

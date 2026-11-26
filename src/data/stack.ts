@@ -12,3 +12,19 @@ export const stack: StackGroup[] = [
   { label: 'Integrações', items: ['Google Calendar', 'Telegram', 'WhatsApp'] },
   { label: 'Outros', items: ['Playwright', 'ffmpeg', 'Google TV', 'SEO local'] },
 ];
+
+export const marquee = [
+  'React',
+  'Vite',
+  'TypeScript',
+  'NestJS',
+  'Node',
+  'Express',
+  'MariaDB',
+  'Supabase',
+  'SQLite',
+  'Vercel',
+  'Rust',
+  'Python',
+  'Playwright',
+];

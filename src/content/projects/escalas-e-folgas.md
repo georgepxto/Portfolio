@@ -3,6 +3,7 @@ title: Escalas e folgas
 slug: escalas-e-folgas
 order: 3
 featured: true
+category: sistemas
 meta: Cliente · OIG · 2026
 year: 2026
 client: OIG
@@ -16,6 +17,7 @@ stack:
   - PWA
 summary: App de escalas e folgas pedido pela RH para substituir a planilha mensal enviada pelo WhatsApp. Cada colaborador consegue prever o seu mês, ver as férias e pedir folga ou troca de horário, com tudo marcado no sistema.
 cover: ../../assets/projects/escalas-e-folgas.png
+video: ''
 ---
 
 ## O problema

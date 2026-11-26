@@ -3,6 +3,7 @@ title: Giz
 slug: giz
 order: 5
 featured: true
+category: produtos
 meta: Produto próprio · 2026
 year: 2026
 client: Produto próprio, feito para uma professora
@@ -16,6 +17,7 @@ stack:
   - Vercel
 summary: Agenda e controle financeiro feito com carinho e sob medida para uma professora particular. Registra as aulas de cada turma, marca o que já foi dado e calcula quanto ela tem a receber no ciclo de pagamento.
 cover: ../../assets/projects/giz.png
+video: ''
 ---
 
 ## O problema

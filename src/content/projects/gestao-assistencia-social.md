@@ -4,6 +4,7 @@ label: Estudo de caso
 slug: gestao-assistencia-social
 order: 1
 featured: true
+category: sistemas
 meta: Proposta · Instituto OIG · 2026
 year: 2026
 client: Instituto OIG
@@ -15,6 +16,7 @@ stack:
   - React
   - Vite
 cover: ../../assets/projects/gestao-assistencia-social.png
+video: ''
 summary: Sistema que desenvolvi por iniciativa própria ao ver uma necessidade do Instituto OIG. Acompanha cada beneficiário, do cadastro à reforma da casa. Valida CPF, detecta cadastros duplicados, guarda as fotos de cada etapa da obra, mostra mapas de calor por bairro e registra tudo em trilha de auditoria.
 ---
 

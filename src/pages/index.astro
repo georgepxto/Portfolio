@@ -5,6 +5,10 @@ import ContributionGraph from '../components/ContributionGraph.astro';
 import HatchBand from '../components/HatchBand.astro';
 import Section from '../components/Section.astro';
 import ProjectCard from '../components/ProjectCard.astro';
+import ProjectCta from '../components/ProjectCta.astro';
+import FilterPills from '../components/FilterPills.astro';
+import GridRow from '../components/GridRow.astro';
+import StackMarquee from '../components/StackMarquee.astro';
 import LabList from '../components/LabList.astro';
 import ServicesGrid from '../components/ServicesGrid.astro';
 import StackList from '../components/StackList.astro';
@@ -22,6 +26,12 @@ import { getContributions } from '../lib/github';
 import { fullName, githubUrl, site, whatsappNumber } from '../config/site';
 
 const projects = await getFeaturedProjects();
+const projectFilters = [
+  { value: 'sistemas', label: 'Sistemas' },
+  { value: 'sites', label: 'Sites' },
+  { value: 'produtos', label: 'Produtos próprios' },
+];
+const ctaAfter = Math.min(2, projects.length);
 const contributions = await getContributions();
 
 const title = `${fullName} · ${site.role} em ${site.city}, ${site.state}`;
@@ -82,7 +92,19 @@ const jsonLd = {
     title="Trabalhos selecionados"
     subtitle="Sistemas e sites para clientes, propostas e produtos próprios."
   >
-    {projects.map((project, index) => <ProjectCard project={project} index={index + 1} />)}
+    <GridRow>
+      <div class="filter-row">
+        <FilterPills label="Filtrar trabalhos" target="lista-trabalhos" options={projectFilters} />
+      </div>
+    </GridRow>
+    <div id="lista-trabalhos" class="project-list">
+      {projects.slice(0, ctaAfter).map((project, index) => <ProjectCard project={project} index={index + 1} />)}
+      <ProjectCta />
+      {projects.slice(ctaAfter).map((project, index) => <ProjectCard project={project} index={index + ctaAfter + 1} />)}
+      <GridRow data-filter-empty hidden={projects.length > 0}>
+        <p class="empty mono">Nenhum projeto nesta categoria por enquanto.</p>
+      </GridRow>
+    </div>
   </Section>
 
   <HatchBand />
@@ -126,7 +148,21 @@ const jsonLd = {
     <StackList groups={stack} />
   </Section>
 
+  <StackMarquee />
+
   <HatchBand />
 
   <Contact />
 </BaseLayout>
+
+<style>
+  .filter-row {
+    padding: 12px 16px;
+  }
+
+  .empty {
+    padding: 24px 16px;
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+</style>

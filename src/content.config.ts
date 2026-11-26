@@ -11,6 +11,7 @@ const projects = defineCollection({
       slug: z.string(),
       order: z.number(),
       featured: z.boolean().default(false),
+      category: z.enum(['sistemas', 'sites', 'produtos']),
       meta: z.string(),
       year: z.union([z.string(), z.number()]).transform(String),
       client: z.string(),
@@ -20,6 +21,7 @@ const projects = defineCollection({
       summary: z.string(),
       url: z.url().optional(),
       cover: image().optional(),
+      video: z.string().trim().optional(),
     }),
 });
 

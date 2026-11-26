@@ -1,0 +1,91 @@
+---
+import { marquee } from '../data/stack';
+---
+
+<div class="marquee" data-marquee>
+  <div class="track">
+    <ul class="items" role="list" aria-label="Ferramentas da stack">
+      {marquee.map((item) => <li class="item mono">{item}</li>)}
+    </ul>
+    {
+      [1, 2, 3].map(() => (
+        <ul class="items copy" role="list" aria-hidden="true">
+          {marquee.map((item) => (
+            <li class="item mono">{item}</li>
+          ))}
+        </ul>
+      ))
+    }
+  </div>
+</div>
+
+<style>
+  .marquee {
+    width: 100cqw;
+    margin-inline: calc(50% - 50cqw);
+    overflow: hidden;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .track {
+    display: flex;
+    width: max-content;
+  }
+
+  .items {
+    display: flex;
+    flex: none;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .item {
+    padding: 18px 28px;
+    border-right: 1px solid var(--border);
+    font-size: 15px;
+    line-height: 1.2;
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .track {
+      animation: marquee 30s linear infinite;
+    }
+
+    .marquee:hover .track {
+      animation-play-state: paused;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .track {
+      width: auto;
+    }
+
+    .items {
+      flex: 1 1 100%;
+      flex-wrap: wrap;
+    }
+
+    .copy {
+      display: none;
+    }
+
+    .item {
+      border-bottom: 1px solid var(--border);
+      margin-bottom: -1px;
+    }
+  }
+
+  @keyframes marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+</style>

@@ -3,6 +3,7 @@ title: TakeOne
 slug: takeone
 order: 6
 featured: true
+category: produtos
 meta: Produto próprio · 2026
 year: 2026
 client: Produto próprio
@@ -15,6 +16,7 @@ stack:
   - Google Calendar
 summary: CRM para filmmakers e produtoras audiovisuais. Reúne clientes, pacotes, valores, agenda de gravações, entregas e pagamentos num lugar só, no lugar de planilhas e WhatsApp.
 cover: ../../assets/projects/takeone.png
+video: ''
 ---
 
 ## O problema

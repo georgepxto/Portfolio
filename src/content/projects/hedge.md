@@ -3,6 +3,7 @@ title: Hedge
 slug: hedge
 order: 4
 featured: true
+category: produtos
 meta: Produto próprio · 2025
 year: 2025
 client: Produto próprio
@@ -17,6 +18,7 @@ stack:
 summary: Controle financeiro pessoal e compartilhado. Mostra o saldo real, o que vai sobrar no fim do mês e o que os outros te devem, porque um gasto dividido já vira a cobrança de cada pessoa.
 url: https://gethedge.vercel.app/
 cover: ../../assets/projects/hedge.png
+video: ''
 ---
 
 ## O problema

@@ -11,16 +11,17 @@ interface Props {
 }
 
 const { project, index } = Astro.props;
-const { title, meta, summary, stack, url, cover } = project.data;
+const { title, meta, summary, stack, url, cover, video, category } = project.data;
 const href = `/trabalhos/${project.id}/`;
 const host = url ? new URL(url).hostname.replace(/^www\./, '') : undefined;
 ---
 
-<GridRow>
+<GridRow data-filter-item data-category={category}>
   <article class="project" data-reveal data-card={project.id}>
     <div class="media" data-reveal-clip transition:name={`cover-${project.id}`} transition:animate="initial">
       <ProjectCover
         cover={cover}
+        video={video}
         alt={`Captura de tela do projeto ${title}`}
         widths={[400, 640, 800, 1280]}
         sizes="(min-width: 1024px) 320px, 100vw"
@@ -155,3 +156,40 @@ const host = url ? new URL(url).hostname.replace(/^www\./, '') : undefined;
     }
   }
 </style>
+
+<script>
+  import { onPage } from '../scripts/page';
+
+  onPage((signal) => {
+    const canPlay = matchMedia('(hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)');
+
+    document.querySelectorAll<HTMLElement>('[data-card]').forEach((card) => {
+      const video = card.querySelector<HTMLVideoElement>('[data-preview-video]');
+      if (!video) return;
+
+      const start = () => {
+        if (!canPlay.matches) return;
+        video.play().catch(() => {});
+      };
+
+      const stop = () => {
+        video.pause();
+        if (video.readyState > 0) video.currentTime = 0;
+      };
+
+      video.addEventListener('playing', () => card.setAttribute('data-playing', ''), { signal });
+      video.addEventListener('pause', () => card.removeAttribute('data-playing'), { signal });
+      card.addEventListener('mouseenter', start, { signal });
+      card.addEventListener('mouseleave', () => {
+        if (!card.contains(document.activeElement)) stop();
+      }, { signal });
+      card.addEventListener('focusin', start, { signal });
+      card.addEventListener('focusout', (event) => {
+        if (!card.contains(event.relatedTarget as Node | null) && !card.matches(':hover')) stop();
+      }, { signal });
+      canPlay.addEventListener('change', () => {
+        if (!canPlay.matches) stop();
+      }, { signal });
+    });
+  });
+</script>
