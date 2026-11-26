@@ -12,15 +12,16 @@ interface Props extends HTMLAttributes<'div'> {
   sizes: string;
   loading?: 'lazy' | 'eager';
   video?: string;
+  fit?: 'contain' | 'cover';
 }
 
-const { cover, alt, widths, sizes, loading = 'lazy', video, ...rest } = Astro.props;
+const { cover, alt, widths, sizes, loading = 'lazy', video, fit = 'contain', class: className, ...rest } = Astro.props;
 const source = video?.trim() || undefined;
 const videoType = source?.toLowerCase().split('?')[0].endsWith('.webm') ? 'video/webm' : 'video/mp4';
 const poster = source && cover ? (await getImage({ src: cover, width: 800, format: 'webp', quality: 85 })).src : undefined;
 ---
 
-<div class="cover" {...rest}>
+<div class:list={['cover', className, { 'fit-cover': fit === 'cover' }]} {...rest}>
   {
     source ? (
       <>
@@ -78,6 +79,12 @@ const poster = source && cover ? (await getImage({ src: cover, width: 800, forma
     object-fit: contain;
   }
 
+  .fit-cover :global(img),
+  .fit-cover .video {
+    object-fit: cover;
+    object-position: left top;
+  }
+
   .badge {
     position: absolute;
     top: 8px;
@@ -129,7 +136,9 @@ const poster = source && cover ? (await getImage({ src: cover, width: 800, forma
     display: inline-flex;
   }
 
-  :global([data-playing]) .badge {
+  :global([data-playing]) .badge,
+  :global([data-card]:hover) .badge {
     border-color: color-mix(in oklab, var(--accent) 50%, transparent);
+    color: var(--accent);
   }
 </style>

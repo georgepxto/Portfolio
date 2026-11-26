@@ -1,6 +1,5 @@
 ---
 import ArrowUpRight from '@lucide/astro/icons/arrow-up-right';
-import GridRow from './GridRow.astro';
 import ProjectCover from './ProjectCover.astro';
 import StackTags from './StackTags.astro';
 import { padIndex, type Project } from '../lib/projects';
@@ -16,89 +15,94 @@ const href = `/trabalhos/${project.id}/`;
 const host = url ? new URL(url).hostname.replace(/^www\./, '') : undefined;
 ---
 
-<GridRow data-filter-item data-category={category}>
-  <article class="project" data-reveal data-card={project.id}>
-    <div class="media" data-reveal-clip transition:name={`cover-${project.id}`} transition:animate="initial">
-      <ProjectCover
-        cover={cover}
-        video={video}
-        alt={`Captura de tela do projeto ${title}`}
-        widths={[400, 640, 800, 1280]}
-        sizes="(min-width: 1024px) 320px, 100vw"
-      />
-    </div>
-    <div class="body">
-      <p class="meta mono">{padIndex(index)} · {meta}</p>
-      <h3 transition:name={`title-${project.id}`} transition:animate="initial">
-        <a class="stretched" href={href}>{title}</a>
-      </h3>
-      <p class="summary">{summary}</p>
-      <StackTags items={stack} />
-      {
-        url && (
-          <a class="external" href={url} target="_blank" rel="noopener">
-            {host}
-            <ArrowUpRight aria-hidden="true" />
-          </a>
-        )
-      }
-    </div>
-  </article>
-</GridRow>
+<article class="project card" data-filter-item data-category={category} data-card={project.id}>
+  <div class="media" transition:name={`cover-${project.id}`} transition:animate="initial">
+    <ProjectCover
+      cover={cover}
+      video={video}
+      fit="cover"
+      alt={`Captura de tela do projeto ${title}`}
+      widths={[400, 640, 800, 1280]}
+      sizes="(min-width: 1000px) 420px, (min-width: 760px) 50vw, 100vw"
+    />
+  </div>
+  <p class="meta mono">{padIndex(index)} · {meta}</p>
+  <h3 transition:name={`title-${project.id}`} transition:animate="initial">
+    <a class="stretched" href={href}>{title}</a>
+  </h3>
+  <p class="summary">{summary}</p>
+  <div class="foot">
+    <StackTags items={stack} />
+    {
+      url && (
+        <a class="external" href={url} target="_blank" rel="noopener">
+          {host}
+          <ArrowUpRight aria-hidden="true" />
+        </a>
+      )
+    }
+  </div>
+</article>
 
 <style>
   .project {
     position: relative;
     display: flex;
-    flex-wrap: wrap;
-    gap: 24px 40px;
-    padding: 24px 16px;
+    flex-direction: column;
+    min-width: 0;
+    padding: 10px;
+  }
+
+  .project[hidden] {
+    display: none;
   }
 
   .project:has(.stretched:focus-visible) {
     outline: 2px solid var(--accent);
-    outline-offset: -2px;
-  }
-
-  @media (prefers-reduced-motion: no-preference) {
-    .media :global(img) {
-      transition: transform 700ms cubic-bezier(0.2, 0.7, 0.2, 1);
-    }
-
-    .project:hover .media :global(img) {
-      transform: scale(1.04);
-    }
+    outline-offset: 2px;
   }
 
   .media {
-    flex: 0 1 320px;
-    max-width: 320px;
-    min-width: 0;
+    overflow: hidden;
   }
 
-  .body {
-    flex: 1 1 300px;
-    min-width: 0;
+  @media (prefers-reduced-motion: no-preference) {
+    .media :global(img),
+    .media :global(video) {
+      transition: transform 700ms cubic-bezier(0.2, 0.7, 0.2, 1);
+      transform-origin: left top;
+    }
+
+    .project:hover .media :global(img),
+    .project:hover .media :global(video) {
+      transform: scale(1.035);
+    }
   }
 
   .meta {
-    font-size: 12px;
+    margin-top: 16px;
+    padding-inline: 6px;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
     color: var(--text-faint);
   }
 
   h3 {
-    margin-top: 10px;
-    font-size: clamp(1.5rem, 2.6vw, 2rem);
+    margin-top: 8px;
+    padding-inline: 6px;
+    font-size: clamp(22px, 1.9vw, 26px);
     font-weight: 600;
     line-height: 1.15;
     letter-spacing: -0.025em;
+    overflow-wrap: anywhere;
   }
 
   .stretched {
     text-decoration: underline;
     text-decoration-color: transparent;
     text-decoration-thickness: 1px;
-    text-underline-offset: 6px;
+    text-underline-offset: 5px;
     transition: text-decoration-color 0.2s ease;
   }
 
@@ -117,14 +121,25 @@ const host = url ? new URL(url).hostname.replace(/^www\./, '') : undefined;
   }
 
   .summary {
-    margin-top: 12px;
-    max-width: 62ch;
-    font-size: 15px;
+    margin-top: 10px;
+    padding-inline: 6px;
+    font-size: 14px;
+    line-height: 1.55;
     color: var(--text-muted);
   }
 
-  .body :global(.tags) {
-    margin-top: 20px;
+  .foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 12px 16px;
+    margin-top: auto;
+    padding: 20px 6px 6px;
+  }
+
+  .foot :global(.tags) {
+    min-width: 0;
   }
 
   .external {
@@ -132,28 +147,21 @@ const host = url ? new URL(url).hostname.replace(/^www\./, '') : undefined;
     z-index: 1;
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    min-height: 44px;
-    margin-top: 8px;
-    font-size: 14px;
+    gap: 4px;
+    min-height: 32px;
+    font-size: 13px;
     color: var(--accent);
+    white-space: nowrap;
   }
 
   .external :global(svg) {
-    width: 16px;
-    height: 16px;
+    width: 14px;
+    height: 14px;
   }
 
   .external:hover {
     text-decoration: underline;
     text-underline-offset: 4px;
-  }
-
-  @media (max-width: 640px) {
-    .media {
-      flex-basis: 100%;
-      max-width: none;
-    }
   }
 </style>
 
@@ -180,16 +188,28 @@ const host = url ? new URL(url).hostname.replace(/^www\./, '') : undefined;
       video.addEventListener('playing', () => card.setAttribute('data-playing', ''), { signal });
       video.addEventListener('pause', () => card.removeAttribute('data-playing'), { signal });
       card.addEventListener('mouseenter', start, { signal });
-      card.addEventListener('mouseleave', () => {
-        if (!card.contains(document.activeElement)) stop();
-      }, { signal });
+      card.addEventListener(
+        'mouseleave',
+        () => {
+          if (!card.contains(document.activeElement)) stop();
+        },
+        { signal },
+      );
       card.addEventListener('focusin', start, { signal });
-      card.addEventListener('focusout', (event) => {
-        if (!card.contains(event.relatedTarget as Node | null) && !card.matches(':hover')) stop();
-      }, { signal });
-      canPlay.addEventListener('change', () => {
-        if (!canPlay.matches) stop();
-      }, { signal });
+      card.addEventListener(
+        'focusout',
+        (event) => {
+          if (!card.contains(event.relatedTarget as Node | null) && !card.matches(':hover')) stop();
+        },
+        { signal },
+      );
+      canPlay.addEventListener(
+        'change',
+        () => {
+          if (!canPlay.matches) stop();
+        },
+        { signal },
+      );
     });
   });
 </script>

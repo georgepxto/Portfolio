@@ -111,10 +111,10 @@ const all: Option = { value: 'todos', label: 'Todos' };
           entering.forEach((item, index) =>
             item.animate(
               [
-                { opacity: 0, transform: 'translateY(8px)' },
+                { opacity: 0, transform: 'translateY(10px)' },
                 { opacity: 1, transform: 'none' },
               ],
-              { duration: IN, delay: index * 40, easing: EASE, fill: 'backwards' },
+              { duration: IN, delay: index * 60, easing: EASE, fill: 'backwards' },
             ),
           );
         }

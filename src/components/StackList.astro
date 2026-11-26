@@ -1,5 +1,4 @@
 ---
-import GridRow from './GridRow.astro';
 import type { StackGroup } from '../data/stack';
 
 interface Props {
@@ -12,36 +11,79 @@ const { groups } = Astro.props;
 <ul class="stack" role="list" data-reveal>
   {
     groups.map((group) => (
-      <GridRow as="li">
-        <div class="row">
-          <span class="label mono">{group.label}</span>
-          <span class="items">{group.items.join(', ')}</span>
-        </div>
-      </GridRow>
+      <li class="group">
+        <span class="label mono">{group.label}</span>
+        <span class="items">{group.items.join(', ')}</span>
+      </li>
     ))
   }
 </ul>
 
 <style>
-  .row {
+  .stack {
+    --columns: 4;
+    display: grid;
+    grid-template-columns: repeat(var(--columns), minmax(0, 1fr));
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .group {
     display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 0;
+    padding: 22px 24px 24px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .group:nth-child(4n + 1) {
+    padding-left: 0;
+  }
+
+  .group:not(:nth-child(4n + 1)) {
+    border-left: 1px solid var(--border);
   }
 
   .label {
-    flex: none;
-    width: 160px;
-    padding: 14px 16px;
-    border-right: 1px solid var(--border);
     font-size: 12px;
-    line-height: 2;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
     color: var(--text-faint);
   }
 
   .items {
-    flex: 1;
-    min-width: 0;
-    padding: 14px 16px;
-    font-size: 15px;
+    font-size: clamp(17px, 1.4vw, 20px);
+    font-weight: 500;
+    line-height: 1.45;
     color: var(--text);
+  }
+
+  @media (max-width: 1000px) {
+    .stack {
+      --columns: 2;
+    }
+
+    .group:nth-child(n) {
+      padding-left: 24px;
+      border-left: 1px solid var(--border);
+    }
+
+    .group:nth-child(2n + 1) {
+      padding-left: 0;
+      border-left: 0;
+    }
+  }
+
+  @media (max-width: 760px) {
+    .stack {
+      --columns: 1;
+    }
+
+    .group:nth-child(n) {
+      padding: 18px 0;
+      border-left: 0;
+    }
   }
 </style>

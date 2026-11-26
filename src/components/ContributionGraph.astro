@@ -1,21 +1,17 @@
 ---
 import ArrowUpRight from '@lucide/astro/icons/arrow-up-right';
-import GitCommitHorizontal from '@lucide/astro/icons/git-commit-horizontal';
 import Section from './Section.astro';
-import GridRow from './GridRow.astro';
 import { getContributionStats, getRepoCommitCount, type Contributions, type ContributionWeek } from '../lib/github';
 import { githubUrl, repoCommitsUrl, site } from '../config/site';
 
 interface Props {
   data: Contributions;
-  dimension?: boolean;
 }
 
-const { data, dimension = false } = Astro.props;
+const { data } = Astro.props;
 const { weeks } = data;
 
 const monthNames = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
-const weekdayNames = ['domingo', 'segunda-feira', 'terça-feira', 'quarta-feira', 'quinta-feira', 'sexta-feira', 'sábado'];
 const minLabelGap = 3;
 
 const toDate = (value: string) => new Date(`${value}T00:00:00Z`);
@@ -75,6 +71,8 @@ const lastWeek = weeks[weeks.length - 1];
 const lastDay = lastWeek.days[lastWeek.days.length - 1];
 
 const stats = getContributionStats(weeks);
+const siteCommits = await getRepoCommitCount();
+
 const statItems = [
   { label: 'Contribuições', value: number.format(stats.total), count: stats.total },
   {
@@ -84,73 +82,46 @@ const statItems = [
     unitOne: 'dia',
     unitOther: 'dias',
   },
-  { label: 'Dia mais ativo', value: stats.busiestWeekday === null ? '—' : weekdayNames[stats.busiestWeekday] },
+  ...(siteCommits !== null
+    ? [{ label: 'Atualizações deste site', value: number.format(siteCommits), count: siteCommits, href: repoCommitsUrl }]
+    : []),
 ];
 
 const summary = `${plural(stats.total)} no GitHub nos últimos 12 meses`;
-
-const siteCommits = await getRepoCommitCount();
 ---
 
 <Section
   id="atividade"
-  dimension={dimension}
   number="GitHub"
-  title="Atividade"
-  subtitle="Commits e revisões dos últimos 12 meses, atualizados todo dia."
+  label="Atividade"
+  info={`@${site.github}`}
+  infoHref={githubUrl}
+  title="Atividade."
+  lede="Commits e revisões dos últimos 12 meses, atualizados todo dia. A primeira versão quase nunca é a final: cada parte desta página foi escrita, testada e refeita várias vezes."
 >
-  <a slot="aside" class="profile-link mono" href={githubUrl} target="_blank" rel="noopener">
-    {site.github}
-    <ArrowUpRight aria-hidden="true" />
-  </a>
-
-  {
-    siteCommits !== null && (
-      <GridRow>
-        <div class="site-commits" data-reveal>
-          <div class="site-count">
-            <p class="site-label mono">
-              <GitCommitHorizontal aria-hidden="true" />
-              Este site
-            </p>
-            <p class="site-total">
-              <span class="site-number" data-count={siteCommits}>
-                {number.format(siteCommits)}
-              </span>
-              <span class="site-unit">{siteCommits === 1 ? 'atualização' : 'atualizações'} até chegar aqui</span>
-            </p>
-          </div>
-          <div class="site-note">
-            <p>
-              A primeira versão quase nunca é a final. Cada parte desta página foi escrita, testada e refeita várias
-              vezes. É assim que trabalho nos projetos dos clientes também.
-            </p>
-            <a class="history-link mono" href={repoCommitsUrl} target="_blank" rel="noopener">
-              ver o histórico
-              <ArrowUpRight aria-hidden="true" />
-            </a>
-          </div>
+  <dl class="stats" style={`--stats: ${statItems.length}`} data-reveal>
+    {
+      statItems.map((item) => (
+        <div class="stat">
+          <dd data-count={item.count} data-unit-one={item.unitOne} data-unit-other={item.unitOther}>
+            {item.value}
+          </dd>
+          <dt class="mono">
+            {item.href ? (
+              <a href={item.href} target="_blank" rel="noopener">
+                {item.label}
+                <ArrowUpRight aria-hidden="true" />
+              </a>
+            ) : (
+              item.label
+            )}
+          </dt>
         </div>
-      </GridRow>
-    )
-  }
+      ))
+    }
+  </dl>
 
-  <GridRow>
-    <dl class="stats" data-reveal>
-      {
-        statItems.map((item) => (
-          <div class="stat">
-            <dt class="mono">{item.label}</dt>
-            <dd data-count={item.count} data-unit-one={item.unitOne} data-unit-other={item.unitOther}>
-              {item.value}
-            </dd>
-          </div>
-        ))
-      }
-    </dl>
-  </GridRow>
-
-  <GridRow>
+  <div class="activity-wrap">
     <div class="activity" style={`--weeks: ${weeks.length}; --split: ${split}`}>
       <div class="canvas" role="img" aria-label={summary} data-contrib-wave>
         <div class="months months-full" aria-hidden="true">
@@ -200,108 +171,69 @@ const siteCommits = await getRepoCommitCount();
         </div>
       </div>
     </div>
-  </GridRow>
+  </div>
 </Section>
 
 <style>
-  .profile-link {
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(var(--stats, 3), minmax(0, 1fr));
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .stat {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 0;
+    padding: 24px 24px 22px;
+  }
+
+  .stat:first-child {
+    padding-left: 0;
+  }
+
+  .stat + .stat {
+    border-left: 1px solid var(--border);
+  }
+
+  .stat dd {
+    font-size: clamp(40px, 5vw, 72px);
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: -0.045em;
+    font-variant-numeric: tabular-nums;
+    color: var(--text);
+    overflow-wrap: anywhere;
+  }
+
+  .stat dt {
+    order: 2;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+  }
+
+  .stat dt a {
     display: inline-flex;
     align-items: center;
     gap: 4px;
-    font-size: 12px;
-    color: var(--text-muted);
-    text-decoration: underline;
-    text-decoration-color: var(--border-strong);
-    text-underline-offset: 4px;
-    transition: color 0.15s ease, text-decoration-color 0.15s ease;
+    transition: color 0.15s ease;
   }
 
-  .profile-link:hover {
-    color: var(--text);
-    text-decoration-color: currentColor;
-  }
-
-  .profile-link :global(svg) {
-    width: 14px;
-    height: 14px;
-    flex: none;
-  }
-
-  .site-commits {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
-    align-items: center;
-    gap: 12px 40px;
-    height: 100%;
-    padding: 20px 16px;
-    background: var(--surface);
-  }
-
-  .site-label {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 12px;
+  .stat dt a:hover {
     color: var(--accent);
   }
 
-  .site-label :global(svg) {
-    width: 14px;
-    height: 14px;
-    flex: none;
+  .stat dt :global(svg) {
+    width: 13px;
+    height: 13px;
   }
 
-  .site-total {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    gap: 4px 12px;
-    margin-top: 8px;
-  }
-
-  .site-number {
-    font-size: clamp(2.25rem, 4.5vw, 3rem);
-    font-weight: 600;
-    line-height: 1;
-    letter-spacing: -0.035em;
-    font-variant-numeric: tabular-nums;
-    color: var(--text);
-  }
-
-  .site-unit {
-    font-size: 18px;
-    font-weight: 500;
-    color: var(--text-soft);
-  }
-
-  .site-note p {
-    max-width: 48ch;
-    font-size: 15px;
-    color: var(--text-muted);
-  }
-
-  .history-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    margin-top: 10px;
-    font-size: 12px;
-    color: var(--text-muted);
-    text-decoration: underline;
-    text-decoration-color: var(--border-strong);
-    text-underline-offset: 4px;
-    transition: color 0.15s ease, text-decoration-color 0.15s ease;
-  }
-
-  .history-link:hover {
-    color: var(--text);
-    text-decoration-color: currentColor;
-  }
-
-  .history-link :global(svg) {
-    width: 14px;
-    height: 14px;
-    flex: none;
+  .activity-wrap {
+    margin-top: 32px;
   }
 
   .activity {
@@ -311,35 +243,6 @@ const siteCommits = await getRepoCommitCount();
     display: flex;
     flex-direction: column;
     gap: 20px;
-    padding: 16px;
-  }
-
-  .stats {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
-  .stat {
-    padding: 14px 16px;
-    min-width: 0;
-  }
-
-  .stat + .stat {
-    border-left: 1px solid var(--border);
-  }
-
-  .stat dt {
-    font-size: 12px;
-    color: var(--text-faint);
-  }
-
-  .stat dd {
-    margin-top: 4px;
-    font-size: 24px;
-    font-weight: 600;
-    line-height: 1.25;
-    letter-spacing: -0.01em;
-    color: var(--text);
   }
 
   .canvas {
@@ -471,9 +374,14 @@ const siteCommits = await getRepoCommitCount();
     }
   }
 
-  @media (max-width: 479px) {
+  @media (max-width: 760px) {
     .stats {
       grid-template-columns: minmax(0, 1fr);
+    }
+
+    .stat,
+    .stat:first-child {
+      padding: 20px 0 18px;
     }
 
     .stat + .stat {

@@ -1,6 +1,6 @@
 ---
 import ArrowUpRight from '@lucide/astro/icons/arrow-up-right';
-import GridRow from './GridRow.astro';
+import { padIndex } from '../lib/projects';
 import type { Service } from '../data/services';
 
 interface Props {
@@ -12,60 +12,75 @@ const { items } = Astro.props;
 
 <ul class="services" role="list" data-reveal>
   {
-    items.map((service) => (
-      <GridRow as="li">
-        <div class="service">
-          <h3>{service.title}</h3>
-          <p class="description">{service.description}</p>
-          <a class="example mono" href={service.href}>
-            {service.example}
-            <ArrowUpRight aria-hidden="true" />
-          </a>
-        </div>
-      </GridRow>
+    items.map((service, index) => (
+      <li class="service card">
+        <p class="kicker mono">Serviço · {padIndex(index + 1)}</p>
+        <h3>{service.title}</h3>
+        <p class="description">{service.description}</p>
+        <a class="example mono" href={service.href}>
+          {service.example}
+          <ArrowUpRight aria-hidden="true" />
+        </a>
+      </li>
     ))
   }
 </ul>
 
 <style>
-  .service {
+  .services {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
-    gap: 12px 40px;
-    align-items: baseline;
-    padding: 28px 16px;
-    transition: background-color 0.15s ease;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
   }
 
-  .service:hover {
-    background: var(--surface);
+  .service {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    min-width: 0;
+    min-height: 300px;
+    padding: 28px;
+  }
+
+  .kicker {
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-faint);
   }
 
   h3 {
-    font-size: clamp(1.5rem, 2.4vw, 1.875rem);
+    margin-top: auto;
+    padding-top: 40px;
+    font-size: clamp(24px, 2.2vw, 32px);
     font-weight: 600;
-    line-height: 1.15;
-    letter-spacing: -0.025em;
+    line-height: 1.1;
+    letter-spacing: -0.03em;
   }
 
   .description {
-    max-width: 52ch;
-    font-size: 16px;
+    margin-top: 12px;
+    max-width: 40ch;
+    font-size: 15px;
+    line-height: 1.55;
     color: var(--text-muted);
   }
 
   .example {
-    justify-self: end;
     display: inline-flex;
     align-items: center;
     gap: 6px;
     min-height: 36px;
+    max-width: 100%;
+    margin-top: 20px;
     padding: 0 12px;
     border: 1px solid var(--border-strong);
     border-radius: 999px;
     font-size: 12px;
     color: var(--text-muted);
-    white-space: nowrap;
     transition: border-color 0.15s ease, color 0.15s ease;
   }
 
@@ -75,7 +90,24 @@ const { items } = Astro.props;
   }
 
   .example :global(svg) {
+    flex: none;
     width: 14px;
     height: 14px;
+  }
+
+  @media (max-width: 1000px) {
+    .services {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 760px) {
+    .services {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .service {
+      min-height: 240px;
+    }
   }
 </style>

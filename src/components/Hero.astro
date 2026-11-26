@@ -2,7 +2,6 @@
 import { Image } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
 import ArrowUpRight from '@lucide/astro/icons/arrow-up-right';
-import CodeXml from '@lucide/astro/icons/code-xml';
 import MapPin from '@lucide/astro/icons/map-pin';
 import Mail from '@lucide/astro/icons/mail';
 import Clock from '@lucide/astro/icons/clock';
@@ -10,13 +9,9 @@ import MessageCircle from '@lucide/astro/icons/message-circle';
 import Copy from '@lucide/astro/icons/copy';
 import Check from '@lucide/astro/icons/check';
 import { siInstagram } from 'simple-icons';
-import GridRow from './GridRow.astro';
-import HatchBand from './HatchBand.astro';
-import Dimension from './Dimension.astro';
 import LocalClock from './LocalClock.astro';
 import DotField from './DotField.astro';
 import { linkedinIcon } from '../config/brand-icons';
-import { tokens } from '../config/tokens';
 import { emailUrl, formatPhone, fullName, site, whatsappNumber, whatsappUrl } from '../config/site';
 
 const photos = import.meta.glob<{ default: ImageMetadata }>('../assets/photo.{jpg,jpeg,png,webp,avif}', {
@@ -25,6 +20,7 @@ const photos = import.meta.glob<{ default: ImageMetadata }>('../assets/photo.{jp
 const photo = Object.values(photos)[0]?.default;
 
 const phone = formatPhone(whatsappNumber || site.whatsapp);
+const year = new Date().getFullYear();
 
 const socials = [
   { label: 'LinkedIn', href: site.linkedin, path: linkedinIcon.path },
@@ -33,169 +29,170 @@ const socials = [
 ---
 
 <section id="topo" class="hero" aria-labelledby="hero-title">
-  <DotField class="hero-dots" origin="corner" />
-  <GridRow class="cover-row" aria-hidden="true" />
-  <GridRow class="identity-row">
-    <div class="name">
-      <div class="avatar-cell">
-        <Dimension axis="vertical" size={tokens.avatar} side="left" />
+  <div class="hero-fallback" aria-hidden="true"></div>
+  <DotField class="hero-dots" origin="corner" radius={150} grow={3.6} />
+
+  <p class="eyebrow mono">Portfólio / {year} · {site.city}, {site.state} · Brasil</p>
+
+  <div class="layout">
+    <div class="identity">
+      <div class="who">
         {
           photo ? (
             <Image
+              class="avatar"
               src={photo}
               alt={`Foto de ${fullName}`}
-              width={tokens.avatar}
-              height={tokens.avatar}
+              width={168}
+              height={168}
               densities={[1, 2]}
               fit="cover"
               loading="eager"
               data-hero="avatar"
             />
           ) : (
-            <div class="avatar-placeholder mono" aria-hidden="true" data-hero="avatar">
+            <div class="avatar avatar-placeholder mono" aria-hidden="true" data-hero="avatar">
               [FOTO]
             </div>
           )
         }
+        <p class="roles mono">
+          <span class="role">{site.role}</span>
+          <span>Sistemas e sites para empresas</span>
+        </p>
       </div>
-      <div class="identity">
-        <h1 id="hero-title" data-hero="line">{fullName}</h1>
-        <p class="role mono" data-hero="line2">{site.role}.</p>
+
+      <h1 id="hero-title" data-hero="line">{site.name}<br />{site.surname}</h1>
+      <p class="claim" data-hero="line2">Sistemas e sites que vão para produção.</p>
+
+      <div class="actions" data-hero="cta">
+        <a class="button button-primary button-lg" href={whatsappUrl} target="_blank" rel="noopener">
+          Pedir orçamento no WhatsApp
+          <ArrowUpRight aria-hidden="true" />
+        </a>
+        <p class="status mono">
+          <span class="status-dot" aria-hidden="true"></span>
+          Disponível para novos projetos
+        </p>
+        {
+          socials.length > 0 && (
+            <ul class="socials" role="list">
+              {socials.map((social) => (
+                <li>
+                  <a class="social" href={social.href} target="_blank" rel="noopener" aria-label={`${social.label} de ${fullName}`}>
+                    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false">
+                      <path d={social.path} />
+                    </svg>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )
+        }
       </div>
     </div>
-  </GridRow>
+
+    <ul class="info" role="list" data-hero="list">
+      <li class="row split">
+        <span class="cell">
+          <span class="icon-box"><MapPin aria-hidden="true" /></span>
+          <span class="text">{site.city}, {site.stateName}</span>
+        </span>
+        <span class="cell">
+          <span class="icon-box"><Clock aria-hidden="true" /></span>
+          <LocalClock note="// Brasília" />
+        </span>
+      </li>
+      <li class="row">
+        <span class="cell">
+          <span class="icon-box"><Mail aria-hidden="true" /></span>
+          <a class="text link" href={emailUrl}>{site.email}</a>
+        </span>
+        <button class="copy mono" type="button" aria-label="Copiar e-mail" data-copy={site.email} data-done="E-mail copiado">
+          <Copy class="icon-copy" aria-hidden="true" />
+          <Check class="icon-check" aria-hidden="true" />
+          <span class="copy-label" aria-hidden="true">copiar</span>
+        </button>
+      </li>
+      <li class="row">
+        <span class="cell">
+          <span class="icon-box"><MessageCircle aria-hidden="true" /></span>
+          <a class="text link" href={whatsappUrl} target="_blank" rel="noopener">{phone}</a>
+        </span>
+        <button class="copy mono" type="button" aria-label="Copiar número" data-copy={`+55 ${phone}`} data-done="Número copiado">
+          <Copy class="icon-copy" aria-hidden="true" />
+          <Check class="icon-check" aria-hidden="true" />
+          <span class="copy-label" aria-hidden="true">copiar</span>
+        </button>
+      </li>
+    </ul>
+  </div>
+  <span class="visually-hidden" role="status" data-copy-status></span>
 </section>
 
-<HatchBand dimension />
-
-<GridRow>
-  <ul class="info" role="list" data-hero="list">
-    <li class="info-focus">
-      <span class="icon-box"><CodeXml aria-hidden="true" /></span>
-      <span class="text">Sistemas e sites para empresas</span>
-    </li>
-    <li class="info-place">
-      <span class="icon-box"><MapPin aria-hidden="true" /></span>
-      <span class="text">{site.city}, {site.stateName}, Brasil</span>
-    </li>
-    <li class="info-mail">
-      <span class="icon-box"><Mail aria-hidden="true" /></span>
-      <a class="text" href={emailUrl}>{site.email}</a>
-      <button class="copy" type="button" aria-label="Copiar e-mail" data-copy={site.email} data-done="E-mail copiado">
-        <Copy class="icon-copy" aria-hidden="true" />
-        <Check class="icon-check" aria-hidden="true" />
-      </button>
-    </li>
-    <li class="info-clock">
-      <span class="icon-box"><Clock aria-hidden="true" /></span>
-      <LocalClock />
-    </li>
-    <li class="info-whatsapp">
-      <span class="icon-box"><MessageCircle aria-hidden="true" /></span>
-      <a class="text" href={whatsappUrl} target="_blank" rel="noopener">{phone}</a>
-      <button class="copy" type="button" aria-label="Copiar número" data-copy={`+55 ${phone}`} data-done="Número copiado">
-        <Copy class="icon-copy" aria-hidden="true" />
-        <Check class="icon-check" aria-hidden="true" />
-      </button>
-    </li>
-    <li class="info-status">
-      <span class="icon-box"><span class="status-dot" aria-hidden="true"></span></span>
-      <span class="text accent">Disponível para novos projetos</span>
-    </li>
-  </ul>
-  <span class="visually-hidden" role="status" data-copy-status></span>
-</GridRow>
-
-<GridRow>
-  <div class="links" data-hero="cta">
-    {
-      socials.length > 0 && (
-        <ul class="socials" role="list">
-          {socials.map((social) => (
-            <li>
-              <a class="social" href={social.href} target="_blank" rel="noopener" aria-label={`${social.label} de ${fullName}`}>
-                <span class="social-box">
-                  <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false">
-                    <path d={social.path} />
-                  </svg>
-                </span>
-              </a>
-            </li>
-          ))}
-        </ul>
-      )
-    }
-    <a class="button button-primary whatsapp" href={whatsappUrl} target="_blank" rel="noopener">
-      <span class="whatsapp-long">Pedir orçamento no WhatsApp</span>
-      <span class="whatsapp-short">Orçamento</span>
-      <ArrowUpRight aria-hidden="true" />
-    </a>
-  </div>
-</GridRow>
-
 <style>
-  :global(.cover-row),
-  :global(.identity-row) {
-    background-color: var(--bg);
-    background-image: radial-gradient(var(--dot-grid) 1px, transparent 1px);
-    background-size: 24px 24px;
-  }
-
-  :global(.cover-row) {
-    --row-border: 0;
-    height: var(--cover);
-  }
-
   .hero {
     position: relative;
+    padding-top: 150px;
+  }
+
+  .hero-fallback,
+  .hero :global(.hero-dots) {
+    position: absolute;
+    top: 0;
+    bottom: calc(-1 * var(--section-gap) / 2);
+    left: calc(50% - 50cqw);
+    width: 100cqw;
+    -webkit-mask-image: linear-gradient(to bottom, #000 72%, transparent);
+    mask-image: linear-gradient(to bottom, #000 72%, transparent);
   }
 
   .hero :global(.hero-dots) {
     right: auto;
-    left: calc(50% - 50cqw);
-    width: 100cqw;
+    height: auto;
   }
 
+  .hero-fallback {
+    background-image: radial-gradient(var(--dot-grid) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+
+  .hero:has(:global(.hero-dots[data-ready])) .hero-fallback,
   :global(html:not(.js)) .hero :global(.hero-dots) {
     display: none;
   }
 
-  .hero :global(.cover-row),
-  .hero :global(.identity-row) {
+  .eyebrow,
+  .layout {
     position: relative;
   }
 
-  .hero:has(:global(.hero-dots[data-ready])) :global(.cover-row),
-  .hero:has(:global(.hero-dots[data-ready])) :global(.identity-row) {
-    background-color: transparent;
-    background-image: none;
+  .eyebrow {
+    padding-right: 72px;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-faint);
   }
 
-  :global(.identity-row) {
-    background-position: 0 calc(-1 * var(--cover));
-  }
-
-  .name {
-    display: flex;
-    align-items: flex-end;
-  }
-
-  .avatar-cell {
-    position: relative;
-    flex: none;
+  .layout {
     display: grid;
-    place-items: center;
-    box-sizing: content-box;
-    width: var(--avatar);
-    height: var(--avatar);
-    border-right: 1px solid var(--border);
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+    align-items: end;
+    gap: 40px 56px;
+    margin-top: 28px;
   }
 
-  .avatar-cell :global(img),
-  .avatar-placeholder {
-    display: block;
-    width: var(--avatar-photo);
-    height: var(--avatar-photo);
+  .who {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .avatar {
+    flex: none;
+    width: clamp(120px, 14vw, 168px);
+    height: clamp(120px, 14vw, 168px);
     border: 1px solid var(--border-strong);
     border-radius: 50%;
     object-fit: cover;
@@ -209,86 +206,64 @@ const socials = [
     color: var(--text-faint);
   }
 
-  .identity {
-    flex: 1;
+  .roles {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
     min-width: 0;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
   }
 
-  h1,
   .role {
-    border-top: 1px solid var(--border);
-    background: var(--bg);
+    color: var(--accent);
   }
 
   h1 {
-    padding: 12px 16px;
-    font-size: 36px;
+    margin-top: 28px;
+    font-size: clamp(56px, 10vw, 148px);
     font-weight: 600;
-    line-height: 1.15;
-    letter-spacing: -0.02em;
-    overflow-wrap: anywhere;
+    line-height: 0.86;
+    letter-spacing: -0.055em;
   }
 
-  .role {
-    padding: 8px 16px;
-    font-size: 14px;
-    color: var(--text-muted);
+  .claim {
+    max-width: 24ch;
+    margin-top: 24px;
+    font-size: clamp(20px, 1.9vw, 26px);
+    font-weight: 500;
+    line-height: 1.3;
+    letter-spacing: -0.015em;
+    color: var(--text-soft);
   }
 
-  .info {
-    position: relative;
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    grid-template-rows: repeat(3, auto);
-    grid-auto-flow: column;
-    row-gap: 12px;
-    margin: 0;
-    padding: 16px 0;
-    list-style: none;
-  }
-
-  .info::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 50%;
-    width: 1px;
-    background: var(--border);
-  }
-
-  .info li {
+  .actions {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    gap: 12px;
-    min-width: 0;
-    padding-inline: 16px;
-    font-family: var(--font-mono);
-    font-size: 14px;
-    color: var(--text);
+    gap: 16px 24px;
+    margin-top: 32px;
   }
 
-  .info li:nth-child(n + 4) {
-    padding-left: 17px;
+  .actions .button :global(svg) {
+    width: 18px;
+    height: 18px;
   }
 
-  .icon-box {
-    flex: none;
-    display: grid;
-    place-items: center;
-    width: 32px;
-    height: 32px;
-    border: 1px solid var(--border-strong);
-    border-radius: 6px;
-    color: var(--text-muted);
-  }
-
-  .icon-box :global(svg) {
-    width: 16px;
-    height: 16px;
+  .status {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
   }
 
   .status-dot {
+    flex: none;
     width: 8px;
     height: 8px;
     border-radius: 50%;
@@ -310,6 +285,111 @@ const socials = [
     }
   }
 
+  .socials {
+    display: flex;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .social {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border: 1px solid var(--border-strong);
+    border-radius: 50%;
+    color: var(--text-muted);
+    transition: color 0.15s ease, border-color 0.15s ease;
+  }
+
+  .social:hover {
+    border-color: var(--text-faint);
+    color: var(--text);
+  }
+
+  .social svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .info {
+    container-type: inline-size;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    background: var(--bg);
+  }
+
+  @container (max-width: 420px) {
+    .info .split {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .info .split .cell + .cell {
+      padding-left: 0;
+      border-left: 0;
+      border-top: 1px solid var(--border);
+    }
+  }
+
+  .row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-height: 64px;
+    padding: 10px 0;
+    border-top: 1px solid var(--border);
+    font-family: var(--font-mono);
+    font-size: 14px;
+    color: var(--text);
+  }
+
+  .row:last-child {
+    border-bottom: 1px solid var(--border);
+  }
+
+  .split {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0;
+    padding: 0;
+  }
+
+  .split .cell {
+    padding: 10px 0;
+  }
+
+  .split .cell + .cell {
+    padding-left: 16px;
+    border-left: 1px solid var(--border);
+  }
+
+  .cell {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+  }
+
+  .icon-box {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border: 1px solid var(--border-strong);
+    border-radius: 6px;
+    color: var(--text-muted);
+  }
+
+  .icon-box :global(svg) {
+    width: 16px;
+    height: 16px;
+  }
+
   .text {
     min-width: 0;
     overflow: hidden;
@@ -317,45 +397,43 @@ const socials = [
     text-overflow: ellipsis;
   }
 
-  .accent {
-    color: var(--accent);
-  }
-
-  a.text {
+  .link {
     text-decoration: underline;
     text-decoration-color: var(--border-strong);
     text-underline-offset: 4px;
     transition: text-decoration-color 0.15s ease;
   }
 
-  a.text:hover {
+  .link:hover {
     text-decoration-color: currentColor;
   }
 
   .copy {
     flex: none;
-    display: grid;
-    place-items: center;
-    width: 28px;
-    height: 28px;
-    margin-left: -6px;
-    padding: 0;
-    border: 0;
-    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 32px;
+    padding: 0 10px;
+    border: 1px solid var(--border-strong);
+    border-radius: 999px;
     background: transparent;
-    color: var(--text-faint);
+    color: var(--text-muted);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
     cursor: pointer;
-    transition: color 0.15s ease, background-color 0.15s ease;
+    transition: color 0.15s ease, border-color 0.15s ease;
   }
 
   .copy:hover {
+    border-color: var(--text-faint);
     color: var(--text);
-    background: var(--surface);
   }
 
   .copy :global(svg) {
-    width: 16px;
-    height: 16px;
+    width: 13px;
+    height: 13px;
   }
 
   .copy :global(.icon-check),
@@ -364,6 +442,7 @@ const socials = [
   }
 
   .copy[data-copied] {
+    border-color: color-mix(in oklab, var(--accent) 50%, transparent);
     color: var(--accent);
   }
 
@@ -375,173 +454,38 @@ const socials = [
     display: none;
   }
 
-  .links {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px 16px;
-    padding: 12px 16px 12px 12px;
-  }
-
-  .socials {
-    display: flex;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  .social {
-    display: grid;
-    place-items: center;
-    width: 44px;
-    height: 44px;
-    padding: 4px;
-    color: var(--text-muted);
-  }
-
-  .social-box {
-    display: grid;
-    place-items: center;
-    width: 36px;
-    height: 36px;
-    border: 1px solid var(--border-strong);
-    border-radius: 6px;
-    transition: border-color 0.15s ease, color 0.15s ease, background-color 0.15s ease;
-  }
-
-  .social-box svg {
-    width: 16px;
-    height: 16px;
-  }
-
-  .social:hover {
-    color: var(--text);
-  }
-
-  .social:hover .social-box {
-    border-color: var(--text-faint);
-    background: var(--surface);
-  }
-
-  .whatsapp {
-    margin-left: auto;
-  }
-
-  .whatsapp-short {
-    display: none;
-  }
-
-  @media (max-width: 640px) {
-    :global(.cover-row) {
-      --row-border: 1px solid var(--border);
-    }
-
-    :global(.identity-row),
-    .hero:has(:global(.hero-dots[data-ready])) :global(.identity-row) {
-      background: var(--bg);
-    }
-
-    .name {
-      align-items: stretch;
-    }
-
-    .identity {
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-end;
-    }
-
-    h1 {
-      padding: 8px 10px;
-      font-size: clamp(1.375rem, 7vw, 1.75rem);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      overflow-wrap: normal;
-    }
-
-    .role {
-      padding: 6px 10px;
-      font-size: 12px;
-    }
-
-    .info {
+  @media (max-width: 1000px) {
+    .layout {
       grid-template-columns: minmax(0, 1fr);
-      grid-template-rows: none;
-      grid-auto-flow: row;
-      row-gap: 8px;
-      padding: 12px;
+      align-items: start;
+    }
+  }
+
+  @media (max-width: 760px) {
+    .hero {
+      padding-top: 120px;
     }
 
-    .info::before {
-      display: none;
+    .who {
+      gap: 16px;
     }
 
-    .info li,
-    .info li:nth-child(n + 4) {
-      gap: 10px;
-      padding-inline: 0;
+    .split {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .split .cell + .cell {
+      padding-left: 0;
+      border-left: 0;
+      border-top: 1px solid var(--border);
+    }
+
+    .row {
       font-size: 13px;
     }
 
-    .info-focus {
-      order: 1;
-    }
-
-    .info-place {
-      order: 2;
-    }
-
-    .info-clock {
-      order: 3;
-    }
-
-    .info-mail {
-      order: 4;
-    }
-
-    .info-whatsapp {
-      order: 5;
-    }
-
-    .info-status {
-      order: 6;
-    }
-
-    .icon-box {
-      width: 28px;
-      height: 28px;
-    }
-
-    .copy {
-      margin-left: -4px;
-    }
-
-    .links {
-      gap: 12px;
-      padding: 8px 12px 8px 8px;
-    }
-
-    .whatsapp {
-      min-height: 36px;
-      height: 36px;
-      gap: 6px;
-      padding: 0 14px;
-      font-size: 13px;
-      font-weight: 600;
-    }
-
-    .whatsapp :global(svg) {
-      width: 16px;
-      height: 16px;
-    }
-
-    .whatsapp-long {
-      display: none;
-    }
-
-    .whatsapp-short {
-      display: inline;
+    .actions .button {
+      width: 100%;
     }
   }
 </style>
@@ -555,6 +499,7 @@ const socials = [
 
     document.querySelectorAll<HTMLButtonElement>('[data-copy]').forEach((button) => {
       let timer = 0;
+      const label = button.querySelector<HTMLElement>('.copy-label');
 
       button.addEventListener(
         'click',
@@ -565,11 +510,13 @@ const socials = [
             return;
           }
           button.dataset.copied = '';
+          if (label) label.textContent = 'copiado';
           if (status) status.textContent = button.dataset.done ?? '';
           window.clearTimeout(timer);
           timers.delete(timer);
           timer = window.setTimeout(() => {
             delete button.dataset.copied;
+            if (label) label.textContent = 'copiar';
             if (status) status.textContent = '';
           }, 1500);
           timers.add(timer);

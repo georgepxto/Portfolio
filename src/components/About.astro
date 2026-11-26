@@ -1,47 +1,68 @@
 ---
-import GridRow from './GridRow.astro';
+interface Props {
+  headingId: string;
+}
+
+const { headingId } = Astro.props;
 ---
 
-<GridRow>
-  <div class="text" data-reveal>
+<div class="about" data-reveal>
+  <div class="lead">
+    <h2 id={headingId}>Desenvolvedor web em Parnaíba, PI.</h2>
     <p class="opening">Construo sistemas de gestão, produtos SaaS e sites para empresas. Do banco de dados à interface.</p>
-    <p class="body">
+  </div>
+  <div class="text">
+    <p>
       Comecei a programar em 2020, entre a faculdade e muitos projetos por conta própria. Hoje atendo empresas da
       região como freelancer e mantenho produtos próprios.
     </p>
-    <p class="body">
+    <p>
       Você fala direto comigo, recebe a proposta por escrito antes de começar e acompanha versões que já dá para
       testar.
     </p>
   </div>
-</GridRow>
+</div>
 
 <style>
-  .text {
-    padding: 16px;
+  .about {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+    align-items: end;
+    gap: 32px 56px;
+  }
+
+  h2 {
+    font-size: clamp(40px, 5.6vw, 80px);
+    font-weight: 600;
+    line-height: 0.96;
+    letter-spacing: -0.045em;
+    text-wrap: balance;
   }
 
   .opening {
     max-width: 34ch;
-    font-size: 22px;
+    margin-top: 28px;
+    font-size: clamp(20px, 1.7vw, 24px);
     font-weight: 500;
     line-height: 1.4;
     letter-spacing: -0.01em;
     color: var(--text);
   }
 
-  .body {
-    max-width: 60ch;
+  .text p {
+    max-width: 52ch;
     font-size: 17px;
-    line-height: 1.65;
+    line-height: 1.7;
     color: var(--text-soft);
   }
 
-  .opening + .body {
-    margin-top: 20px;
+  .text p + p {
+    margin-top: 16px;
   }
 
-  .body + .body {
-    margin-top: 14px;
+  @media (max-width: 1000px) {
+    .about {
+      grid-template-columns: minmax(0, 1fr);
+    }
   }
 </style>

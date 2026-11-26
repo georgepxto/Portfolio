@@ -1,0 +1,202 @@
+---
+import ArrowUpRight from '@lucide/astro/icons/arrow-up-right';
+import PreviewCord from './showcase/PreviewCord.astro';
+import PreviewActivity from './showcase/PreviewActivity.astro';
+import PreviewGlass from './showcase/PreviewGlass.astro';
+import PreviewRing from './showcase/PreviewRing.astro';
+import PreviewSteps from './showcase/PreviewSteps.astro';
+import PreviewDots from './showcase/PreviewDots.astro';
+import { categoryLabel, componentUrl, type ShowcaseComponent } from '../data/components';
+import type { ContributionWeek } from '../lib/github';
+
+interface Props {
+  component: ShowcaseComponent;
+  weeks: ContributionWeek[];
+  total: number;
+  streak: number;
+  height?: number;
+}
+
+const { component, weeks, total, streak, height = 210 } = Astro.props;
+const published = component.status === 'publicado';
+---
+
+<li class="component card" data-filter-item data-category={component.category}>
+  <div class="preview" style={`--preview-height: ${height}px`} data-preview>
+    {component.preview === 'pull-cord' && <PreviewCord />}
+    {component.preview === 'github-activity' && <PreviewActivity weeks={weeks} total={total} streak={streak} />}
+    {component.preview === 'glass-nav' && <PreviewGlass />}
+    {component.preview === 'scroll-ring' && <PreviewRing />}
+    {component.preview === 'step-timeline' && <PreviewSteps />}
+    {component.preview === 'dot-field' && <PreviewDots />}
+  </div>
+  <div class="head">
+    <h3 class="tag-name mono">&lt;{component.tag}&gt;</h3>
+    <span class:list={['status', 'mono', { published }]}>{published ? 'publicado' : 'em breve'}</span>
+  </div>
+  <p class="description">{component.description}</p>
+  <div class="foot">
+    <span class="category mono">{categoryLabel(component.category)}</span>
+    {
+      published ? (
+        <a class="docs" href={componentUrl(component)} target="_blank" rel="noopener">
+          Código e docs
+          <ArrowUpRight aria-hidden="true" />
+        </a>
+      ) : (
+        <span class="soon">Em breve</span>
+      )
+    }
+  </div>
+</li>
+
+<style>
+  .component {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 0;
+    padding: 10px;
+  }
+
+  .component[hidden] {
+    display: none;
+  }
+
+  .preview {
+    position: relative;
+    height: var(--preview-height);
+    overflow: hidden;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    isolation: isolate;
+  }
+
+  .head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px 12px;
+    padding: 6px 6px 0;
+  }
+
+  .tag-name {
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 1.4;
+    letter-spacing: 0;
+    color: var(--text);
+    overflow-wrap: anywhere;
+  }
+
+  .status {
+    display: inline-flex;
+    align-items: center;
+    min-height: 22px;
+    padding: 0 8px;
+    border: 1px solid var(--border-strong);
+    border-radius: 999px;
+    font-size: 11px;
+    line-height: 1;
+    color: var(--text-faint);
+  }
+
+  .published {
+    border-color: color-mix(in oklab, var(--accent) 45%, transparent);
+    background: color-mix(in oklab, var(--accent) 10%, transparent);
+    color: var(--accent);
+  }
+
+  .description {
+    flex: 1;
+    padding: 0 6px;
+    font-size: 14px;
+    line-height: 1.55;
+    color: var(--text-muted);
+  }
+
+  .foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 4px 12px;
+    margin-top: 4px;
+    padding: 10px 6px 2px;
+    border-top: 1px solid var(--border);
+  }
+
+  .category {
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+  }
+
+  .docs {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    min-height: 32px;
+    font-size: 14px;
+    color: var(--accent);
+    text-decoration: underline;
+    text-decoration-color: transparent;
+    text-underline-offset: 4px;
+    transition: text-decoration-color 0.15s ease;
+  }
+
+  .docs:hover {
+    text-decoration-color: currentColor;
+  }
+
+  .docs :global(svg) {
+    width: 14px;
+    height: 14px;
+  }
+
+  .soon {
+    display: inline-flex;
+    align-items: center;
+    min-height: 32px;
+    font-size: 14px;
+    color: var(--text-faint);
+  }
+</style>
+
+<script>
+  import { onPage } from '../scripts/page';
+
+  onPage(() => {
+    const previews = document.querySelectorAll<HTMLElement>('[data-preview]');
+    if (!previews.length) return;
+
+    if (!('IntersectionObserver' in window)) {
+      previews.forEach((preview) => {
+        preview.dataset.visible = '';
+        preview.dataset.in = '';
+      });
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          const preview = entry.target as HTMLElement;
+          preview.toggleAttribute('data-visible', entry.isIntersecting);
+          if (entry.isIntersecting && entry.intersectionRatio >= 0.35) preview.dataset.in = '';
+        }
+      },
+      { threshold: [0, 0.35] },
+    );
+    previews.forEach((preview) => observer.observe(preview));
+    return () => observer.disconnect();
+  });
+</script>
+
+<style is:global>
+  html.js [data-preview]:not([data-visible]) * {
+    animation-play-state: paused !important;
+  }
+</style>

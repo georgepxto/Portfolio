@@ -170,12 +170,6 @@ const details = [
     transform: translateX(-3px);
   }
 
-  :global(.case-header-row) {
-    background-color: var(--bg);
-    background-image: radial-gradient(var(--dot-grid) 1px, transparent 1px);
-    background-size: 24px 24px;
-  }
-
   .case-header {
     padding: 48px 16px;
   }
@@ -277,8 +271,8 @@ const details = [
     content: '';
     position: absolute;
     top: -36px;
-    left: calc(50% - 50cqw);
-    width: 100cqw;
+    left: 0;
+    width: 100%;
     height: 1px;
     background: var(--border);
   }

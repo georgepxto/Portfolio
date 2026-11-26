@@ -2,9 +2,9 @@ import { onPage } from './page';
 
 const EASE = 'cubic-bezier(.2, .7, .2, 1)';
 const LINE_EASE = 'cubic-bezier(.7, 0, .2, 1)';
-const DURATION = 850;
-const DISTANCE = 30;
-const MAX_STEPS = 6;
+const DURATION = 700;
+const DISTANCE = 18;
+const MAX_STEPS = 8;
 const WAVE = 1100;
 const COUNT = 1300;
 const BLOCK_DELAY = 260;
@@ -64,7 +64,7 @@ const count = (element: HTMLElement) => {
 
 const reveal = (container: HTMLElement) => {
   const children = Array.from(container.children);
-  const step = children.length > 3 ? 45 : 90;
+  const step = 60;
   container.querySelectorAll<HTMLElement>('[data-count]').forEach(count);
   container.dataset.revealed = '';
 

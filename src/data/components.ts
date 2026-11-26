@@ -11,6 +11,7 @@ export interface ShowcaseComponent {
   status: ComponentStatus;
   description: string;
   preview?: ComponentPreview;
+  home?: boolean;
 }
 
 export const componentsRepoUrl = 'https://github.com/georgepxto/web-components';
@@ -30,6 +31,7 @@ export const components: ShowcaseComponent[] = [
     status: 'publicado',
     description: 'Cordinha que alterna o tema claro e escuro, com física de mola e revelação circular.',
     preview: 'pull-cord',
+    home: true,
   },
   {
     tag: 'github-activity',
@@ -38,6 +40,7 @@ export const components: ShowcaseComponent[] = [
     status: 'publicado',
     description: 'Calendário de contribuições do GitHub com estatísticas, temas, i18n e coleta no build.',
     preview: 'github-activity',
+    home: true,
   },
   {
     tag: 'glass-nav',
@@ -70,6 +73,7 @@ export const components: ShowcaseComponent[] = [
     status: 'publicado',
     description: 'Fundo de pontos que reage ao cursor. Leve, em canvas, sem WebGL.',
     preview: 'dot-field',
+    home: true,
   },
 ];
 

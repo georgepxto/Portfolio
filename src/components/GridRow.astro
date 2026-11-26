@@ -16,17 +16,8 @@ const { as: Tag = 'div', class: className, innerClass, ...rest } = Astro.props;
 </Tag>
 
 <style>
-  .grid-row {
-    width: 100cqw;
-    margin-inline: calc(50% - 50cqw);
-    border-bottom: var(--row-border, 1px solid var(--border));
-  }
-
   .grid-row-inner {
     position: relative;
-    width: min(1180px, 100% - 2 * var(--page-margin));
     height: 100%;
-    margin-inline: auto;
-    border-inline: 1px solid var(--border);
   }
 </style>

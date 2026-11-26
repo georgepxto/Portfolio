@@ -1,6 +1,5 @@
 ---
 import ArrowUpRight from '@lucide/astro/icons/arrow-up-right';
-import GridRow from './GridRow.astro';
 import type { LabItem } from '../data/lab';
 
 interface Props {
@@ -12,114 +11,146 @@ const { items } = Astro.props;
 
 <ul class="lab" role="list" data-reveal>
   {
-    items.map((item) => (
-      <GridRow as="li">
-        <div class="item">
-          <p class="cell name">
-            {item.href ? (
-              <a href={item.href} target="_blank" rel="noopener">
-                {item.name}
-                <ArrowUpRight aria-hidden="true" />
-                <span class="visually-hidden">({item.linkLabel ?? 'repositório'})</span>
-              </a>
-            ) : (
-              item.name
+    items.map((item) => {
+      const badge = item.href ? (item.linkLabel ?? 'repositório') : item.status;
+      return (
+        <li class="item card">
+          <div class="top">
+            <p class="name">
+              {item.href ? (
+                <a href={item.href} target="_blank" rel="noopener">
+                  {item.name}
+                  <ArrowUpRight aria-hidden="true" />
+                  <span class="visually-hidden">({item.linkLabel ?? 'repositório'})</span>
+                </a>
+              ) : (
+                item.name
+              )}
+            </p>
+            {badge && (
+              <span class:list={['badge', 'mono', { linked: Boolean(item.href) }]} aria-hidden={item.href ? 'true' : undefined}>
+                {badge}
+              </span>
             )}
-            {!item.href && item.status && <span class="status mono">{item.status}</span>}
-          </p>
-          <p class="cell description">{item.description}</p>
-          <p class="cell stack mono">{item.stack}</p>
-        </div>
-      </GridRow>
-    ))
+          </div>
+          <p class="description">{item.description}</p>
+          <p class="stack mono">{item.stack}</p>
+        </li>
+      );
+    })
   }
 </ul>
 
 <style>
-  .item {
+  .lab {
     display: grid;
-    grid-template-columns: minmax(130px, 0.8fr) minmax(0, 2fr) minmax(120px, 1fr);
-    transition: background-color 0.15s ease;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
   }
 
-  .item:hover {
-    background: var(--surface);
-  }
-
-  .cell {
+  .item {
+    position: relative;
+    display: flex;
+    flex-direction: column;
     min-width: 0;
-    padding: 14px 16px;
+    min-height: 200px;
+    padding: 22px;
   }
 
-  .cell + .cell {
-    border-left: 1px solid var(--border);
+  .top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px 12px;
   }
 
   .name {
-    font-weight: 500;
+    min-width: 0;
+    font-size: 19px;
+    font-weight: 600;
+    line-height: 1.25;
+    letter-spacing: -0.015em;
     color: var(--text);
+    overflow-wrap: anywhere;
   }
 
-  .name a {
-    display: inline;
-    padding: 12px 0;
+  .name a::after {
+    content: '';
+    position: absolute;
+    inset: 0;
   }
 
-  .name a:hover {
+  .name a:hover,
+  .item:has(a:hover) .name {
     color: var(--accent);
+  }
+
+  .name a:focus-visible {
+    outline: none;
+  }
+
+  .item:has(.name a:focus-visible) {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
   }
 
   .name :global(svg) {
     display: inline-block;
-    width: 14px;
-    height: 14px;
+    width: 15px;
+    height: 15px;
     margin-left: 4px;
     vertical-align: -1px;
     color: var(--text-faint);
   }
 
-  .status {
-    display: inline-block;
-    margin-left: 8px;
-    padding: 1px 8px;
+  .badge {
+    flex: none;
+    margin-top: 2px;
+    padding: 3px 8px;
     border: 1px solid var(--border-strong);
     border-radius: 999px;
     font-size: 11px;
-    font-weight: 400;
-    line-height: 1.6;
+    line-height: 1.3;
     color: var(--text-faint);
-    vertical-align: 1px;
     white-space: nowrap;
   }
 
+  .linked {
+    border-color: color-mix(in oklab, var(--accent) 45%, transparent);
+    background: color-mix(in oklab, var(--accent) 10%, transparent);
+    color: var(--accent);
+  }
+
   .description {
-    font-size: 15px;
+    margin-top: 12px;
+    font-size: 14px;
+    line-height: 1.55;
     color: var(--text-muted);
   }
 
   .stack {
+    margin-top: auto;
+    padding-top: 20px;
     font-size: 12px;
-    line-height: 2;
     color: var(--text-faint);
   }
 
-  @media (max-width: 720px) {
-    .item {
+  @media (max-width: 1000px) {
+    .lab {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 760px) {
+    .lab {
       grid-template-columns: minmax(0, 1fr);
-      padding: 14px 0;
     }
 
-    .item:hover {
-      background: transparent;
-    }
-
-    .cell {
-      padding: 0 16px;
-    }
-
-    .cell + .cell {
-      border-left: 0;
-      margin-top: 4px;
+    .item {
+      min-height: 0;
     }
   }
 </style>

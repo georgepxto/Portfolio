@@ -1,7 +1,6 @@
 ---
 import ArrowDown from '@lucide/astro/icons/arrow-down';
 import ArrowUpRight from '@lucide/astro/icons/arrow-up-right';
-import GridRow from './GridRow.astro';
 import { padIndex } from '../lib/projects';
 import type { BeforeAfter } from '../data/before-after';
 
@@ -12,8 +11,8 @@ interface Props {
 const { items } = Astro.props;
 ---
 
-<GridRow>
-  <div class="before-after" data-reveal data-before-after>
+<div class="before-after-wrap" data-reveal>
+  <div class="before-after" data-before-after>
     <div class="tabs" role="tablist" aria-label="Projetos">
       {
         items.map((item, index) => (
@@ -70,17 +69,17 @@ const { items } = Astro.props;
       }
     </div>
   </div>
-</GridRow>
+</div>
 
 <style>
   .before-after {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 2.2fr);
+    border: 1px solid var(--border);
   }
 
   .tabs {
     display: flex;
-    flex: 1 1 280px;
     flex-direction: column;
     min-width: 0;
   }
@@ -166,9 +165,7 @@ const { items } = Astro.props;
 
   .panels {
     display: grid;
-    flex: 3 1 420px;
     min-width: 0;
-    margin-left: -1px;
     border-left: 1px solid var(--border);
   }
 
@@ -284,7 +281,23 @@ const { items } = Astro.props;
     }
   }
 
-  @media (max-width: 640px) {
+  .tab:last-child {
+    border-bottom: 0;
+  }
+
+  @media (max-width: 760px) {
+    .before-after {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .tab:last-child {
+      border-bottom: 1px solid var(--border);
+    }
+
+    .panels {
+      border-left: 0;
+    }
+
     .panel {
       min-height: 0;
       padding: 28px 16px;

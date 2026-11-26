@@ -21,6 +21,7 @@ import { marquee } from '../data/stack';
 
 <style>
   .marquee {
+    margin-top: clamp(40px, 4.4vw, 64px);
     width: 100cqw;
     margin-inline: calc(50% - 50cqw);
     overflow: hidden;
@@ -42,7 +43,7 @@ import { marquee } from '../data/stack';
   }
 
   .item {
-    padding: 18px 28px;
+    padding: 20px 30px;
     border-right: 1px solid var(--border);
     font-size: 15px;
     line-height: 1.2;
@@ -52,7 +53,7 @@ import { marquee } from '../data/stack';
 
   @media (prefers-reduced-motion: no-preference) {
     .track {
-      animation: marquee 30s linear infinite;
+      animation: marquee 36s linear infinite;
     }
 
     .marquee:hover .track {

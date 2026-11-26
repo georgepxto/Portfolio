@@ -10,9 +10,9 @@ const links = [
   { href: '/#trabalhos', label: 'Trabalhos', number: '01' },
   { href: '/#como-funciona', label: 'Como funciona', number: '02' },
   { href: '/#servicos', label: 'Serviços', number: '03' },
-  { href: '/#sobre', label: 'Sobre', number: '06' },
-  { href: '/componentes/', label: 'Componentes', number: '—', compact: false },
-  { href: '/#contato', label: 'Contato', number: '—' },
+  { href: '/#componentes', label: 'Componentes', number: '06' },
+  { href: '/#sobre', label: 'Sobre', number: '07' },
+  { href: '/#contato', label: 'Contato', number: '09' },
 ];
 ---
 
@@ -23,7 +23,7 @@ const links = [
       <ul role="list">
         {
           links.map((link) => (
-            <li class:list={{ 'nav-wide': link.compact === false }}>
+            <li>
               <a href={link.href}>{link.label}</a>
             </li>
           ))
@@ -117,7 +117,7 @@ const links = [
     align-items: center;
     justify-content: space-between;
     gap: 0 4px;
-    width: min(1148px, calc(100% - 24px));
+    width: min(1148px, 100%);
     min-height: 58px;
     margin: 0 auto;
     padding: 7px 8px 7px 24px;
@@ -200,19 +200,13 @@ const links = [
     display: none;
   }
 
-  @media (max-width: 900px) {
-    .nav-wide {
-      display: none;
-    }
-  }
-
   @media (max-width: 760px) {
     .nav-cta {
       display: none;
     }
   }
 
-  @media (max-width: 640px) {
+  @media (max-width: 1000px) {
     .bar {
       gap: 0;
     }
@@ -344,7 +338,8 @@ const links = [
       display: flex;
       align-items: baseline;
       min-height: 64px;
-      padding: 16px;
+      padding: 16px var(--pad-x);
+      border-bottom: 1px solid var(--border);
       color: var(--text);
       opacity: 0;
       transform: translateY(-10px);
@@ -386,7 +381,7 @@ const links = [
       display: flex;
       flex-direction: column;
       gap: 16px;
-      padding: 16px 16px 28px;
+      padding: 16px var(--pad-x) 28px;
       opacity: 0;
       transform: translateY(-10px);
       transition:
@@ -487,7 +482,7 @@ const links = [
     }
   }
 
-  @media (max-width: 640px) and (prefers-reduced-motion: reduce) {
+  @media (max-width: 1000px) and (prefers-reduced-motion: reduce) {
     .menu-panel,
     .menu-panel.is-open,
     .menu-link,
@@ -571,7 +566,7 @@ const links = [
     const barSize = new ResizeObserver(() => root.style.setProperty('--nav-height', `${bar.offsetHeight}px`));
     barSize.observe(bar);
 
-    const desktop = matchMedia('(min-width: 641px)');
+    const desktop = matchMedia('(min-width: 1001px)');
     const siblings = () =>
       Array.from(header.parentElement?.children ?? []).filter(
         (element): element is HTMLElement => element !== header && element instanceof HTMLElement,

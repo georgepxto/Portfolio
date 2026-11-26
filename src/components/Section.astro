@@ -1,73 +1,124 @@
 ---
-import GridRow from './GridRow.astro';
-import Dimension from './Dimension.astro';
-import { tokens } from '../config/tokens';
+import ArrowUpRight from '@lucide/astro/icons/arrow-up-right';
 
 interface Props {
   id: string;
   number: string;
-  title: string;
-  subtitle: string;
-  dimension?: boolean;
+  label: string;
+  title?: string;
+  lede?: string;
+  info?: string;
+  infoHref?: string;
+  class?: string;
 }
 
-const { id, number, title, subtitle, dimension = false } = Astro.props;
+const { id, number, label, title, lede, info, infoHref, class: className } = Astro.props;
 const headingId = `${id}-titulo`;
+const external = infoHref ? /^https?:\/\//.test(infoHref) : false;
 ---
 
-<section id={id} class="section" aria-labelledby={headingId}>
-  <GridRow class="section-title-row">
-    {dimension && <Dimension axis="vertical" size={tokens.titleRow} side="left" />}
-    <div class="section-title" data-reveal>
-      <p class="section-number mono" aria-hidden="true">{number}</p>
-      <h2 id={headingId}>{title}</h2>
-    </div>
-  </GridRow>
-  <GridRow>
-    <div class="section-subtitle" data-reveal>
-      <p class="mono">{subtitle}</p>
-      <slot name="aside" />
-    </div>
-  </GridRow>
-  <slot />
+<section id={id} class:list={['section', className]} aria-labelledby={headingId}>
+  <div class="eyebrow mono">
+    <p><span class="number">{number}</span> — {label}</p>
+    {
+      info &&
+        (infoHref ? (
+          <a class="info-link" href={infoHref} target={external ? '_blank' : undefined} rel={external ? 'noopener' : undefined}>
+            {info}
+            <ArrowUpRight aria-hidden="true" />
+          </a>
+        ) : (
+          <p>{info}</p>
+        ))
+    }
+  </div>
+  {
+    title && (
+      <div class="head" data-reveal>
+        <h2 id={headingId}>{title}</h2>
+        {lede && <p class="lede">{lede}</p>}
+      </div>
+    )
+  }
+  <div class:list={['body', { 'body-headless': !title }]}>
+    <slot />
+  </div>
 </section>
 
 <style>
-  :global(.section-title-row) {
-    min-height: var(--title-row);
+  .section {
+    padding-top: var(--section-gap);
   }
 
-  .section-title {
+  .eyebrow {
     display: flex;
     flex-wrap: wrap;
     align-items: baseline;
-    gap: 0 12px;
-    padding: 12px 16px;
+    justify-content: space-between;
+    gap: 4px 16px;
+    font-size: 12px;
+    line-height: 1.5;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-faint);
   }
 
-  .section-number {
-    font-size: 13px;
+  .number {
     color: var(--accent);
   }
 
-  h2 {
-    font-size: 28px;
-    font-weight: 600;
-    line-height: 1.25;
-    letter-spacing: -0.02em;
-  }
-
-  .section-subtitle {
-    display: flex;
-    flex-wrap: wrap;
+  .info-link {
+    display: inline-flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 4px 16px;
-    padding: 8px 16px;
+    gap: 4px;
+    min-height: 24px;
+    color: var(--text-muted);
+    transition: color 0.15s ease;
   }
 
-  .section-subtitle p {
-    font-size: 13px;
+  .info-link:hover {
+    color: var(--accent);
+  }
+
+  .info-link :global(svg) {
+    width: 13px;
+    height: 13px;
+  }
+
+  .head {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: end;
+    gap: 16px 48px;
+    margin-top: 20px;
+  }
+
+  h2 {
+    font-size: clamp(40px, 5.6vw, 80px);
+    font-weight: 600;
+    line-height: 0.96;
+    letter-spacing: -0.045em;
+    text-wrap: balance;
+  }
+
+  .lede {
+    max-width: 48ch;
+    font-size: clamp(16px, 1.3vw, 19px);
+    line-height: 1.55;
     color: var(--text-muted);
+  }
+
+  .body {
+    margin-top: clamp(28px, 3.4vw, 44px);
+  }
+
+  .body-headless {
+    margin-top: 20px;
+  }
+
+  @media (max-width: 760px) {
+    .head {
+      grid-template-columns: minmax(0, 1fr);
+    }
   }
 </style>

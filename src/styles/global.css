@@ -22,6 +22,10 @@
   --nav-height: 60px;
   --nav-offset: 88px;
   --page-margin: 0px;
+  --shell: 1320px;
+  --pad-x: clamp(16px, 3.4vw, 48px);
+  --section-gap: clamp(72px, 8vw, 120px);
+  --signature: #141a16;
   --cord-right: 26px;
   --cord: 56px;
   color-scheme: dark;
@@ -40,6 +44,7 @@
   --accent-ink: #f3fbf6;
   --dot-grid: #e0e6e2;
   --contrib-0: #e3e9e5;
+  --signature: #e9eee9;
   color-scheme: light;
 }
 
@@ -408,10 +413,10 @@ a {
 }
 
 .container {
-  width: min(1180px, 100% - 2 * var(--page-margin));
-  margin: 0 auto;
-  border-left: 1px solid var(--border);
-  border-right: 1px solid var(--border);
+  width: 100%;
+  max-width: var(--shell);
+  margin-inline: auto;
+  padding-inline: var(--pad-x);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -489,7 +494,23 @@ main {
 @media (max-width: 640px) {
   :root {
     --gutter: 24px;
-    --page-margin: 12px;
     --cord: 28px;
   }
+}
+
+.button-lg {
+  min-height: 52px;
+  padding: 0 24px;
+  border-radius: 999px;
+  font-weight: 600;
+}
+
+.card {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  transition: border-color 0.2s ease;
+}
+
+.card:hover {
+  border-color: var(--border-strong);
 }

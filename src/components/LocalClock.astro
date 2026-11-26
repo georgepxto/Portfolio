@@ -1,8 +1,28 @@
+---
+interface Props {
+  note?: string;
+}
+
+const { note } = Astro.props;
+---
+
 <span class="clock-wrap">
   <span class="clock" data-local-clock aria-live="off">
     <time>--:--</time>
-    <span class="clock-diff clock-long" data-clock-diff>// horário de Brasília (UTC−3)</span>
-    <span class="clock-diff clock-short" data-clock-short>// UTC−3</span>
+    {
+      note ? (
+        <span class="clock-diff">{note}</span>
+      ) : (
+        <>
+          <span class="clock-diff clock-long" data-clock-diff>
+            // horário de Brasília (UTC−3)
+          </span>
+          <span class="clock-diff clock-short" data-clock-short>
+            // UTC−3
+          </span>
+        </>
+      )
+    }
   </span>
 </span>
 

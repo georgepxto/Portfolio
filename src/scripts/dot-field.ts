@@ -149,7 +149,7 @@ export const mountDotField = (canvas: HTMLCanvasElement) => {
   };
 
   const track = (event: PointerEvent) => {
-    if (event.pointerType === 'touch' || still()) return;
+    if (event.pointerType !== 'mouse' || still()) return;
     pointer = { x: event.clientX, y: event.clientY };
     wake();
   };

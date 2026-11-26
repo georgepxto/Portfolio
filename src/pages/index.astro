@@ -2,12 +2,11 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Hero from '../components/Hero.astro';
 import ContributionGraph from '../components/ContributionGraph.astro';
-import HatchBand from '../components/HatchBand.astro';
 import Section from '../components/Section.astro';
 import ProjectCard from '../components/ProjectCard.astro';
 import ProjectCta from '../components/ProjectCta.astro';
 import FilterPills from '../components/FilterPills.astro';
-import GridRow from '../components/GridRow.astro';
+import ComponentCard from '../components/ComponentCard.astro';
 import StackMarquee from '../components/StackMarquee.astro';
 import LabList from '../components/LabList.astro';
 import ServicesGrid from '../components/ServicesGrid.astro';
@@ -22,7 +21,8 @@ import { stack } from '../data/stack';
 import { guarantees, processSteps } from '../data/process';
 import { beforeAfter } from '../data/before-after';
 import { getFeaturedProjects } from '../lib/projects';
-import { getContributions } from '../lib/github';
+import { getContributionStats, getContributions } from '../lib/github';
+import { components, componentsRepoUrl } from '../data/components';
 import { fullName, githubUrl, site, whatsappNumber } from '../config/site';
 
 const projects = await getFeaturedProjects();
@@ -33,6 +33,13 @@ const projectFilters = [
 ];
 const ctaAfter = Math.min(2, projects.length);
 const contributions = await getContributions();
+const recentWeeks = contributions?.weeks.slice(-26) ?? [];
+const recentStats = getContributionStats(recentWeeks);
+const homeComponents = components.filter((component) => component.home);
+
+const years = projects.map((project) => Number(project.data.year)).filter(Number.isFinite);
+const yearRange = years.length ? (Math.min(...years) === Math.max(...years) ? `${Math.min(...years)}` : `${Math.min(...years)}–${Math.max(...years)}`) : '';
+const projectInfo = `${String(projects.length).padStart(2, '0')} ${projects.length === 1 ? 'projeto' : 'projetos'}${yearRange ? ` · ${yearRange}` : ''}`;
 
 const title = `${fullName} · ${site.role} em ${site.city}, ${site.state}`;
 const description =
@@ -74,95 +81,169 @@ const jsonLd = {
 <BaseLayout title={title} description={description} jsonLd={jsonLd}>
   <Hero />
 
-  <HatchBand dimension />
-
-  {
-    contributions && (
-      <>
-        <ContributionGraph data={contributions} dimension />
-        <HatchBand />
-      </>
-    )
-  }
+  {contributions && <ContributionGraph data={contributions} />}
 
   <Section
     id="trabalhos"
-    dimension={!contributions}
     number="01"
-    title="Trabalhos selecionados"
-    subtitle="Sistemas e sites para clientes, propostas e produtos próprios."
+    label="Trabalhos"
+    info={projectInfo}
+    title="Trabalhos selecionados."
+    lede="Sistemas e sites para clientes, propostas e produtos próprios."
   >
-    <GridRow>
-      <div class="filter-row">
-        <FilterPills label="Filtrar trabalhos" target="lista-trabalhos" options={projectFilters} />
-      </div>
-    </GridRow>
-    <div id="lista-trabalhos" class="project-list">
+    <FilterPills label="Filtrar trabalhos" target="lista-trabalhos" options={projectFilters} />
+    <div id="lista-trabalhos" class="project-grid" data-reveal>
       {projects.slice(0, ctaAfter).map((project, index) => <ProjectCard project={project} index={index + 1} />)}
       <ProjectCta />
       {projects.slice(ctaAfter).map((project, index) => <ProjectCard project={project} index={index + ctaAfter + 1} />)}
-      <GridRow data-filter-empty hidden={projects.length > 0}>
-        <p class="empty mono">Nenhum projeto nesta categoria por enquanto.</p>
-      </GridRow>
+      <p class="empty mono" data-filter-empty hidden={projects.length > 0}>Nenhum projeto nesta categoria por enquanto.</p>
     </div>
   </Section>
 
-  <HatchBand />
-
-  <Section id="como-funciona" number="02" title="Como funciona" subtitle="Da primeira mensagem ao sistema no ar.">
+  <Section
+    id="como-funciona"
+    number="02"
+    label="Como funciona"
+    info="Orçamento sem custo"
+    title="Da primeira mensagem ao sistema no ar."
+    lede="Você fala direto comigo, recebe a proposta por escrito e acompanha versões que já dá para testar."
+  >
     <ProcessSteps steps={processSteps} guarantees={guarantees} />
   </Section>
 
-  <HatchBand />
-
-  <Section id="servicos" number="03" title="Serviços" subtitle="O que posso fazer pela sua empresa.">
+  <Section
+    id="servicos"
+    number="03"
+    label="Serviços"
+    info="Para empresas"
+    title="O que posso fazer pela sua empresa."
+  >
     <ServicesGrid items={services} />
   </Section>
 
-  <HatchBand />
-
-  <Section id="antes-e-depois" number="04" title="Antes e depois" subtitle="Como era e como ficou em cada projeto.">
+  <Section
+    id="antes-e-depois"
+    number="04"
+    label="Antes e depois"
+    info="Como era e como ficou"
+    title="Antes e depois."
+    lede="O que mudou na rotina de quem usa cada projeto."
+  >
     <BeforeAfter items={beforeAfter} />
   </Section>
-
-  <HatchBand />
 
   <Section
     id="laboratorio"
     number="05"
-    title="Laboratório"
-    subtitle="Projetos pessoais e ferramentas que fiz para uso próprio."
+    label="Laboratório"
+    info="Uso próprio"
+    title="Laboratório."
+    lede="Projetos pessoais e ferramentas que fiz para uso próprio."
   >
     <LabList items={lab} />
   </Section>
 
-  <HatchBand />
-
-  <Section id="sobre" number="06" title="Sobre" subtitle={`${site.role} em ${site.city}, ${site.state}.`}>
-    <About />
+  <Section
+    id="componentes"
+    number="06"
+    label="Componentes"
+    info="web-components"
+    infoHref={componentsRepoUrl}
+    title="Componentes."
+    lede="Peças independentes de framework, retiradas deste site. Cada uma é um pacote próprio, com código aberto."
+  >
+    <ul class="component-grid" role="list" data-reveal>
+      {
+        homeComponents.map((component) => (
+          <ComponentCard
+            component={component}
+            weeks={recentWeeks}
+            total={recentStats.total}
+            streak={recentStats.longestStreak}
+            height={190}
+          />
+        ))
+      }
+    </ul>
+    <a class="all-components mono" href="/componentes/">Ver todos os componentes</a>
   </Section>
 
-  <HatchBand />
+  <Section id="sobre" number="07" label="Sobre" info="Quem escreve o código">
+    <About headingId="sobre-titulo" />
+  </Section>
 
-  <Section id="stack" number="07" title="Stack" subtitle="Ferramentas que uso nos projetos desta página.">
+  <Section
+    id="stack"
+    number="08"
+    label="Stack"
+    info="Só o que uso de verdade"
+    title="Ferramentas."
+    lede="As ferramentas por trás dos projetos desta página."
+  >
     <StackList groups={stack} />
+    <StackMarquee />
   </Section>
-
-  <StackMarquee />
-
-  <HatchBand />
 
   <Contact />
 </BaseLayout>
 
 <style>
-  .filter-row {
-    padding: 12px 16px;
+  .project-grid,
+  .component-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    margin: 20px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .component-grid {
+    margin-top: 0;
   }
 
   .empty {
-    padding: 24px 16px;
+    grid-column: 1 / -1;
+    padding: 24px 0;
     font-size: 13px;
     color: var(--text-muted);
+  }
+
+  .empty[hidden] {
+    display: none;
+  }
+
+  .all-components {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    margin-top: 12px;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    text-decoration: underline;
+    text-decoration-color: var(--border-strong);
+    text-underline-offset: 4px;
+    transition: color 0.15s ease, text-decoration-color 0.15s ease;
+  }
+
+  .all-components:hover {
+    color: var(--accent);
+    text-decoration-color: currentColor;
+  }
+
+  @media (max-width: 1000px) {
+    .project-grid,
+    .component-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 760px) {
+    .project-grid,
+    .component-grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
   }
 </style>
