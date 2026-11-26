@@ -3,7 +3,7 @@ import DotField from '../DotField.astro';
 ---
 
 <div class="pv-dots">
-  <DotField gap={18} radius={90} grow={3} />
+  <DotField gap={18} radius={90} grow={3} avoid=".pv-dots .hint" />
   <p class="hint mono" aria-hidden="true">mova o cursor</p>
 </div>
 

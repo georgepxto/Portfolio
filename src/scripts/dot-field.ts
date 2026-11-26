@@ -9,6 +9,15 @@ interface Point {
   y: number;
 }
 
+interface Zone {
+  left: number;
+  top: number;
+  right: number;
+  bottom: number;
+}
+
+const ZONE_REFRESH = 1000;
+
 const number = (value: string | undefined, fallback: number) => {
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : fallback;
@@ -29,6 +38,8 @@ export const mountDotField = (canvas: HTMLCanvasElement) => {
   const dotSize = Math.max(0.1, number(canvas.dataset.dotSize, 1));
   const grow = Math.max(0, number(canvas.dataset.grow, 3.5));
   const corner = canvas.dataset.origin === 'corner';
+  const avoid = canvas.dataset.avoid;
+  const margin = dotSize + grow + 4;
 
   const controller = new AbortController();
   const { signal } = controller;
@@ -44,6 +55,38 @@ export const mountDotField = (canvas: HTMLCanvasElement) => {
   let pointer: Point | null = null;
   let focus: Point | null = null;
   let strength = 0;
+  let zones: Zone[] = [];
+  let zonesAt = -Infinity;
+
+  const measureZones = () => {
+    zonesAt = performance.now();
+    if (!avoid) return;
+    const origin = canvas.getBoundingClientRect();
+    const range = document.createRange();
+    const next: Zone[] = [];
+    const add = (rect: DOMRect) => {
+      if (rect.width < 1 || rect.height < 1) return;
+      next.push({
+        left: rect.left - origin.left - margin,
+        top: rect.top - origin.top - margin,
+        right: rect.right - origin.left + margin,
+        bottom: rect.bottom - origin.top + margin,
+      });
+    };
+    document.querySelectorAll<HTMLElement>(avoid).forEach((element) => {
+      if (!element.getClientRects().length) return;
+      if (element.textContent?.trim()) {
+        range.selectNodeContents(element);
+        for (const rect of range.getClientRects()) add(rect);
+      } else {
+        add(element.getBoundingClientRect());
+      }
+    });
+    zones = next;
+  };
+
+  const covered = (x: number, y: number) =>
+    zones.some((zone) => x >= zone.left && x <= zone.right && y >= zone.top && y <= zone.bottom);
 
   const still = () => reducedMotion.matches || noHover.matches;
   const animating = () => visible && document.visibilityState !== 'hidden' && !still();
@@ -78,6 +121,7 @@ export const mountDotField = (canvas: HTMLCanvasElement) => {
       focus = null;
     }
 
+    if (avoid && time - zonesAt > ZONE_REFRESH) measureZones();
     const styles = getComputedStyle(canvas);
     const columns = Math.floor((width - (corner ? gap / 2 : 0)) / gap) + 1;
     const rows = Math.floor((height - (corner ? gap / 2 : 0)) / gap) + 1;
@@ -96,7 +140,8 @@ export const mountDotField = (canvas: HTMLCanvasElement) => {
       for (let column = 0; column < columns; column++) {
         const x = startX + column * gap;
         const y = wave ? baseY + wave * Math.sin(phase + x * 0.045 + baseY * 0.03) : baseY;
-        const power = focus && strength > 0 ? influence(Math.hypot(x - focus.x, y - focus.y), radius) * strength : 0;
+        let power = focus && strength > 0 ? influence(Math.hypot(x - focus.x, y - focus.y), radius) * strength : 0;
+        if (power > 0 && covered(x, y)) power = 0;
         const size = dotSize + grow * power;
         context.moveTo(x + size, y);
         context.arc(x, y, size, 0, TAU);
@@ -172,6 +217,7 @@ export const mountDotField = (canvas: HTMLCanvasElement) => {
 
   const sizes = new ResizeObserver(() => {
     resize();
+    measureZones();
     refresh();
   });
   sizes.observe(canvas);
@@ -183,6 +229,11 @@ export const mountDotField = (canvas: HTMLCanvasElement) => {
   observer.observe(canvas);
 
   resize();
+  measureZones();
+  void document.fonts?.ready.then(() => {
+    measureZones();
+    wake();
+  });
   canvas.dataset.ready = '';
 
   return () => {

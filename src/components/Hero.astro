@@ -30,7 +30,13 @@ const socials = [
 
 <section id="topo" class="hero" aria-labelledby="hero-title">
   <div class="hero-fallback" aria-hidden="true"></div>
-  <DotField class="hero-dots" origin="corner" radius={150} grow={3.6} />
+  <DotField
+    class="hero-dots"
+    origin="corner"
+    radius={150}
+    grow={3.6}
+    avoid=".hero .eyebrow, .hero .roles span, .hero h1, .hero .claim, .hero .actions > *, .hero .avatar, .hero .info"
+  />
 
   <p class="eyebrow mono">Portfólio / {year} · {site.city}, {site.state} · Brasil</p>
 

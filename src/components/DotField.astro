@@ -5,10 +5,11 @@ interface Props {
   dotSize?: number;
   grow?: number;
   origin?: 'center' | 'corner';
+  avoid?: string;
   class?: string;
 }
 
-const { gap = 24, radius = 140, dotSize = 1, grow = 3.5, origin = 'center', class: className } = Astro.props;
+const { gap = 24, radius = 140, dotSize = 1, grow = 3.5, origin = 'center', avoid, class: className } = Astro.props;
 ---
 
 <canvas
@@ -19,7 +20,8 @@ const { gap = 24, radius = 140, dotSize = 1, grow = 3.5, origin = 'center', clas
   data-radius={radius}
   data-dot-size={dotSize}
   data-grow={grow}
-  data-origin={origin}></canvas>
+  data-origin={origin}
+  data-avoid={avoid}></canvas>
 
 <style>
   .dot-field {
