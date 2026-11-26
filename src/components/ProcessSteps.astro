@@ -9,41 +9,9 @@ interface Props {
 }
 
 const { steps, guarantees } = Astro.props;
-const total = padIndex(steps.length);
-const first = steps[0];
 ---
 
-<GridRow class="pin-row">
-  <div class="pin" style={`--steps: ${steps.length}`} data-process-pin>
-    <div class="stage">
-      <div class="meter" aria-hidden="true">
-        <p class="label mono">Como funciona</p>
-        <p class="counter mono">
-          <span data-pin-current>01</span><span class="total"> / {total}</span>
-        </p>
-        <span class="bar">
-          <span class="bar-fill" style={`transform: scaleX(${1 / steps.length})`} data-pin-bar></span>
-        </span>
-      </div>
-      <div class="active" aria-live="polite" data-pin-active>
-        <h3 class="active-title" data-pin-title>{first?.title}</h3>
-        <p class="active-text" data-pin-text>{first?.description}</p>
-      </div>
-    </div>
-    <ol class="visually-hidden" role="list">
-      {
-        steps.map((step, index) => (
-          <li>
-            {padIndex(index + 1)}. {step.title}: {step.description}
-          </li>
-        ))
-      }
-    </ol>
-    <script type="application/json" data-pin-steps set:html={JSON.stringify(steps)} />
-  </div>
-</GridRow>
-
-<GridRow class="steps-row">
+<GridRow>
   <ol class="steps" role="list" data-timeline>
     {
       steps.map((step, index) => (
@@ -75,91 +43,6 @@ const first = steps[0];
 </GridRow>
 
 <style>
-  :global(.pin-row) {
-    display: none;
-  }
-
-  .pin {
-    position: relative;
-    height: calc(var(--steps) * 70vh);
-  }
-
-  .stage {
-    position: sticky;
-    top: var(--nav-offset);
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr);
-    align-items: center;
-    gap: 48px;
-    height: calc(100svh - var(--nav-offset));
-    min-height: 320px;
-    padding: 0 16px;
-  }
-
-  .label {
-    font-size: 12px;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--text-faint);
-  }
-
-  .counter {
-    margin-top: 16px;
-    font-size: clamp(44px, 6vw, 72px);
-    font-weight: 500;
-    line-height: 1;
-    letter-spacing: -0.04em;
-    font-variant-numeric: tabular-nums;
-    white-space: nowrap;
-    color: var(--text);
-  }
-
-  .total {
-    color: var(--border-strong);
-  }
-
-  .bar {
-    position: relative;
-    display: block;
-    max-width: 280px;
-    height: 2px;
-    margin-top: 24px;
-    overflow: hidden;
-    background: var(--border);
-  }
-
-  .bar-fill {
-    position: absolute;
-    inset: 0;
-    background: var(--accent);
-    transform-origin: left center;
-    transition: transform 0.4s cubic-bezier(0.2, 0.7, 0.2, 1);
-  }
-
-  .active-title {
-    font-size: clamp(24px, 2.6vw, 34px);
-    font-weight: 600;
-    line-height: 1.2;
-    letter-spacing: -0.02em;
-  }
-
-  .active-text {
-    max-width: 46ch;
-    margin-top: 14px;
-    font-size: 17px;
-    color: var(--text-muted);
-  }
-
-  @media (min-width: 768px) and (prefers-reduced-motion: no-preference) {
-    :global(html.js) :global(.pin-row) {
-      display: block;
-    }
-
-    :global(html.js) :global(.steps-row) {
-      display: none;
-    }
-  }
-
   .steps {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -214,13 +97,13 @@ const first = steps[0];
     color: var(--accent);
   }
 
-  .step h3,
+  h3,
   .step p {
     padding-left: 16px;
     padding-right: 16px;
   }
 
-  .step h3 {
+  h3 {
     font-size: 18px;
     font-weight: 600;
     line-height: 1.3;
@@ -292,97 +175,3 @@ const first = steps[0];
     }
   }
 </style>
-
-<script>
-  import { onPage } from '../scripts/page';
-
-  interface Step {
-    title: string;
-    description: string;
-  }
-
-  const pad = (value: number) => String(value).padStart(2, '0');
-
-  onPage((signal) => {
-    const pin = document.querySelector<HTMLElement>('[data-process-pin]');
-    if (!pin) return;
-    const current = pin.querySelector<HTMLElement>('[data-pin-current]');
-    const bar = pin.querySelector<HTMLElement>('[data-pin-bar]');
-    const active = pin.querySelector<HTMLElement>('[data-pin-active]');
-    const title = pin.querySelector<HTMLElement>('[data-pin-title]');
-    const text = pin.querySelector<HTMLElement>('[data-pin-text]');
-    const stage = pin.querySelector<HTMLElement>('.stage');
-    let steps: Step[] = [];
-    try {
-      steps = JSON.parse(pin.querySelector('[data-pin-steps]')?.textContent ?? '[]') as Step[];
-    } catch {
-      return;
-    }
-    if (!current || !bar || !active || !title || !text || !stage || steps.length === 0) return;
-
-    let index = 0;
-    let frame = 0;
-    let near = false;
-    let fade: Animation | undefined;
-
-    const show = (next: number) => {
-      if (next === index) return;
-      index = next;
-      current.textContent = pad(next + 1);
-      bar.style.transform = `scaleX(${(next + 1) / steps.length})`;
-      fade?.cancel();
-      const swap = () => {
-        title.textContent = steps[next].title;
-        text.textContent = steps[next].description;
-      };
-      if (typeof active.animate !== 'function') {
-        swap();
-        return;
-      }
-      const out = active.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 120, easing: 'ease-in', fill: 'forwards' });
-      fade = out;
-      out.finished
-        .then(() => {
-          swap();
-          out.cancel();
-          fade = active.animate(
-            [
-              { opacity: 0, transform: 'translateY(6px)' },
-              { opacity: 1, transform: 'none' },
-            ],
-            { duration: 300, easing: 'cubic-bezier(.2, .7, .2, 1)' },
-          );
-        })
-        .catch(() => {});
-    };
-
-    const update = () => {
-      frame = 0;
-      if (!pin.offsetParent) return;
-      const rect = pin.getBoundingClientRect();
-      const top = parseFloat(getComputedStyle(stage).top) || 0;
-      const distance = rect.height - stage.offsetHeight;
-      const progress = distance > 0 ? Math.min(1, Math.max(0, (top - rect.top) / distance)) : 0;
-      show(Math.min(steps.length - 1, Math.floor(progress * steps.length)));
-    };
-
-    const schedule = () => {
-      if (!near || frame) return;
-      frame = requestAnimationFrame(update);
-    };
-
-    const observer = new IntersectionObserver((entries) => {
-      near = entries.some((entry) => entry.isIntersecting);
-      schedule();
-    });
-    observer.observe(pin);
-    window.addEventListener('scroll', schedule, { passive: true, signal });
-    window.addEventListener('resize', schedule, { passive: true, signal });
-
-    return () => {
-      observer.disconnect();
-      cancelAnimationFrame(frame);
-      fade?.cancel();
-    };
-  });
-</script>
