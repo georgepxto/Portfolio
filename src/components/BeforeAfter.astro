@@ -1,33 +1,34 @@
 ---
+import ArrowDown from '@lucide/astro/icons/arrow-down';
 import ArrowUpRight from '@lucide/astro/icons/arrow-up-right';
 import GridRow from './GridRow.astro';
 import { padIndex } from '../lib/projects';
-import type { Testimonial } from '../data/testimonials';
+import type { BeforeAfter } from '../data/before-after';
 
 interface Props {
-  items: Testimonial[];
+  items: BeforeAfter[];
 }
 
 const { items } = Astro.props;
 ---
 
 <GridRow>
-  <div class="testimonials" data-reveal data-testimonials>
-    <div class="tabs" role="tablist" aria-label="Clientes">
+  <div class="before-after" data-reveal data-before-after>
+    <div class="tabs" role="tablist" aria-label="Projetos">
       {
         items.map((item, index) => (
           <button
             class="tab"
             type="button"
             role="tab"
-            id={`depoimento-aba-${index}`}
+            id={`antes-depois-aba-${index}`}
             aria-selected={index === 0 ? 'true' : 'false'}
-            aria-controls={`depoimento-${index}`}
+            aria-controls={`antes-depois-${index}`}
             tabindex={index === 0 ? 0 : -1}
           >
             <span class="tab-number mono">{padIndex(index + 1)}</span>
-            <span class="tab-company">{item.company}</span>
-            <span class="tab-project mono">{item.project}</span>
+            <span class="tab-project">{item.project}</span>
+            <span class="tab-kind mono">{item.kind}</span>
             <span class="progress" aria-hidden="true">
               <span class="progress-fill" data-progress />
             </span>
@@ -39,30 +40,32 @@ const { items } = Astro.props;
     <div class="panels">
       {
         items.map((item, index) => (
-          <figure
+          <div
             class="panel"
             role="tabpanel"
-            id={`depoimento-${index}`}
-            aria-labelledby={`depoimento-aba-${index}`}
+            id={`antes-depois-${index}`}
+            aria-labelledby={`antes-depois-aba-${index}`}
             data-active={index === 0 ? '' : undefined}
           >
-            <span class="mark" aria-hidden="true">
-              “
+            <div class="before" data-swap>
+              <span class="label mono">Antes</span>
+              <p class="before-text">{item.before}</p>
+            </div>
+            <span class="arrow" aria-hidden="true" data-swap>
+              <ArrowDown />
             </span>
-            <blockquote>
-              <p>{item.text}</p>
-            </blockquote>
-            <figcaption>
-              <span class="who">
-                <span class="name">{item.name}</span>
-                <span class="role mono">{item.role}</span>
-              </span>
-              <a class="project-link" href={item.href}>
+            <div class="after" data-swap>
+              <span class="label label-after mono">Depois</span>
+              <p class="after-text">{item.after}</p>
+            </div>
+            <div class="footer" data-swap>
+              <span class="stack mono">{item.stack.join(' · ')}</span>
+              <a class="project-link" href={`/trabalhos/${item.slug}/`}>
                 Ver o projeto
                 <ArrowUpRight aria-hidden="true" />
               </a>
-            </figcaption>
-          </figure>
+            </div>
+          </div>
         ))
       }
     </div>
@@ -70,7 +73,7 @@ const { items } = Astro.props;
 </GridRow>
 
 <style>
-  .testimonials {
+  .before-after {
     display: flex;
     flex-wrap: wrap;
   }
@@ -120,7 +123,7 @@ const { items } = Astro.props;
     color: var(--accent);
   }
 
-  .tab-company {
+  .tab-project {
     font-size: 16px;
     font-weight: 600;
     line-height: 1.3;
@@ -128,12 +131,12 @@ const { items } = Astro.props;
     transition: opacity 0.15s ease;
   }
 
-  .tab:hover .tab-company,
-  .tab[aria-selected='true'] .tab-company {
+  .tab:hover .tab-project,
+  .tab[aria-selected='true'] .tab-project {
     opacity: 1;
   }
 
-  .tab-project {
+  .tab-kind {
     grid-column: 2;
     font-size: 12px;
     color: var(--text-faint);
@@ -190,18 +193,46 @@ const { items } = Astro.props;
     border-top: 1px solid var(--border);
   }
 
-  .mark {
+  .label {
     display: block;
-    height: 0.6em;
-    font-size: 88px;
-    font-weight: 600;
-    line-height: 0.6;
+    font-size: 12px;
+    line-height: 1.4;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+  }
+
+  .label-after {
     color: var(--accent);
   }
 
-  blockquote {
+  .before-text {
+    max-width: 52ch;
+    margin: 8px 0 0;
+    font-size: 18px;
+    line-height: 1.5;
+    color: var(--text-muted);
+  }
+
+  .arrow {
+    display: block;
+    margin: 20px 0;
+    color: var(--accent);
+  }
+
+  .arrow :global(svg) {
+    display: block;
+    width: 18px;
+    height: 18px;
+  }
+
+  .after {
+    margin-bottom: 32px;
+  }
+
+  .after-text {
     max-width: 30ch;
-    margin: 16px 0 32px;
+    margin: 12px 0 0;
     font-size: clamp(1.5rem, 2.6vw, 2.125rem);
     font-weight: 500;
     line-height: 1.25;
@@ -210,7 +241,7 @@ const { items } = Astro.props;
     color: var(--text);
   }
 
-  figcaption {
+  .footer {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -221,19 +252,7 @@ const { items } = Astro.props;
     border-top: 1px solid var(--border);
   }
 
-  .who {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-  }
-
-  .name {
-    font-size: 15px;
-    font-weight: 500;
-    color: var(--text);
-  }
-
-  .role {
+  .stack {
     font-size: 12px;
     color: var(--text-faint);
   }
@@ -282,7 +301,7 @@ const { items } = Astro.props;
   onPage((signal) => {
     const stops: (() => void)[] = [];
 
-    document.querySelectorAll<HTMLElement>('[data-testimonials]').forEach((root) => {
+    document.querySelectorAll<HTMLElement>('[data-before-after]').forEach((root) => {
       const tabs = Array.from(root.querySelectorAll<HTMLButtonElement>('[role="tab"]'));
       const panels = Array.from(root.querySelectorAll<HTMLElement>('[role="tabpanel"]'));
       if (tabs.length === 0 || tabs.length !== panels.length) return;
@@ -296,10 +315,7 @@ const { items } = Astro.props;
       let progress: Animation | undefined;
       let swapping: Animation[] = [];
 
-      const parts = (panel: HTMLElement) =>
-        [panel.querySelector('blockquote'), panel.querySelector('figcaption')].filter(
-          (element): element is HTMLElement => element !== null,
-        );
+      const parts = (panel: HTMLElement) => Array.from(panel.querySelectorAll<HTMLElement>('[data-swap]'));
 
       const show = (index: number) => {
         panels.forEach((panel, position) => panel.toggleAttribute('data-active', position === index));

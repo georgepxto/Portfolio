@@ -6,7 +6,7 @@ featured: true
 meta: Cliente · OIG
 year: 2025
 client: OIG
-role: Idealização, desenvolvimento e manutenção
+role: Idealização e desenvolvimento
 status: Em produção
 stack:
   - Node.js
@@ -19,7 +19,7 @@ cover: ../../assets/projects/plataforma-de-videos.png
 
 ## O problema
 
-Conforme a empresa foi crescendo, percebemos que não havia um treinamento padronizado. A ideia de criar um sistema para reunir tudo em um só lugar foi minha: videoaulas, manuais e a gestão de RH na mesma plataforma.
+Conforme a empresa foi crescendo, ficou claro que não havia um treinamento padronizado. A ideia de criar um sistema para reunir tudo em um só lugar foi minha: videoaulas, manuais e a gestão de RH na mesma plataforma.
 
 ## Decisões
 

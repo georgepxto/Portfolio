@@ -9,14 +9,14 @@ import LabList from '../components/LabList.astro';
 import ServicesGrid from '../components/ServicesGrid.astro';
 import StackList from '../components/StackList.astro';
 import ProcessSteps from '../components/ProcessSteps.astro';
-import Testimonials from '../components/Testimonials.astro';
+import BeforeAfter from '../components/BeforeAfter.astro';
 import About from '../components/About.astro';
 import Contact from '../components/Contact.astro';
 import { lab } from '../data/lab';
 import { services } from '../data/services';
 import { stack } from '../data/stack';
 import { guarantees, processSteps } from '../data/process';
-import { testimonials } from '../data/testimonials';
+import { beforeAfter } from '../data/before-after';
 import { getFeaturedProjects } from '../lib/projects';
 import { getContributions } from '../lib/github';
 import { fullName, githubUrl, site, whatsappNumber } from '../config/site';
@@ -99,8 +99,8 @@ const jsonLd = {
 
   <HatchBand />
 
-  <Section id="depoimentos" number="04" title="O que dizem os clientes" subtitle="Quem já contratou.">
-    <Testimonials items={testimonials} />
+  <Section id="antes-e-depois" number="04" title="Antes e depois" subtitle="Como era e como ficou em cada projeto.">
+    <BeforeAfter items={beforeAfter} />
   </Section>
 
   <HatchBand />
