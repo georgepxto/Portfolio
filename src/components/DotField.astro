@@ -1,0 +1,45 @@
+---
+interface Props {
+  gap?: number;
+  radius?: number;
+  dotSize?: number;
+  grow?: number;
+  origin?: 'center' | 'corner';
+  class?: string;
+}
+
+const { gap = 24, radius = 140, dotSize = 1, grow = 3.5, origin = 'center', class: className } = Astro.props;
+---
+
+<canvas
+  class:list={['dot-field', className]}
+  aria-hidden="true"
+  data-dot-field
+  data-gap={gap}
+  data-radius={radius}
+  data-dot-size={dotSize}
+  data-grow={grow}
+  data-origin={origin}></canvas>
+
+<style>
+  .dot-field {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    color: var(--dot-color, var(--dot-grid));
+    outline-color: var(--dot-active-color, var(--accent));
+  }
+</style>
+
+<script>
+  import { onPage } from '../scripts/page';
+  import { mountDotField } from '../scripts/dot-field';
+
+  onPage(() => {
+    const stops = Array.from(document.querySelectorAll<HTMLCanvasElement>('canvas[data-dot-field]')).map(mountDotField);
+    return () => stops.forEach((stop) => stop());
+  });
+</script>
