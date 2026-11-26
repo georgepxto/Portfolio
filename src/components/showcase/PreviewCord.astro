@@ -1,0 +1,213 @@
+<div class="pv-cord" data-pv-cord>
+  <div class="scene scene-dark">
+    <p class="title">Acenda a luz.</p>
+    <p class="hint mono">clique na cordinha</p>
+  </div>
+  <div class="scene scene-light" aria-hidden="true">
+    <p class="title">Apague a luz.</p>
+    <p class="hint mono">clique na cordinha</p>
+  </div>
+  <span class="mount" aria-hidden="true"></span>
+  <button class="cord" type="button" aria-pressed="false" aria-label="Acender a luz da prévia" data-pv-cord-button>
+    <span class="line" data-pv-cord-line></span>
+    <span class="pill" data-pv-cord-pill><span class="dot"></span></span>
+  </button>
+</div>
+
+<style>
+  .pv-cord {
+    --x: calc(100% - 44px);
+    --y: 80px;
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+  }
+
+  .scene {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 6px;
+    padding: 20px 80px 20px 20px;
+  }
+
+  .scene-dark {
+    background: #0b0e0c;
+    color: #e9eeea;
+  }
+
+  .scene-light {
+    background: #f6f8f6;
+    color: #0d1310;
+    clip-path: circle(0px at var(--x) var(--y));
+    transition: clip-path 0.75s cubic-bezier(0.55, 0, 0.2, 1);
+  }
+
+  [data-on] .scene-light {
+    clip-path: circle(150% at var(--x) var(--y));
+  }
+
+  .title {
+    font-size: 22px;
+    font-weight: 600;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+  }
+
+  .hint {
+    font-size: 12px;
+    color: #7d8a82;
+  }
+
+  .scene-light .hint {
+    color: #65716a;
+  }
+
+  .mount {
+    position: absolute;
+    top: 0;
+    right: 38px;
+    z-index: 2;
+    width: 12px;
+    height: 5px;
+    border-radius: 0 0 3px 3px;
+    background: #2c352f;
+    transition: background-color 0.3s ease;
+  }
+
+  .cord {
+    position: absolute;
+    top: 0;
+    right: 22px;
+    z-index: 1;
+    width: 44px;
+    height: 120px;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .cord:focus-visible {
+    outline: none;
+  }
+
+  .cord:focus-visible .pill {
+    outline: 2px solid #43c97e;
+    outline-offset: 2px;
+  }
+
+  .line {
+    position: absolute;
+    top: 3px;
+    left: 50%;
+    width: 1.5px;
+    height: 56px;
+    margin-left: -0.75px;
+    background: #7d8a82;
+  }
+
+  .pill {
+    position: absolute;
+    top: 56px;
+    left: 50%;
+    width: 16px;
+    height: 26px;
+    margin-left: -8px;
+    border: 1px solid #2c352f;
+    border-radius: 8px;
+    background: #101411;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+  }
+
+  .dot {
+    position: absolute;
+    bottom: 5px;
+    left: 50%;
+    width: 6px;
+    height: 6px;
+    margin-left: -3px;
+    border-radius: 50%;
+    background: #43c97e;
+    box-shadow: 0 0 7px color-mix(in oklab, #43c97e 70%, transparent);
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  [data-on] .mount {
+    background: #c3ccc6;
+  }
+
+  [data-on] .line {
+    background: #65716a;
+  }
+
+  [data-on] .pill {
+    border-color: #c3ccc6;
+    background: #edf1ee;
+  }
+
+  [data-on] .dot {
+    background: #65716a;
+    box-shadow: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .scene-light,
+    .pill,
+    .dot,
+    .mount {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  import { onPage } from '../../scripts/page';
+
+  onPage((signal) => {
+    const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+
+    document.querySelectorAll<HTMLElement>('[data-pv-cord]').forEach((root) => {
+      const button = root.querySelector<HTMLButtonElement>('[data-pv-cord-button]');
+      const line = root.querySelector<HTMLElement>('[data-pv-cord-line]');
+      const pill = root.querySelector<HTMLElement>('[data-pv-cord-pill]');
+      if (!button || !line || !pill) return;
+
+      button.addEventListener(
+        'click',
+        () => {
+          const box = root.getBoundingClientRect();
+          const rect = pill.getBoundingClientRect();
+          root.style.setProperty('--x', `${rect.left + rect.width / 2 - box.left}px`);
+          root.style.setProperty('--y', `${rect.top + rect.height / 2 - box.top}px`);
+
+          const on = !root.hasAttribute('data-on');
+          root.toggleAttribute('data-on', on);
+          button.setAttribute('aria-pressed', String(on));
+          button.setAttribute('aria-label', on ? 'Apagar a luz da prévia' : 'Acender a luz da prévia');
+          root.querySelector('.scene-dark')?.setAttribute('aria-hidden', String(on));
+          root.querySelector('.scene-light')?.setAttribute('aria-hidden', String(!on));
+
+          if (reducedMotion.matches) return;
+          const spring = { duration: 520, easing: 'cubic-bezier(.37, 0, .63, 1)' };
+          line.animate([{ height: '56px' }, { height: '72px' }, { height: '50px' }, { height: '58px' }, { height: '56px' }], spring);
+          pill.animate(
+            [
+              { transform: 'none' },
+              { transform: 'translateY(16px)' },
+              { transform: 'translateY(-6px)' },
+              { transform: 'translateY(2px)' },
+              { transform: 'none' },
+            ],
+            spring,
+          );
+        },
+        { signal },
+      );
+    });
+  });
+</script>

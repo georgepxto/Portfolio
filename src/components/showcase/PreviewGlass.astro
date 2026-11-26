@@ -1,0 +1,93 @@
+<div class="pv-glass" aria-hidden="true">
+  <div class="dots"></div>
+  <div class="glass">
+    <span class="logo mono">george<span class="slash">/</span></span>
+    <span class="links">
+      <span class="link active">Trabalhos</span>
+      <span class="link">Sobre</span>
+    </span>
+    <span class="cta"></span>
+  </div>
+</div>
+
+<style>
+  .pv-glass {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+  }
+
+  .dots {
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(color-mix(in oklab, var(--text) 26%, transparent) 1.2px, transparent 1.6px);
+    background-size: 18px 18px;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .dots {
+      animation: pv-drift 14s linear infinite;
+    }
+  }
+
+  @keyframes pv-drift {
+    to {
+      background-position: 180px 90px;
+    }
+  }
+
+  .glass {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: min(88%, 300px);
+    min-height: 44px;
+    padding: 6px 6px 6px 14px;
+    border: 1px solid color-mix(in oklab, var(--text) 12%, transparent);
+    border-radius: 22px;
+    background: color-mix(in oklab, var(--bg) 58%, transparent);
+    -webkit-backdrop-filter: blur(10px) saturate(160%);
+    backdrop-filter: blur(10px) saturate(160%);
+    box-shadow:
+      0 12px 28px -10px rgba(0, 0, 0, 0.35),
+      inset 0 1px color-mix(in oklab, var(--text) 7%, transparent);
+  }
+
+  .logo {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  .slash {
+    color: var(--accent);
+  }
+
+  .links {
+    display: flex;
+    gap: 2px;
+    margin-left: auto;
+  }
+
+  .link {
+    padding: 5px 8px;
+    border-radius: 999px;
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
+  .active {
+    background: color-mix(in oklab, var(--accent) 14%, transparent);
+    color: var(--accent);
+  }
+
+  .cta {
+    width: 46px;
+    height: 30px;
+    border-radius: 999px;
+    background: var(--accent);
+  }
+</style>

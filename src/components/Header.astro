@@ -11,6 +11,7 @@ const links = [
   { href: '/#como-funciona', label: 'Como funciona', number: '02' },
   { href: '/#servicos', label: 'Serviços', number: '03' },
   { href: '/#sobre', label: 'Sobre', number: '06' },
+  { href: '/componentes/', label: 'Componentes', number: '—', compact: false },
   { href: '/#contato', label: 'Contato', number: '—' },
 ];
 ---
@@ -22,7 +23,7 @@ const links = [
       <ul role="list">
         {
           links.map((link) => (
-            <li>
+            <li class:list={{ 'nav-wide': link.compact === false }}>
               <a href={link.href}>{link.label}</a>
             </li>
           ))
@@ -197,6 +198,12 @@ const links = [
   .menu-toggle,
   .menu-panel {
     display: none;
+  }
+
+  @media (max-width: 900px) {
+    .nav-wide {
+      display: none;
+    }
   }
 
   @media (max-width: 760px) {

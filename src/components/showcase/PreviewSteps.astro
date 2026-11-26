@@ -1,0 +1,174 @@
+<div class="pv-steps" aria-hidden="true">
+  <div class="track">
+    <span class="line"></span>
+    <span class="fill"></span>
+    <span class="node node-1 mono">01</span>
+    <span class="node node-2 mono">02</span>
+    <span class="node node-3 mono">03</span>
+    <span class="node node-4 mono">04</span>
+  </div>
+</div>
+
+<style>
+  .pv-steps {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    padding: 0 24px;
+  }
+
+  .track {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 300px;
+  }
+
+  .line,
+  .fill {
+    position: absolute;
+    top: 50%;
+    right: 16px;
+    left: 16px;
+    height: 2px;
+    margin-top: -1px;
+  }
+
+  .line {
+    background: var(--border-strong);
+  }
+
+  .fill {
+    background: var(--accent);
+    transform-origin: left center;
+  }
+
+  .node {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border: 1px solid var(--accent);
+    border-radius: 50%;
+    background: var(--bg);
+    font-size: 11px;
+    line-height: 1;
+    color: var(--accent);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .fill {
+      animation: pv-line 4.8s linear infinite;
+    }
+
+    .node {
+      animation-duration: 4.8s;
+      animation-timing-function: linear;
+      animation-iteration-count: infinite;
+    }
+
+    .node-1 {
+      animation-name: pv-node-1;
+    }
+
+    .node-2 {
+      animation-name: pv-node-2;
+    }
+
+    .node-3 {
+      animation-name: pv-node-3;
+    }
+
+    .node-4 {
+      animation-name: pv-node-4;
+    }
+  }
+
+  @keyframes pv-line {
+    0%,
+    8% {
+      transform: scaleX(0);
+      opacity: 1;
+    }
+    72%,
+    90% {
+      transform: scaleX(1);
+      opacity: 1;
+    }
+    100% {
+      transform: scaleX(1);
+      opacity: 0;
+    }
+  }
+
+  @keyframes pv-node-1 {
+    0%,
+    4% {
+      border-color: var(--border-strong);
+      color: var(--text-faint);
+    }
+    8%,
+    94% {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    100% {
+      border-color: var(--border-strong);
+      color: var(--text-faint);
+    }
+  }
+
+  @keyframes pv-node-2 {
+    0%,
+    29% {
+      border-color: var(--border-strong);
+      color: var(--text-faint);
+    }
+    30%,
+    94% {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    100% {
+      border-color: var(--border-strong);
+      color: var(--text-faint);
+    }
+  }
+
+  @keyframes pv-node-3 {
+    0%,
+    50% {
+      border-color: var(--border-strong);
+      color: var(--text-faint);
+    }
+    51%,
+    94% {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    100% {
+      border-color: var(--border-strong);
+      color: var(--text-faint);
+    }
+  }
+
+  @keyframes pv-node-4 {
+    0%,
+    71% {
+      border-color: var(--border-strong);
+      color: var(--text-faint);
+    }
+    72%,
+    94% {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    100% {
+      border-color: var(--border-strong);
+      color: var(--text-faint);
+    }
+  }
+</style>

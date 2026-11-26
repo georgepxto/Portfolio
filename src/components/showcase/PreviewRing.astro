@@ -1,0 +1,114 @@
+---
+import ArrowUp from '@lucide/astro/icons/arrow-up';
+---
+
+<div class="pv-ring" aria-hidden="true">
+  <div class="page">
+    <span class="row wide"></span>
+    <span class="row"></span>
+    <span class="row wide"></span>
+    <span class="row short"></span>
+  </div>
+  <span class="button">
+    <svg class="ring" viewBox="0 0 48 48">
+      <circle class="track" cx="24" cy="24" r="22.5" pathLength="100"></circle>
+      <circle class="bar" cx="24" cy="24" r="22.5" pathLength="100"></circle>
+    </svg>
+    <ArrowUp class="arrow" />
+  </span>
+</div>
+
+<style>
+  .pv-ring {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    padding: 24px 28px;
+  }
+
+  .page {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 180px;
+  }
+
+  .row {
+    width: 72%;
+    height: 6px;
+    border-radius: 3px;
+    background: var(--border);
+  }
+
+  .wide {
+    width: 100%;
+  }
+
+  .short {
+    width: 44%;
+  }
+
+  .button {
+    position: relative;
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: var(--surface);
+    box-shadow: 0 6px 18px -6px rgba(0, 0, 0, 0.3);
+    color: var(--text);
+  }
+
+  .ring {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+    fill: none;
+    stroke-width: 2;
+  }
+
+  .track {
+    stroke: var(--border);
+  }
+
+  .bar {
+    stroke: var(--accent);
+    stroke-linecap: round;
+    stroke-dasharray: 100;
+    stroke-dashoffset: 38;
+  }
+
+  .button :global(.arrow) {
+    position: relative;
+    width: 18px;
+    height: 18px;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .bar {
+      animation: pv-fill 4.2s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+    }
+  }
+
+  @keyframes pv-fill {
+    0%,
+    6% {
+      stroke-dashoffset: 100;
+    }
+    50%,
+    60% {
+      stroke-dashoffset: 0;
+    }
+    100% {
+      stroke-dashoffset: 100;
+    }
+  }
+</style>
