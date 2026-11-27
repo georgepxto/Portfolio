@@ -116,8 +116,12 @@ const wave = (canvas: HTMLElement) => {
   canvas.dataset.revealed = '';
   if (!box.width) return;
 
-  canvas.querySelectorAll<HTMLElement>('.cell').forEach((cell) => {
-    const rect = cell.getBoundingClientRect();
+  const cells = Array.from(canvas.querySelectorAll<HTMLElement>('.cell'), (cell) => ({
+    cell,
+    rect: cell.getBoundingClientRect(),
+  }));
+
+  cells.forEach(({ cell, rect }) => {
     if (!rect.width) return;
     const delay = ((rect.left - box.left) / box.width) * WAVE;
     settle(
