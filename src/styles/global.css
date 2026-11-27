@@ -72,7 +72,7 @@ html[data-astro-transition] {
   overflow-anchor: none;
 }
 
-html[data-astro-transition] [data-site-header] {
+html[data-astro-transition] [data-site-bar] {
   view-transition-name: site-header;
 }
 
