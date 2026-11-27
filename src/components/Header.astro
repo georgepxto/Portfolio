@@ -18,13 +18,14 @@ const links = [
 
 <header class="site-header" data-site-header transition:persist="site-header">
   <div class="bar" data-site-bar>
-    <a class="logo mono" href="/#topo" aria-label="George, início">george.dev<span aria-hidden="true">/</span></a>
-    <nav class="nav-inline" aria-label="Principal">
+    <a class="logo mono" href="/#topo" aria-label="George, início">george.dev<span aria-hidden="true">/</span><span class="logo-section" aria-live="polite" data-logo-section></span></a>
+    <nav class="nav-inline" aria-label="Principal" data-nav-inline>
+      <span class="nav-indicator" aria-hidden="true" data-nav-indicator></span>
       <ul role="list">
         {
           links.map((link) => (
             <li>
-              <a href={link.href}>{link.label}</a>
+              <a href={link.href} data-nav-link>{link.label}</a>
             </li>
           ))
         }
@@ -145,6 +146,39 @@ const links = [
     color: var(--accent);
   }
 
+  .logo .logo-section {
+    display: none;
+    color: var(--text-muted);
+  }
+
+  .nav-inline {
+    position: relative;
+    isolation: isolate;
+  }
+
+  .nav-indicator {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    z-index: -1;
+    width: 0;
+    height: 34px;
+    margin-top: -17px;
+    border-radius: 999px;
+    background: color-mix(in oklab, var(--text) 9%, transparent);
+    box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--text) 10%, transparent);
+    opacity: 0;
+    pointer-events: none;
+    transition:
+      transform 0.55s cubic-bezier(0.2, 0.8, 0.2, 1),
+      width 0.55s cubic-bezier(0.2, 0.8, 0.2, 1),
+      opacity 0.3s ease;
+  }
+
+  .nav-indicator.is-visible {
+    opacity: 1;
+  }
+
   .nav-inline ul {
     display: flex;
     flex-wrap: wrap;
@@ -166,6 +200,17 @@ const links = [
 
   .nav-inline a:hover {
     color: var(--text);
+  }
+
+  .nav-inline a[aria-current] {
+    color: var(--text);
+    transition: color 0.3s ease;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .nav-indicator {
+      transition: opacity 0.3s ease;
+    }
   }
 
   .nav-cta {
@@ -208,11 +253,24 @@ const links = [
 
   @media (max-width: 1000px) {
     .bar {
+      flex-wrap: nowrap;
       gap: 0;
     }
 
     .nav-inline {
       display: none;
+    }
+
+    .logo {
+      min-width: 0;
+      white-space: nowrap;
+    }
+
+    .logo .logo-section {
+      display: inline-block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      letter-spacing: -0.02em;
     }
 
     .menu-toggle {
@@ -552,7 +610,7 @@ const links = [
 </style>
 
 <script>
-  import { onElement } from '../scripts/page';
+  import { onElement, onPage } from '../scripts/page';
   import { getLenis } from '../scripts/smooth-scroll';
 
   const root = document.documentElement;
@@ -620,5 +678,99 @@ const links = [
     );
 
     return () => barSize.disconnect();
+  });
+
+  const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+
+  onPage((signal) => {
+    const nav = document.querySelector<HTMLElement>('[data-nav-inline]');
+    const indicator = document.querySelector<HTMLElement>('[data-nav-indicator]');
+    const sectionLabel = document.querySelector<HTMLElement>('[data-logo-section]');
+    if (!nav || !indicator || !sectionLabel) return;
+
+    const home = location.pathname === '/';
+    const targets = Array.from(nav.querySelectorAll<HTMLAnchorElement>('[data-nav-link]')).flatMap((link) => {
+      const target = home ? document.getElementById(decodeURIComponent(link.hash.slice(1))) : null;
+      return target ? [{ link, target }] : [];
+    });
+    const sections = home ? Array.from(document.querySelectorAll<HTMLElement>('#conteudo section[id]')) : [];
+
+    let active: HTMLAnchorElement | null = null;
+    let section = sectionLabel.textContent ?? '';
+    let frame = 0;
+
+    const place = (snap: boolean) => {
+      nav.querySelectorAll('[data-nav-link]').forEach((link) => {
+        if (link === active) link.setAttribute('aria-current', 'location');
+        else link.removeAttribute('aria-current');
+      });
+
+      if (!active || !nav.offsetWidth) {
+        indicator.classList.remove('is-visible');
+        return;
+      }
+
+      const instant = snap || !indicator.classList.contains('is-visible');
+      const left = active.getBoundingClientRect().left - nav.getBoundingClientRect().left;
+      if (instant) indicator.style.transitionProperty = 'opacity';
+      indicator.style.transform = `translateX(${left}px)`;
+      indicator.style.width = `${active.offsetWidth}px`;
+      if (instant) void indicator.offsetWidth;
+      indicator.classList.add('is-visible');
+      if (instant) indicator.style.transitionProperty = '';
+    };
+
+    const showSection = (id: string) => {
+      if (id === section) return;
+      section = id;
+      sectionLabel.textContent = id;
+      if (!id || reducedMotion.matches) return;
+      sectionLabel.animate(
+        [
+          { opacity: 0, transform: 'translateY(6px)' },
+          { opacity: 1, transform: 'none' },
+        ],
+        { duration: 320, easing: 'cubic-bezier(0.2, 0.8, 0.2, 1)' },
+      );
+    };
+
+    const update = (snap = false) => {
+      frame = 0;
+      const line = innerHeight * 0.4;
+      const above = (element: HTMLElement) => element.getBoundingClientRect().top < line;
+
+      const next = targets.findLast(({ target }) => above(target))?.link ?? null;
+      if (next !== active || snap) {
+        active = next;
+        place(snap);
+      }
+
+      const current = sections.findLast(above)?.id ?? '';
+      showSection(current === 'topo' ? '' : current);
+    };
+
+    const schedule = () => {
+      if (!frame) frame = requestAnimationFrame(() => update());
+    };
+
+    const resnap = () => {
+      cancelAnimationFrame(frame);
+      update(true);
+    };
+
+    addEventListener('scroll', schedule, { passive: true, signal });
+    addEventListener('resize', resnap, { signal });
+    const navSize = new ResizeObserver(resnap);
+    navSize.observe(nav);
+    document.fonts?.ready.then(() => {
+      if (!signal.aborted) resnap();
+    });
+
+    update(true);
+
+    return () => {
+      cancelAnimationFrame(frame);
+      navSize.disconnect();
+    };
   });
 </script>
