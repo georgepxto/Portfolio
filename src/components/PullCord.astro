@@ -10,6 +10,7 @@
         aria-label="Modo claro"
         data-cord-handle
       >
+        <span class="tail" aria-hidden="true"></span>
         <span class="pill" data-cord-pill>
           <span class="dot"></span>
         </span>
@@ -85,6 +86,26 @@
     height: var(--cord);
     margin-left: -0.75px;
     background: var(--text-faint);
+    background: color-mix(in oklab, var(--text-faint), var(--accent) calc(var(--strain, 0) * 85%));
+  }
+
+  .tail {
+    position: absolute;
+    bottom: calc(50% + 13px);
+    left: 50%;
+    display: none;
+    width: 1.5px;
+    height: var(--tail, 0px);
+    margin-left: -0.75px;
+    background: var(--text-faint);
+  }
+
+  .pull-cord.is-broken .tail {
+    display: block;
+  }
+
+  .pull-cord.is-broken .handle {
+    pointer-events: none;
   }
 
   .handle {
@@ -184,6 +205,7 @@
   }
 
   .pull-cord.is-active .hint,
+  .pull-cord.is-broken .hint,
   .pull-cord:not(.is-pulled) .hint {
     opacity: 0;
   }
@@ -206,6 +228,14 @@
   @media (prefers-reduced-motion: reduce) {
     .sway {
       animation: none;
+    }
+
+    .handle {
+      transition: opacity 0.2s ease;
+    }
+
+    .pull-cord.is-broken .handle {
+      opacity: 0;
     }
 
     .hint {
@@ -238,6 +268,17 @@
   const DAMPING = 2.4;
   const KICK = 72;
   const MAX_SPEED = 420;
+  const REVEAL = 680;
+  const REVEAL_STEPS = 24;
+  const STRAIN_AFTER = 700;
+  const BREAK_AFTER = 1900;
+  const FALL = 950;
+  const FALL_STEPS = 12;
+  const RESPAWN_DELAY = 350;
+  const DROP = 900;
+  const GRAVITY_EASE = 'cubic-bezier(.5, 0, .9, .55)';
+
+  const coverage = (t: number) => (1 - Math.cos(Math.PI * t)) / 2;
 
   const root = document.documentElement;
 
@@ -256,6 +297,13 @@
     let transition: ViewTransition | undefined;
     let reveal: Animation | undefined;
     let suppressClick = false;
+    let broken = false;
+    let strainFrame = 0;
+    let armedAt = 0;
+    let lastCreak = 0;
+    let shake = { x: 0, y: 0 };
+    let tremor = 0;
+    let respawnTimer = 0;
     let angle = 0;
     let velocity = 0;
     let frame = 0;
@@ -320,12 +368,33 @@
       } catch {}
     };
 
+    const crack = () => {
+      try {
+        audio ??= new AudioContext();
+        if (audio.state === 'suspended') void audio.resume();
+        const length = Math.round(audio.sampleRate * 0.09);
+        const buffer = audio.createBuffer(1, length, audio.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let index = 0; index < length; index++) data[index] = (Math.random() * 2 - 1) * (1 - index / length) ** 3;
+        const source = audio.createBufferSource();
+        const filter = audio.createBiquadFilter();
+        const volume = audio.createGain();
+        source.buffer = buffer;
+        filter.type = 'highpass';
+        filter.frequency.value = 1400;
+        volume.gain.value = 0.22;
+        source.connect(filter).connect(volume).connect(audio.destination);
+        source.start(audio.currentTime);
+      } catch {}
+    };
+
     const origin = () => {
       const rect = pill.getBoundingClientRect();
       return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
     };
 
     const switchTheme = (point: { x: number; y: number }) => {
+      if (transition) return;
       document.querySelector('[data-cord-note]')?.classList.add('is-dismissed');
       wrapper.classList.add('is-pulled');
       document.dispatchEvent(new CustomEvent('cord:pull'));
@@ -349,18 +418,17 @@
         .then(() => {
           const { x, y } = point;
           const radius = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
-          const closed = `circle(0px at ${x}px ${y}px)`;
-          const open = `circle(${radius}px at ${x}px ${y}px)`;
           const lighting = next === 'light';
-          animation = root.animate(
-            { clipPath: lighting ? [closed, open] : [open, closed] },
-            {
-              duration: lighting ? 800 : 560,
-              easing: lighting ? 'cubic-bezier(.55, 0, .2, 1)' : 'cubic-bezier(.6, 0, .85, .35)',
-              fill: 'forwards',
-              pseudoElement: lighting ? '::view-transition-new(root)' : '::view-transition-old(root)',
-            },
-          );
+          const frames = Array.from({ length: REVEAL_STEPS + 1 }, (_, index) => {
+            const t = index / REVEAL_STEPS;
+            const area = lighting ? coverage(t) : 1 - coverage(t);
+            return { offset: t, clipPath: `circle(${(radius * Math.sqrt(area)).toFixed(1)}px at ${x}px ${y}px)` };
+          });
+          animation = root.animate(frames, {
+            duration: REVEAL,
+            fill: 'forwards',
+            pseudoElement: lighting ? '::view-transition-new(root)' : '::view-transition-old(root)',
+          });
           reveal = animation;
         })
         .catch(() => {});
@@ -378,7 +446,7 @@
 
     const setPull = (offset: number) => {
       line.style.height = offset ? `${rest() + offset}px` : '';
-      handle.style.transform = offset ? `translateY(${offset}px)` : '';
+      handle.style.transform = offset || shake.x || shake.y ? `translate(${shake.x}px, ${offset + shake.y}px)` : '';
     };
 
     const stopMotion = () => {
@@ -387,7 +455,8 @@
     };
 
     const render = () => {
-      swing.style.transform = angle ? `rotate(${angle}deg)` : '';
+      const shown = angle + tremor;
+      swing.style.transform = shown ? `rotate(${shown}deg)` : '';
     };
 
     const step = (time: number) => {
@@ -458,17 +527,174 @@
       if (after) motion[1].finished.then(after).catch(() => {});
     };
 
+    const stopStrain = () => {
+      cancelAnimationFrame(strainFrame);
+      strainFrame = 0;
+      shake = { x: 0, y: 0 };
+      tremor = 0;
+      render();
+      wrapper.style.removeProperty('--strain');
+    };
+
+    const strainStep = () => {
+      strainFrame = 0;
+      if (!drag?.armed) return;
+      const time = performance.now();
+      const held = time - armedAt;
+      if (held >= BREAK_AFTER) {
+        snap();
+        return;
+      }
+
+      const strain = Math.max(0, (held - STRAIN_AFTER) / (BREAK_AFTER - STRAIN_AFTER));
+      wrapper.style.setProperty('--strain', strain.toFixed(3));
+      const amount = reducedMotion.matches ? 0 : strain ** 1.4 * 3.6;
+      shake = { x: (Math.random() * 2 - 1) * amount, y: (Math.random() * 2 - 1) * amount * 0.6 };
+      tremor = (Math.random() * 2 - 1) * amount * 0.5;
+      setPull(drag.eff);
+      render();
+      if (strain > 0 && time - lastCreak > 260 - 170 * strain) {
+        lastCreak = time;
+        tone(150 + 130 * strain, 90, 0.01 + 0.02 * strain, 0.025);
+      }
+      strainFrame = requestAnimationFrame(strainStep);
+    };
+
     const setArmed = (armed: boolean) => {
       if (!drag || drag.armed === armed) return;
       drag.armed = armed;
       handle.classList.toggle('is-armed', armed);
-      if (armed) tone(900, 220, 0.03, 0.03);
+      if (armed) {
+        tone(900, 220, 0.03, 0.03);
+        armedAt = performance.now();
+        lastCreak = 0;
+        if (!strainFrame) strainFrame = requestAnimationFrame(strainStep);
+      } else {
+        stopStrain();
+        setPull(drag.eff);
+      }
+    };
+
+    const respawn = () => {
+      respawnTimer = 0;
+      stopMotion();
+      handle.style.removeProperty('--tail');
+      setPull(0);
+      holdSwing();
+      angle = 0;
+      velocity = 0;
+      render();
+
+      if (reducedMotion.matches) {
+        broken = false;
+        wrapper.classList.remove('is-broken');
+        return;
+      }
+
+      const base = rest();
+      const drop = [-base, 12, -5, 2, 0];
+      const offsets = [0, 0.5, 0.7, 0.86, 1];
+      const easings = [GRAVITY_EASE, SPRING_EASE, SPRING_EASE, SPRING_EASE, SPRING_EASE];
+      broken = false;
+      motion = [
+        line.animate(
+          drop.map((value, index) => ({ height: `${base + value}px`, offset: offsets[index], easing: easings[index] })),
+          DROP,
+        ),
+        handle.animate(
+          drop.map((value, index) => ({
+            transform: `translateY(${value}px)`,
+            opacity: index === 0 ? 0 : 1,
+            offset: offsets[index],
+            easing: easings[index],
+          })),
+          DROP,
+        ),
+      ];
+      wrapper.classList.remove('is-broken');
+      tone(500, 900, 0.02, 0.04);
+      motion[1].finished
+        .then(() => {
+          velocity += 34 * (Math.random() < 0.5 ? -1 : 1);
+          swingFree();
+        })
+        .catch(() => {});
+    };
+
+    const snap = () => {
+      if (!drag) return;
+      const ended = drag;
+      drag = null;
+      broken = true;
+      suppressClick = true;
+      stopStrain();
+      holdSwing();
+      stopMotion();
+      wrapper.classList.remove('is-active');
+      handle.classList.remove('is-armed');
+      wrapper.classList.add('is-broken');
+      if (handle.hasPointerCapture(ended.id)) handle.releasePointerCapture(ended.id);
+
+      crack();
+      switchTheme(origin());
+
+      if (reducedMotion.matches) {
+        setPull(0);
+        respawnTimer = window.setTimeout(respawn, 700);
+        return;
+      }
+
+      const length = rest() + ended.eff;
+      const stub = Math.round(length * 0.42);
+      handle.style.setProperty('--tail', `${Math.round(length - stub)}px`);
+      setPull(0);
+
+      const theta = (angle * Math.PI) / 180;
+      const direction = Math.sign(angle) || (Math.random() < 0.5 ? -1 : 1);
+      const spin = direction * (110 + Math.random() * 70);
+      const local = (x: number, y: number) => ({
+        x: x * Math.cos(theta) + y * Math.sin(theta),
+        y: -x * Math.sin(theta) + y * Math.cos(theta),
+      });
+
+      motion = [
+        line.animate(
+          [
+            { height: `${stub}px`, easing: 'cubic-bezier(.2, .8, .3, 1)' },
+            { height: '4px', offset: 0.4, easing: SPRING_EASE },
+            { height: '13px', offset: 0.65, easing: SPRING_EASE },
+            { height: '8px', offset: 0.85, easing: SPRING_EASE },
+            { height: '10px' },
+          ],
+          { duration: 700, fill: 'forwards' },
+        ),
+        handle.animate(
+          Array.from({ length: FALL_STEPS + 1 }, (_, index) => {
+            const t = index / FALL_STEPS;
+            const point = local(direction * 46 * t, 460 * t * t - 18 * t);
+            return {
+              offset: t,
+              transform: `translate(${point.x.toFixed(1)}px, ${(ended.eff + point.y).toFixed(1)}px) rotate(${(spin * t * t).toFixed(1)}deg)`,
+              opacity: t < 0.55 ? 1 : 1 - (t - 0.55) / 0.45,
+            };
+          }),
+          { duration: FALL, fill: 'forwards' },
+        ),
+      ];
+
+      motion[1].finished
+        .then(() => {
+          swingFree();
+          respawnTimer = window.setTimeout(respawn, RESPAWN_DELAY);
+        })
+        .catch(() => {});
     };
 
     const endDrag = (event: PointerEvent, commit: boolean) => {
       if (!drag || event.pointerId !== drag.id) return;
       const ended = drag;
       drag = null;
+      stopStrain();
       wrapper.classList.remove('is-active');
       handle.classList.remove('is-armed');
       if (handle.hasPointerCapture(event.pointerId)) handle.releasePointerCapture(event.pointerId);
@@ -498,7 +724,7 @@
     };
 
     handle.addEventListener('pointerdown', (event) => {
-      if (event.button !== 0 || drag) return;
+      if (event.button !== 0 || drag || broken) return;
       suppressClick = false;
       stopMotion();
       setPull(0);
@@ -557,6 +783,7 @@
         suppressClick = false;
         return;
       }
+      if (broken || transition) return;
 
       if (reducedMotion.matches) {
         switchTheme(origin());
@@ -581,7 +808,9 @@
 
     return () => {
       window.clearTimeout(hint);
+      window.clearTimeout(respawnTimer);
       cancelAnimationFrame(frame);
+      stopStrain();
       stopMotion();
     };
   });

@@ -89,7 +89,8 @@ export const mountDotField = (canvas: HTMLCanvasElement) => {
     zones.some((zone) => x >= zone.left && x <= zone.right && y >= zone.top && y <= zone.bottom);
 
   const still = () => reducedMotion.matches || noHover.matches;
-  const animating = () => visible && document.visibilityState !== 'hidden' && !still();
+  const revealing = () => 'vt' in document.documentElement.dataset;
+  const animating = () => visible && document.visibilityState !== 'hidden' && !still() && !revealing();
 
   const resize = () => {
     const nextWidth = canvas.clientWidth;
@@ -212,8 +213,8 @@ export const mountDotField = (canvas: HTMLCanvasElement) => {
   reducedMotion.addEventListener('change', refresh, { signal });
   noHover.addEventListener('change', refresh, { signal });
 
-  const theme = new MutationObserver(wake);
-  theme.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+  const theme = new MutationObserver(refresh);
+  theme.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'data-vt'] });
 
   const sizes = new ResizeObserver(() => {
     resize();
