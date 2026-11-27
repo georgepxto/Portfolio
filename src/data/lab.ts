@@ -35,11 +35,9 @@ export const lab: LabItem[] = [
     status: 'privado',
   },
   {
-    name: 'Bots do Diário Oficial',
-    description: 'Avisam no Telegram quando o Diário Oficial do Piauí, o dos municípios ou o TCE-PI publicam os termos escolhidos.',
+    name: 'Bots de licitação',
+    description: 'Acompanham licitações e diários oficiais do Piauí e avisam no Telegram quando sai algo de interesse.',
     stack: 'Python · Node · Telegram',
-    href: 'https://github.com/georgepxto/BOT_DIARIOOFICIAL',
-    linkLabel: 'repositório',
   },
   {
     name: 'Bot de Figurinhas',
