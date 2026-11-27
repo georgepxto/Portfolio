@@ -9,6 +9,13 @@ export interface LabItem {
 
 export const lab: LabItem[] = [
   {
+    name: 'Wireless Battery',
+    description: 'Mostra na barra de tarefas do Windows a bateria do mouse, teclado, fone e controle sem fio, sem o software de cada marca.',
+    stack: 'Rust · Win32',
+    href: 'https://github.com/georgepxto/wireless-battery-rust',
+    linkLabel: 'repositório',
+  },
+  {
     name: 'Caça-Cliente',
     description: 'Encontra empresas locais sem site no Google Maps, para prospecção.',
     stack: 'React · Node · Playwright',
@@ -52,5 +59,19 @@ export const lab: LabItem[] = [
     description: 'App portátil para controlar o headset MCHOSE V9 Pro sem o software oficial.',
     stack: 'Rust',
     status: 'em andamento',
+  },
+  {
+    name: 'MercadoSystem',
+    description: 'Gestão de feiras de alimentos: vendedores, boxes, horários, check-in, produtos e pedidos.',
+    stack: 'Laravel · PHP · MySQL',
+    href: 'https://github.com/georgepxto/MercadoSytem',
+    linkLabel: 'repositório',
+  },
+  {
+    name: 'Gerador de Códigos',
+    description: 'Gera os códigos internos que eu usava no trabalho e copia com um clique, com histórico.',
+    stack: 'HTML · CSS · JavaScript',
+    href: 'https://github.com/georgepxto/Gerador-de-Codigos',
+    linkLabel: 'repositório',
   },
 ];
